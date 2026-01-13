@@ -6,6 +6,7 @@ export default function Home() {
             <p>an com chua 123</p>
             <p>xin chao</p>
             <p>dasdsdasdasdadadaa</p>
+            <p>new line</p>
         </div>
     );
 }
