@@ -3,6 +3,7 @@ export default function Home() {
         <div>
             <p>Welcome to Koco!</p>
             <p>hello moi nguoi dasdada</p>
+            <p>xin chao</p>
         </div>
     );
 }
