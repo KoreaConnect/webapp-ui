@@ -5,6 +5,7 @@ export default function Home() {
             <p>hello moi nguoi dasdada</p>
             <p>an com chua 123</p>
             <p>xin chao</p>
+            <p>dasdsa</p>
         </div>
     );
 }
