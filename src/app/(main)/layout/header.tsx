@@ -10,9 +10,9 @@ const LoggedInHeader = () => {
     const { logout } = useAuthStore();
     return (
         <>
-            <Button className="font-medium gap-2">
+            <Button className="w-9 h-9 !px-0 sm:w-auto sm:!px-4">
                 <Pen className="h-4 w-4" />
-                <span>Write</span>
+                <span className="hidden sm:inline">Write</span>
             </Button>
             <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
