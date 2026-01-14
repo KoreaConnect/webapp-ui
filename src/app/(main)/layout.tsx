@@ -20,10 +20,10 @@ export default function RootLayout({
                 <div className="flex h-screen flex-col pb-4 overflow-hidden">
                     <Header />
                     <div className="min-h-full w-full flex flex-1  justify-center overflow-auto pb-4">
-                        <div className="relative flex w-full max-w-[1480px] px-4 sm:px-6 lg:px-8">
+                        <div className="relative flex w-full max-w-370 px-4 sm:px-6 lg:px-8">
                             <aside
-                                className="hidden md:block fixed top-(--spacing-header) h-full overflow-y-auto 
-                                w-sidebar flex-shrink-0 bg-background py-6 pb-20"
+                                className="hidden md:block fixed top-header h-full overflow-y-auto 
+                                w-sidebar shrink-0 bg-background py-6 pb-20"
                             >
                                 <Sidebar />
                             </aside>
