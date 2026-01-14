@@ -47,8 +47,8 @@ export default function Header() {
     const { isAuthenticated } = useAuthStore();
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">
-            <div className="mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <header className="sticky h-header top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">
+            <div className="mx-auto flex h-(--spacing-header) items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Left side: Menu, Logo, Search bar */}
                 <div className="flex items-center gap-4">
                     <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">

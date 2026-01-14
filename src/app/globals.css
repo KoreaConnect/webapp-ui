@@ -8,6 +8,8 @@
     --border: rgba(0, 0, 0, 0.08);
     --accent: rgba(0, 0, 0, 0.04);
     --primary: #f25912;
+    --header-height: 64px;
+    --sidebar-width: 280px;
 }
 
 .dark {
@@ -25,10 +27,17 @@
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
     --color-primary: var(--primary);
+    --spacing-header: var(--header-height);
+    --spacing-sidebar: var(--sidebar-width);
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
+    height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
+
+    * {
+        box-sizing: border-box;
+    }
 }
