@@ -6,6 +6,7 @@ interface SidebarContextType {
     isSidebarOpen: boolean;
     toggleSidebar: () => void;
     setIsSidebarOpen: (isOpen: boolean) => void;
+    closeSidebar: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -25,8 +26,12 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+    };
+
     return (
-        <SidebarContext.Provider value={{ isSidebarOpen, toggleSidebar, setIsSidebarOpen }}>
+        <SidebarContext.Provider value={{ isSidebarOpen, toggleSidebar, setIsSidebarOpen, closeSidebar }}>
             {children}
         </SidebarContext.Provider>
     );

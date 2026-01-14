@@ -27,6 +27,10 @@ const categories = [
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { closeSidebar } = useSidebar();
+    const handleClickSidebarTab = () => {
+        closeSidebar();
+    };
 
     return (
         <nav className="flex flex-col gap-2 px-4">
@@ -37,6 +41,7 @@ export default function Sidebar() {
                         ? 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white'
                         : 'text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
                 }`}
+                onClick={handleClickSidebarTab}
             >
                 <Rss className="h-6 w-6" />
                 <span className="text-xl font-bold tracking-tight text-black dark:text-white">Feed</span>
@@ -49,8 +54,9 @@ export default function Sidebar() {
                 const isActive = pathname === category.href;
                 return (
                     <Link
-                        key={category.href}
                         href={category.href}
+                        onClick={handleClickSidebarTab}
+                        key={category.href}
                         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                             isActive
                                 ? 'bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white'
