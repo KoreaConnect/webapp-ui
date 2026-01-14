@@ -1,7 +1,8 @@
 'use client';
 
+import { useSidebar } from '@/context/sidebar-context';
 import { useAuthStore } from '@/store/use-auth-store';
-import { Bell, Pen, Search, User } from 'lucide-react';
+import { Bell, Pen, Search, TextAlignJustify, User } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -45,12 +46,16 @@ const UnLoggedInHeader = () => {
 
 export default function Header() {
     const { isAuthenticated } = useAuthStore();
+    const { toggleSidebar } = useSidebar();
 
     return (
         <header className="sticky h-header top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">
             <div className="mx-auto flex h-(--spacing-header) items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Left side: Menu, Logo, Search bar */}
                 <div className="flex items-center gap-4">
+                    <Button className="block md:hidden" variant="ghost" size="icon" onClick={toggleSidebar}>
+                        <TextAlignJustify className="h-6 w-6" />
+                    </Button>
                     <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
                         <div className="h-8 w-8 rounded-lg bg-primary dark:bg-white" />
                         <span className="text-xl font-bold tracking-tight text-primary dark:text-white">KOCO</span>

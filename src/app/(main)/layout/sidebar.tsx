@@ -1,8 +1,11 @@
 'use client';
 
+import { useSidebar } from '@/context/sidebar-context';
 import { CarTaxiFront, Rss, Ticket, Truck, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
 
 const categories = [
     {
@@ -60,5 +63,28 @@ export default function Sidebar() {
                 );
             })}
         </nav>
+    );
+}
+
+export function MobileSideBar() {
+    const { isSidebarOpen, toggleSidebar } = useSidebar();
+
+    return (
+        <div
+            className={`
+                fixed top-16 bottom-0 left-0 z-50 md:hidden
+                w-sidebar bg-gray-200 border-t border-border
+                py-2 
+                transform transition-transform duration-200 ease-in-out
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}
+        >
+            <Button onClick={toggleSidebar} className="fixed right-2 top-2" variant="ghost" size="icon">
+                <X />
+            </Button>
+            <div className="h-full overflow-auto pt-10">
+                <Sidebar />
+            </div>
+        </div>
     );
 }
