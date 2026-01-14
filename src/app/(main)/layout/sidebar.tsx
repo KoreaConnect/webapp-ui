@@ -7,17 +7,17 @@ import { usePathname } from 'next/navigation';
 const categories = [
     {
         name: 'Taxi Share',
-        href: '/taxi-share',
+        href: '/c/taxi-share',
         icon: CarTaxiFront,
     },
     {
         name: 'Staff Delivery',
-        href: '/staff-delivery',
+        href: '/c/staff-delivery',
         icon: Truck,
     },
     {
         name: 'Home Pass',
-        href: '/home-pass',
+        href: '/c/home-pass',
         icon: Ticket,
     },
 ];
