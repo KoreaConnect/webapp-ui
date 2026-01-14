@@ -1,6 +1,7 @@
 import Header from '@/app/(main)/layout/header';
-import Sidebar from '@/app/(main)/layout/sidebar';
+import Sidebar, { MobileSideBar } from '@/app/(main)/layout/sidebar';
 import { ThemeProvider } from '@/app/(main)/layout/theme-provider';
+import { SidebarProvider } from '@/context/sidebar-context';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -15,22 +16,25 @@ export default function RootLayout({
 }>) {
     return (
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="flex h-screen flex-col pb-4 overflow-hidden">
-                <Header />
-                <div className="min-h-full w-full flex flex-1  justify-center overflow-auto pb-4">
-                    <div className="flex w-full max-w-[1480px] px-4 sm:px-6 lg:px-8">
-                        <aside
-                            className="hidden sm:block fixed top-(--spacing-header) h-full overflow-y-auto 
-                            w-sidebar flex-shrink-0 bg-background py-6 pb-20"
-                        >
-                            <Sidebar />
-                        </aside>
-                        <main className="w-full h-full ml-0 flex-1 py-6 sm:pl-8 sm:ml-sidebar">
-                            <div className="pb-20">{children}</div>
-                        </main>
+            <SidebarProvider>
+                <div className="flex h-screen flex-col pb-4 overflow-hidden">
+                    <Header />
+                    <div className="min-h-full w-full flex flex-1  justify-center overflow-auto pb-4">
+                        <div className="relative flex w-full max-w-370 px-4 sm:px-6 lg:px-8">
+                            <aside
+                                className="hidden md:block fixed top-header h-full overflow-y-auto 
+                                w-sidebar shrink-0 bg-background py-6 pb-20"
+                            >
+                                <Sidebar />
+                            </aside>
+                            <MobileSideBar />
+                            <main className="w-full h-full ml-0 flex-1 py-6 md:pr-4 md:pl-8 md:ml-sidebar">
+                                <div className="pb-20">{children}</div>
+                            </main>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </SidebarProvider>
         </ThemeProvider>
     );
 }
