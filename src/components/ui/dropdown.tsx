@@ -25,12 +25,8 @@ export const Dropdown: React.FC<DropdownProps> = ({ trigger, children, align = '
                         border-zinc-200 bg-white shadow-lg
                         dark:border-zinc-800 dark:bg-zinc-900
                         outline-none
-                        data-[state=open]:animate-in
-                        data-[state=closed]:animate-out
-                        data-[state=closed]:fade-out-0
-                        data-[state=open]:fade-in-0
-                        data-[state=closed]:zoom-out-95
-                        data-[state=open]:zoom-in-95
+                         data-[state=open]:animate-dropdown-in
+                        data-[state=closed]:animate-dropdown-out
                     "
                 >
                     {/* Arrow
