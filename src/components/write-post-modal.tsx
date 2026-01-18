@@ -32,21 +32,6 @@ const postTypes = [
         icon: MessageSquare,
         color: 'text-purple-600 bg-purple-50',
     },
-
-    {
-        id: 'stuff-delivery1',
-        title: 'Stuff Delivery',
-        description: 'Request or offer delivery services',
-        icon: Package,
-        color: 'text-orange-600 bg-orange-50',
-    },
-    {
-        id: 'general2',
-        title: 'General Post',
-        description: 'Share anything else',
-        icon: MessageSquare,
-        color: 'text-purple-600 bg-purple-50',
-    },
 ];
 
 const WritePostDialogContent = ({ onSelect }: { onSelect: (id: string) => void }) => {

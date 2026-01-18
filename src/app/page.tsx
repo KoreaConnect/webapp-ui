@@ -1,9 +1,9 @@
+import AuthBox from '@/components/auth/auth-box';
+
 export default function Home() {
     return (
-        <div>
-            <p>Welcome to Koco!</p>
-            <p>hello moi nguoi dasdada</p>
-            <p>an com chua 123</p>
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-zinc-900">
+            <AuthBox />
         </div>
     );
 }
