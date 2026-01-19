@@ -14,13 +14,13 @@ const categories = [
         icon: CarTaxiFront,
     },
     {
-        name: 'Staff Delivery',
-        href: '/c/staff-delivery',
+        name: 'Carry Help',
+        href: '/c/carry-help',
         icon: Truck,
     },
     {
-        name: 'Home Pass',
-        href: '/c/home-pass',
+        name: 'Home Transfer',
+        href: '/c/home-transfer',
         icon: Ticket,
     },
 ];
