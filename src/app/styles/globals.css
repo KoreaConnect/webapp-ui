@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-
+@import './animate.css';
 @variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -29,6 +29,18 @@
     --color-primary: var(--primary);
     --spacing-header: var(--header-height);
     --spacing-sidebar: var(--sidebar-width);
+
+    /* Định nghĩa animations */
+    --animate-fade-in: fade-in 200ms ease-out;
+    --animate-fade-out: fade-out 200ms ease-in;
+    --animate-zoom-in: zoom-in 200ms ease-out;
+    --animate-zoom-out: zoom-out 200ms ease-in;
+    --animate-overlay-fade-in: overlay-fade-in 200ms ease-out;
+    --animate-overlay-fade-out: overlay-fade-out 200ms ease-in;
+    --animate-slide-in-from-top: slide-in-from-top 200ms ease-out;
+    --animate-slide-out-to-top: slide-out-to-top 200ms ease-in;
+    --animate-dropdown-in: dropdown-in 150ms ease-out;
+    --animate-dropdown-out: dropdown-out 150ms ease-in;
 }
 
 body {

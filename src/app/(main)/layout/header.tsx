@@ -1,26 +1,56 @@
 'use client';
 
+import { useState } from 'react';
+
 import { useSidebar } from '@/context/sidebar-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { Bell, Pen, Search, TextAlignJustify, User } from 'lucide-react';
 import Link from 'next/link';
 
+import NotificationDropdown from '@/components/notification-dropdown';
 import { Button } from '@/components/ui/button';
+import { DialogWrapper } from '@/components/ui/dialog';
+import { Dropdown } from '@/components/ui/dropdown';
+import UserDropdown from '@/components/user-dropdown';
+import WritePostDialogContent from '@/components/write-post-modal';
 
 const LoggedInHeader = () => {
-    const { logout } = useAuthStore();
+    const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
     return (
         <>
-            <Button className="w-9 h-9 !px-0 sm:w-auto sm:!px-4">
-                <Pen className="h-4 w-4" />
-                <span className="hidden sm:inline">Write</span>
-            </Button>
-            <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={logout}>
-                <User className="h-5 w-5" />
-            </Button>
+            <DialogWrapper
+                trigger={
+                    <Button className="w-9 h-9 !px-0 sm:w-auto sm:!px-4" onClick={() => setIsWriteModalOpen(true)}>
+                        <Pen className="h-4 w-4" />
+                        <span className="hidden sm:inline">Write</span>
+                    </Button>
+                }
+                open={isWriteModalOpen}
+                onOpenChange={setIsWriteModalOpen}
+            >
+                <WritePostDialogContent onSelect={() => {}} />
+            </DialogWrapper>
+            <Dropdown
+                trigger={
+                    <Button variant="ghost" size="icon">
+                        <Bell className="h-5 w-5" />
+                    </Button>
+                }
+                align="end"
+            >
+                <NotificationDropdown />
+            </Dropdown>
+
+            <Dropdown
+                trigger={
+                    <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                    </Button>
+                }
+                align="end"
+            >
+                <UserDropdown />
+            </Dropdown>
         </>
     );
 };

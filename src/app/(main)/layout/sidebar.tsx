@@ -14,13 +14,13 @@ const categories = [
         icon: CarTaxiFront,
     },
     {
-        name: 'Staff Delivery',
-        href: '/c/staff-delivery',
+        name: 'Carry Help',
+        href: '/c/carry-help',
         icon: Truck,
     },
     {
-        name: 'Home Pass',
-        href: '/c/home-pass',
+        name: 'Home Transfer',
+        href: '/c/home-transfer',
         icon: Ticket,
     },
 ];
@@ -86,7 +86,7 @@ export function MobileSideBar() {
             `}
         >
             <Button onClick={toggleSidebar} className="fixed right-2 top-2" variant="ghost" size="icon">
-                <X />
+                <X className="h-5 w-5" />
             </Button>
             <div className="h-full overflow-auto pt-10">
                 <Sidebar />
