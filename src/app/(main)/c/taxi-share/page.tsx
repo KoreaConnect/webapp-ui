@@ -103,7 +103,7 @@ export default function TaxiSharePage() {
     const [searchTerm, setSearchTerm] = useState('');
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="mx-auto w-full space-y-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
