@@ -1,4 +1,4 @@
-import instance from '@/config/axios';
+import instance, { credentialInstance } from '@/config/axios';
 
 export const authWithGoogle = async () => {
     try {
@@ -30,7 +30,7 @@ export const logout = async () => {
 
 export const refreshToken = async () => {
     try {
-        const response = await instance.post('/auth/refresh-token');
+        const response = await credentialInstance.post('/auth/refresh-token');
         return response.data;
     } catch (error) {
         console.log(error);
