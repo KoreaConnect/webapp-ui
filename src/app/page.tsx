@@ -3,34 +3,43 @@ import { useEffect } from 'react';
 
 import instance from '@/config/axios';
 import { useAuthStore } from '@/store/use-auth-store';
+import axios from 'axios';
 
 import AuthBox from '@/components/auth/auth-box';
+import { Button } from '@/components/ui/button';
+
+import { authService } from '@/services';
 
 export default function Home() {
-    const { user, isAuthenticated } = useAuthStore();
-    useEffect(() => {
-        if (!isAuthenticated) {
-            const refreshToken = async () => {
-                try {
-                    const response = await instance.post(
-                        '/auth/refresh-token',
-                        {},
-                        {
-                            withCredentials: true,
-                        },
-                    );
+    const { user, isAuthenticated, login, setAccessToken } = useAuthStore();
 
-                    console.log('Refresh token response:', response.data);
-                    if (response.data && response.data.token) {
-                        console.log('Token refreshed successfully');
-                    }
-                } catch (error) {
-                    console.error('Failed to refresh token:', error);
+    useEffect(() => {
+        const restoreSession = async () => {
+            try {
+                const response = await authService.refreshToken();
+                if (response?.data?.access_token) {
+                    setAccessToken(response.data.access_token);
                 }
-            };
-            refreshToken();
+                await authService.getMe().then((res) => {
+                    login(res.data, response.data.access_token);
+                });
+            } catch {
+                console.log('No active session found.');
+            }
+        };
+
+        restoreSession();
+    }, []);
+
+    const handleRefreshUserInfo = async () => {
+        try {
+            const res = await authService.getMe();
+            console.log('Refreshed user info:', res);
+        } catch (error) {
+            console.error('Failed to refresh user info:', error);
         }
-    }, [isAuthenticated]);
+    };
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-zinc-900">
             {isAuthenticated && user ? (
@@ -44,6 +53,8 @@ export default function Home() {
                         height={150}
                     />
                     <p className="text-gray-700 dark:text-gray-300">You are logged in as {user.email}.</p>
+
+                    <Button onClick={handleRefreshUserInfo}>Refresh</Button>
                 </div>
             ) : (
                 <></>

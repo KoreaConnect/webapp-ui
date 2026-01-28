@@ -26,7 +26,7 @@ function OAuth2() {
                     });
 
                     if (res.data) {
-                        login(res.data.data);
+                        login(res.data.data, token);
                         console.log('User logged in:', res.data);
                     }
                     router.push('/');

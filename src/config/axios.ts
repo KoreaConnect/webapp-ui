@@ -1,17 +1,18 @@
 import { API_BASE_URL } from '@/constants';
+import { useAuthStore } from '@/store/use-auth-store';
 import axios from 'axios';
 
 const instance = axios.create({
     baseURL: API_BASE_URL,
-    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
 instance.interceptors.request.use(
     async function (config) {
-        const accessToken = '';
+        const accessToken = useAuthStore.getState().accessToken || '';
         config.headers.Authorization = `Bearer ${accessToken}`;
         return config;
     },

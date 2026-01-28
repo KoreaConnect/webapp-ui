@@ -2,7 +2,13 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { LogOut, Settings, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 
+import { authService } from '@/services';
+
 function UserDropdown() {
+    const handleLogout = async () => {
+        const response = await authService.logout();
+        console.log('Logout response:', response.data);
+    };
     return (
         <>
             {/* User info (không click) */}
@@ -53,6 +59,7 @@ function UserDropdown() {
                     hover:bg-red-50 focus:bg-red-50
                     dark:hover:bg-red-950 dark:focus:bg-red-950
                 "
+                onClick={handleLogout}
             >
                 <LogOut className="h-4 w-4" />
                 Logout
