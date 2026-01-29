@@ -55,7 +55,7 @@ const LoggedInHeader = () => {
                                 src={user?.picture || ''}
                                 alt={user?.name || 'User'}
                                 fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
-                                className="h6 w-6"
+                                size={24}
                             />
                         ) : (
                             <User className="h-5 w-5 text-zinc-400" />
