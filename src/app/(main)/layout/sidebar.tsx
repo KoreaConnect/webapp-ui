@@ -1,6 +1,6 @@
 'use client';
-
 import { useSidebar } from '@/context/sidebar-context';
+import * as RovingFocus from '@radix-ui/react-roving-focus';
 import {
     Briefcase,
     Calendar,
@@ -21,6 +21,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
+import { RovingItem } from '@/components/ui/roving-item';
+import { RovingList } from '@/components/ui/roving-list';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
 const categories = [
@@ -124,42 +126,47 @@ export default function Sidebar() {
                     </div>
 
                     {/* Scrollable Content */}
+
                     <ScrollableView vertical horizontal={false} className="flex-1">
-                        <nav className="flex flex-col gap-2 px-4 pb-20 pt-12 md:pt-6">
-                            <Link
-                                href="/feed"
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                                    pathname === '/feed'
-                                        ? 'bg-primary text-white dark:bg-zinc-800 dark:text-white'
-                                        : 'text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-                                }`}
-                                onClick={handleClickSidebarTab}
-                            >
-                                <Rss className="h-6 w-6" />
-                                <span className="text-xl font-bold tracking-tight">Feed</span>
-                            </Link>
-                            <div className="flex items-center gap-2 my-4 px-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                                Categories
-                                <span className="h-0.5 w-full bg-zinc-200 dark:bg-zinc-700"></span>
-                            </div>
-                            {categories.map((category) => {
-                                const isActive = pathname === category.href;
-                                return (
+                        <nav className="flex flex-col gap-2 px-4 pb-20 pt-12 md:pt-6" aria-label="Sidebar">
+                            <RovingList>
+                                <RovingItem>
                                     <Link
-                                        href={category.href}
+                                        href="/feed"
                                         onClick={handleClickSidebarTab}
-                                        key={category.href}
-                                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                                            isActive
-                                                ? 'bg-primary text-white dark:bg-zinc-800'
-                                                : 'text-zinc-600 hover:bg-zinc-50 hover:text-black dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-                                        }`}
+                                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary
+                                                    ${pathname === '/feed' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                `}
                                     >
-                                        <category.icon className="h-4 w-4" />
-                                        {category.name}
+                                        <Rss className="h-6 w-6" />
+                                        <span className="text-xl font-bold tracking-tight">Feed</span>
                                     </Link>
-                                );
-                            })}
+                                </RovingItem>
+
+                                <div className="flex items-center gap-2 my-4 px-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                                    Categories
+                                    <span className="h-0.5 w-full bg-zinc-200 dark:bg-zinc-700"></span>
+                                </div>
+                                {categories.map((category) => {
+                                    const isActive = pathname === category.href;
+                                    return (
+                                        <RovingItem key={category.href}>
+                                            <Link
+                                                href={category.href}
+                                                onClick={handleClickSidebarTab}
+                                                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                                        transition-colors focus:outline-none focus:ring-1 focus:ring-primary
+                                                        ${isActive ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                        `}
+                                            >
+                                                <category.icon className="h-4 w-4" />
+                                                {category.name}
+                                            </Link>
+                                        </RovingItem>
+                                    );
+                                })}
+                            </RovingList>
                         </nav>
                     </ScrollableView>
                 </div>
