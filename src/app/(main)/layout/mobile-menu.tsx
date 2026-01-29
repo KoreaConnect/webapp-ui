@@ -10,7 +10,7 @@ export default function MobileMenu() {
 
     return (
         <Button className="block sm:hidden" variant="ghost" size="icon" onClick={toggleSidebar}>
-            <TextAlignJustify className="h-6 w-6" />
+            <TextAlignJustify className="h-5 w-5" />
         </Button>
     );
 }
