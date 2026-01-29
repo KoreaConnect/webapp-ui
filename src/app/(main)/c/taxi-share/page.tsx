@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { useToastStore } from '@/store/use-toast-store';
 import { Calendar, Clock, Filter, MapPin, Plus, Search, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -101,6 +102,8 @@ const MOCK_POSTS = [
 
 export default function TaxiSharePage() {
     const [searchTerm, setSearchTerm] = useState('');
+    const { show, toasts } = useToastStore();
+    const [a, setA] = useState(1);
 
     return (
         <div className="mx-auto w-full space-y-8">
@@ -110,7 +113,18 @@ export default function TaxiSharePage() {
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">Taxi Share</h1>
                     <p className="text-zinc-500 mt-1">Find people to share a ride with and save costs.</p>
                 </div>
-                <Button className="w-full md:w-auto shadow-lg shadow-primary/20">
+                <Button
+                    className="w-full md:w-auto shadow-lg shadow-primary/20"
+                    onClick={() => {
+                        show({
+                            title: 'Feature Coming Soon! ' + a,
+                            message: 'The "New Ride" feature is under development.',
+                            type: 'success',
+                            duration: 5000,
+                        });
+                        setA(a + 1);
+                    }}
+                >
                     <Plus className="h-4 w-4 mr-2" />
                     New Ride
                 </Button>

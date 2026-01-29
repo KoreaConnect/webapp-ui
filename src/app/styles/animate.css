@@ -61,3 +61,21 @@
         transform: scale(0.95) translateY(-20px);
     }
 }
+
+@keyframes toast-in {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes toast-out {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
