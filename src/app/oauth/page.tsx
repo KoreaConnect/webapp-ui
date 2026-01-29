@@ -29,7 +29,7 @@ function OAuth2() {
                         login(res.data.data, token);
                         console.log('User logged in:', res.data);
                     }
-                    router.push('/');
+                    router.push('/feed');
                 } catch (error) {
                     console.error('Failed to fetch user info:', error);
                     router.push('/');

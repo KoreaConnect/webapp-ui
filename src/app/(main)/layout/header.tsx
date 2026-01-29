@@ -5,7 +5,9 @@ import { useState } from 'react';
 import { useSidebar } from '@/context/sidebar-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { Bell, Pen, Search, TextAlignJustify, User } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import NotificationDropdown from '@/components/notification-dropdown';
 import { Button } from '@/components/ui/button';
@@ -16,6 +18,9 @@ import WritePostDialogContent from '@/components/write-post-modal';
 
 const LoggedInHeader = () => {
     const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+    const { isAuthenticated, user } = useAuthStore();
+
+    console.log('Header - isAuthenticated:', isAuthenticated);
     return (
         <>
             <DialogWrapper
@@ -44,7 +49,11 @@ const LoggedInHeader = () => {
             <Dropdown
                 trigger={
                     <Button variant="ghost" size="icon">
-                        <User className="h-5 w-5" />
+                        {isAuthenticated ? (
+                            <Image className="h-6 w-6 rounded-full" src={user?.picture || ''} alt="User Avatar" />
+                        ) : (
+                            <User className="h-5 w-5 text-zinc-400" />
+                        )}
                     </Button>
                 }
                 align="end"
@@ -56,13 +65,9 @@ const LoggedInHeader = () => {
 };
 
 const UnLoggedInHeader = () => {
-    const { login } = useAuthStore();
+    const router = useRouter();
     const handleLogin = () => {
-        login({
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-        });
+        router.push('/');
     };
     return (
         <>
@@ -77,6 +82,8 @@ const UnLoggedInHeader = () => {
 export default function Header() {
     const { isAuthenticated } = useAuthStore();
     const { toggleSidebar } = useSidebar();
+
+    console.log('Header - isAuthenticated:', isAuthenticated);
 
     return (
         <header className="sticky h-header top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">
