@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import NotificationDropdown from '@/components/notification-dropdown';
+import Avatar from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -50,7 +51,12 @@ const LoggedInHeader = () => {
                 trigger={
                     <Button variant="ghost" size="icon">
                         {isAuthenticated ? (
-                            <Image className="h-6 w-6 rounded-full" src={user?.picture || ''} alt="User Avatar" />
+                            <Avatar
+                                src={user?.picture || ''}
+                                alt={user?.name || 'User'}
+                                fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
+                                className="h6 w-6"
+                            />
                         ) : (
                             <User className="h-5 w-5 text-zinc-400" />
                         )}
