@@ -34,8 +34,13 @@ instance.interceptors.response.use(
         return response;
     },
     async function (error) {
+        if (!error.response) {
+            return Promise.reject(new Error('Network Error'));
+        }
+
         const originalRequest = error.config;
-        const { status, code } = error.response.data.error || {};
+        const errorResponse = error.response.data || {};
+        const { status, code } = errorResponse.data || {};
 
         if (status === 401) {
             if (code === 'TOKEN_EXPIRED') {
@@ -50,11 +55,11 @@ instance.interceptors.response.use(
                     return Promise.reject(refreshError);
                 }
             } else {
-                return Promise.reject(error);
+                return Promise.reject(errorResponse);
             }
         }
 
-        return Promise.reject(error);
+        return Promise.reject(errorResponse);
     },
 );
 

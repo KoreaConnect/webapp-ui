@@ -2,11 +2,15 @@
 import { useEffect } from 'react';
 
 import { useAuthStore } from '@/store/use-auth-store';
+import { useToastStore } from '@/store/use-toast-store';
 
 import { authService } from '@/services';
 
+import { getErrorMessage } from '@/utils';
+
 function AuthProvider({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, login, setAccessToken } = useAuthStore();
+    const { show } = useToastStore();
 
     useEffect(() => {
         const restoreSession = async () => {
@@ -18,8 +22,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
                 await authService.getMe().then((res) => {
                     login(res.data, response.data.access_token);
                 });
-            } catch {
-                console.log('No active session found.');
+            } catch (error) {
+                show({
+                    type: 'error',
+                    message: getErrorMessage(error, 'Failed to restore session. Please log in again.'),
+                });
             }
         };
 

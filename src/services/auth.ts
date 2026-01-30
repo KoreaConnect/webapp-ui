@@ -1,5 +1,7 @@
 import instance, { credentialInstance } from '@/config/axios';
 
+import { getErrorMessage } from '@/utils';
+
 type LoginData = {
     email: string;
     password: string;
@@ -45,7 +47,6 @@ export const getMe = async () => {
         const response = await instance.get('/users/me');
         return response.data;
     } catch (error) {
-        console.error('Error fetching user profile:', error);
         throw error;
     }
 };
