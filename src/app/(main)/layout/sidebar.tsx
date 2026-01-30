@@ -105,7 +105,7 @@ export default function Sidebar() {
             {/* Mobile Overlay (Backdrop) */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/0 md:hidden animate-overlay-fade-in z-100"
+                    className="fixed inset-0 bg-black/10 md:hidden animate-overlay-fade-in z-50"
                     onClick={closeSidebar}
                 />
             )}
@@ -113,7 +113,7 @@ export default function Sidebar() {
             {/* Unified Aside Component */}
             <aside
                 className={`md:block md:left-auto md:bg-transparent md:translate-x-0 md:border-none
-            fixed top-header h-full w-sidebar shrink-0 bg-background z-300 border-r border-border left-0 transition-transform duration-300 ease 
+            fixed top-header h-full w-sidebar shrink-0 bg-background z-100 border-r border-border left-0 transition-transform duration-300 ease 
             ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             `}
             >
