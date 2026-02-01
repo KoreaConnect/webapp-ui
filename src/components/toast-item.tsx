@@ -44,6 +44,7 @@ function ToastItem({ toast }: { toast: ToastItem }) {
                 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none
                 ${variantStyles[toast.type || 'info']}
             `}
+            duration={toast.duration}
         >
             <div className="flex gap-3">
                 <div className="shrink-0">{icons[toast.type || 'info']}</div>
