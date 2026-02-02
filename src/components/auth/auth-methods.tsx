@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '@/constants';
 import { Mail } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -8,9 +9,17 @@ interface AuthMethodsProps {
 }
 
 export function AuthMethods({ type, onEmailClick }: AuthMethodsProps) {
+    const handleGoogleLogin = async () => {
+        try {
+            window.location.href = `${API_BASE_URL}/auth/google`;
+        } catch (error) {
+            console.error('Error logging in with Google:', error);
+        }
+    };
+
     return (
         <div className="grid gap-4">
-            <Button variant="outline" className="w-full relative py-5" type="button">
+            <Button variant="outline" className="w-full relative py-5" type="button" onClick={handleGoogleLogin}>
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                     <path
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

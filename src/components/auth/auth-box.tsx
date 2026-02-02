@@ -2,12 +2,16 @@
 
 import React, { useState } from 'react';
 
+import { useAuthStore } from '@/store/use-auth-store';
 import { ChevronLeft, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { AuthForm } from '@/components/auth/auth-form';
 import { AuthMethods } from '@/components/auth/auth-methods';
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 import { Button } from '@/components/ui/button';
+
+import { authService } from '@/services';
 
 type AuthBoxProp = {
     initialType?: 'login' | 'register';
@@ -16,6 +20,8 @@ type AuthBoxProp = {
 function AuthBox({ initialType = 'login' }: AuthBoxProp) {
     const [type, setType] = useState<'login' | 'register'>(initialType);
     const [view, setView] = useState<'methods' | 'form' | 'forgot-password'>('methods');
+    const { login, setAccessToken } = useAuthStore();
+    const router = useRouter();
 
     const handleToggleType = () => {
         setType(type === 'login' ? 'register' : 'login');
@@ -36,6 +42,29 @@ function AuthBox({ initialType = 'login' }: AuthBoxProp) {
             setView('methods');
         } else if (view === 'form') {
             setView('methods');
+        }
+    };
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = Object.fromEntries(formData);
+
+        try {
+            let res;
+            if (type === 'login') {
+                res = await authService.login(data);
+            } else {
+                res = await authService.register(data);
+            }
+
+            if (res?.data?.access_token) {
+                setAccessToken(res.data.access_token);
+                const userRes = await authService.getMe();
+                login(userRes.data, res.data.access_token);
+                router.push('/');
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -75,7 +104,7 @@ function AuthBox({ initialType = 'login' }: AuthBoxProp) {
 
             {view === 'methods' && <AuthMethods type={type} onEmailClick={() => setView('form')} />}
 
-            {view === 'form' && <AuthForm type={type} />}
+            {view === 'form' && <AuthForm type={type} onSubmit={handleFormSubmit} />}
 
             {view === 'forgot-password' && <ForgotPasswordForm />}
 

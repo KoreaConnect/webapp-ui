@@ -1,7 +1,14 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { LogOut, Settings, UserCircle } from 'lucide-react';
+import Link from 'next/link';
+
+import { authService } from '@/services';
 
 function UserDropdown() {
+    const handleLogout = async () => {
+        const response = await authService.logout();
+        console.log('Logout response:', response.data);
+    };
     return (
         <>
             {/* User info (không click) */}
@@ -13,16 +20,19 @@ function UserDropdown() {
             <DropdownMenu.Separator className="my-1 h-px bg-zinc-200 dark:bg-zinc-800" />
 
             {/* Profile */}
-            <DropdownMenu.Item
-                className="
+            <DropdownMenu.Item asChild>
+                <Link
+                    href="/profile"
+                    className="
                     flex items-center gap-2 px-4 py-2 text-sm
                     cursor-pointer outline-none
                     hover:bg-zinc-100 focus:bg-zinc-100
                     dark:hover:bg-zinc-800 dark:focus:bg-zinc-800
                 "
-            >
-                <UserCircle className="h-4 w-4" />
-                Profile
+                >
+                    <UserCircle className="h-4 w-4" />
+                    Profile
+                </Link>
             </DropdownMenu.Item>
 
             {/* Settings */}
@@ -49,6 +59,7 @@ function UserDropdown() {
                     hover:bg-red-50 focus:bg-red-50
                     dark:hover:bg-red-950 dark:focus:bg-red-950
                 "
+                onClick={handleLogout}
             >
                 <LogOut className="h-4 w-4" />
                 Logout

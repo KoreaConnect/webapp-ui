@@ -5,9 +5,12 @@ import { useState } from 'react';
 import { useSidebar } from '@/context/sidebar-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { Bell, Pen, Search, TextAlignJustify, User } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import NotificationDropdown from '@/components/notification-dropdown';
+import Avatar from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -16,6 +19,9 @@ import WritePostDialogContent from '@/components/write-post-modal';
 
 const LoggedInHeader = () => {
     const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+    const { isAuthenticated, user } = useAuthStore();
+
+    console.log('Header - isAuthenticated:', isAuthenticated);
     return (
         <>
             <DialogWrapper
@@ -44,7 +50,16 @@ const LoggedInHeader = () => {
             <Dropdown
                 trigger={
                     <Button variant="ghost" size="icon">
-                        <User className="h-5 w-5" />
+                        {isAuthenticated ? (
+                            <Avatar
+                                src={user?.picture || ''}
+                                alt={user?.name || 'User'}
+                                fallback={user?.name?.charAt(0).toUpperCase() || 'U'}
+                                size={24}
+                            />
+                        ) : (
+                            <User className="h-5 w-5 text-zinc-400" />
+                        )}
                     </Button>
                 }
                 align="end"
@@ -56,13 +71,9 @@ const LoggedInHeader = () => {
 };
 
 const UnLoggedInHeader = () => {
-    const { login } = useAuthStore();
+    const router = useRouter();
     const handleLogin = () => {
-        login({
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-        });
+        router.push('/');
     };
     return (
         <>
@@ -77,6 +88,8 @@ const UnLoggedInHeader = () => {
 export default function Header() {
     const { isAuthenticated } = useAuthStore();
     const { toggleSidebar } = useSidebar();
+
+    console.log('Header - isAuthenticated:', isAuthenticated);
 
     return (
         <header className="sticky h-header top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">

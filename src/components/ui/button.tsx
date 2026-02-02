@@ -1,14 +1,17 @@
 import * as React from 'react';
 
+import { Loader2 } from 'lucide-react';
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'link';
     size?: 'default' | 'sm' | 'lg' | 'icon';
     className?: string;
     children?: React.ReactNode;
+    loading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ children, className = '', variant = 'default', size = 'default', ...props }, ref) => {
+    ({ children, className = '', variant = 'default', size = 'default', loading = false, disabled, ...props }, ref) => {
         const baseStyles =
             'flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-colors cursor-pointer \
             focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50';
@@ -32,7 +35,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         const combinedClassName = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`.trim();
 
         return (
-            <button ref={ref} className={combinedClassName} style={{ cursor: 'pointer' }} {...props}>
+            <button
+                ref={ref}
+                className={combinedClassName}
+                disabled={disabled || loading}
+                style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
+                {...props}
+            >
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {children}
             </button>
         );

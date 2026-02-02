@@ -24,6 +24,7 @@ export function AuthForm({ type, onSubmit }: AuthFormProps) {
                      focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50
                       dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400"
                     id="email"
+                    name="email"
                     placeholder="m@example.com"
                     required
                     type="email"
@@ -41,6 +42,7 @@ export function AuthForm({ type, onSubmit }: AuthFormProps) {
                       disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950
                        dark:placeholder:text-zinc-400"
                     id="password"
+                    name="password"
                     required
                     type="password"
                 />

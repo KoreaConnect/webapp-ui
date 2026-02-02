@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
+import AuthProvider from '@/components/providers/auth-provider';
+import SocketProvider from '@/components/providers/socket-provider';
+import ToastProvider from '@/components/providers/toast-provider';
+
 import './styles/globals.css';
 
 const geistSans = Geist({
@@ -25,7 +29,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+                <AuthProvider>{children}</AuthProvider>
+                <ToastProvider />
+                <SocketProvider />
+            </body>
         </html>
     );
 }
