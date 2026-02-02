@@ -4,7 +4,7 @@
 import { useToastStore } from '@/store/use-toast-store';
 import * as Toast from '@radix-ui/react-toast';
 
-import ToastItem from './toast-item';
+import ToastItem from '../toast-item';
 
 function ToastProvider() {
     const toasts = useToastStore((s) => s.toasts);
