@@ -9,6 +9,7 @@ import {
     Home,
     MapPin,
     Megaphone,
+    MessageSquare,
     Package,
     Rss,
     ShoppingCart,
@@ -141,6 +142,20 @@ export default function Sidebar() {
                                     >
                                         <Rss className="h-6 w-6" />
                                         <span className="text-xl font-bold tracking-tight">Feed</span>
+                                    </Link>
+                                </RovingItem>
+
+                                <RovingItem>
+                                    <Link
+                                        href="/messenger"
+                                        onClick={handleClickSidebarTab}
+                                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary
+                                                    ${pathname === '/messenger' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                `}
+                                    >
+                                        <MessageSquare className="h-6 w-6" />
+                                        <span className="text-xl font-bold tracking-tight">Messenger</span>
                                     </Link>
                                 </RovingItem>
 

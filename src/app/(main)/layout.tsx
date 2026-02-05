@@ -23,7 +23,7 @@ export default function RootLayout({
                         <div className="relative flex w-full max-w-370 px-4 sm:px-6 lg:px-8">
                             <Sidebar />
                             <main className="w-full h-full ml-0 flex-1 py-6 md:pr-4 md:pl-8 md:ml-sidebar">
-                                <div className="pb-20">{children}</div>
+                                <div className="h-full">{children}</div>
                             </main>
                         </div>
                     </div>
