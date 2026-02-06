@@ -8,6 +8,7 @@ type AvatarProps = {
     fallback?: string;
     className?: string;
     size?: AvatarSize | number;
+    backgroundColor?: string;
 };
 
 const SIZE_MAP: Record<AvatarSize, number> = {
@@ -16,19 +17,22 @@ const SIZE_MAP: Record<AvatarSize, number> = {
     lg: 56,
 };
 
-export default function Avatar({ src, alt, fallback = 'U', className, size = 'md' }: AvatarProps) {
+export default function Avatar({ src, alt, fallback = 'U', className, size = 'md', backgroundColor }: AvatarProps) {
     const finalSize = size ? (typeof size === 'string' ? SIZE_MAP[size] : size) : 40;
 
     return (
         <RadixAvatar.Root
             className={`relative flex shrink-0 overflow-hidden rounded-full ${className}`}
-            style={{ width: finalSize, height: finalSize }}
+            style={{ width: finalSize, height: finalSize, backgroundColor: backgroundColor ?? 'transparent' }}
         >
             <RadixAvatar.Image src={src} alt={alt} className="h-full w-full object-cover" />
             <RadixAvatar.Fallback
                 delayMs={300}
-                className="flex h-full w-full items-center justify-center bg-zinc-100 font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                style={{ fontSize: finalSize * 0.4 }}
+                className="flex h-full w-full items-center justify-center bg-zinc-100 font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-400"
+                style={{
+                    fontSize: finalSize * 0.4,
+                    backgroundColor: backgroundColor ?? 'transparent',
+                }}
             >
                 {fallback}
             </RadixAvatar.Fallback>
