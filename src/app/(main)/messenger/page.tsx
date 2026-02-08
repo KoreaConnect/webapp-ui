@@ -1,9 +1,14 @@
 'use client';
 
+import { useChatPanelStore } from '@/store/use-chat-panel-store';
+
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
 import ChatMessage from '@/components/chat/chat-message';
+import ChatPanel from '@/components/chat/chat-panel';
 import { ScrollableView } from '@/components/ui/scrollable-view';
+
+import { cn } from '@/utils/cn';
 
 const DUMMY_CHATS = [
     {
@@ -36,14 +41,18 @@ const DUMMY_MESSAGES = [
 ];
 
 export default function MessengerPage() {
+    const { isOpen, close } = useChatPanelStore();
+
     const handleSendMessage = (message: string) => {
         console.log('Sending message:', message);
         // In a real app, you would send this message to a backend
     };
 
     return (
-        <div className="flex h-full bg-background overflow-hidden border border-border rounded-lg">
-            <div className="flex flex-1 flex-col">
+        <div className="flex h-full bg-background overflow-hidden border border-border rounded-lg relative">
+            {/* Mobile Backdrop */}
+
+            <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader title="Community Chat" thumbnailUrl="/images/community-avatar.png" onlineUserCount={12} />
                 <ScrollableView className="flex-1 p-4">
                     <div className="flex flex-col gap-4">
@@ -61,6 +70,7 @@ export default function MessengerPage() {
 
                 <ChatInput onSend={handleSendMessage} />
             </div>
+            <ChatPanel />
         </div>
     );
 }

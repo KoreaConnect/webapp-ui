@@ -10,6 +10,7 @@
     --primary: #f25912;
     --header-height: 64px;
     --sidebar-width: 280px;
+    --chat-header-height: 74px;
 }
 
 .dark {
@@ -29,6 +30,7 @@
     --color-primary: var(--primary);
     --spacing-header: var(--header-height);
     --spacing-sidebar: var(--sidebar-width);
+    --spacing-chat-header: var(--chat-header-height);
 
     /* Định nghĩa animations */
     --animate-fade-in: fade-in 200ms ease-out;
