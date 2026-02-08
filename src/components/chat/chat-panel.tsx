@@ -14,22 +14,21 @@ export default function ChatPanel() {
     return (
         <aside
             className={cn(
-                'absolute h-full inset-y-0 right-0 z-50 w-full lg:w-80 bg-sky-100 \
-                border-l lg:border-border border-none transition-all duration-300 transform ',
+                'absolute h-full inset-y-0 right-0 z-50 w-full lg:w-80 bg-sky-100 transition-all duration-300 transform  lg:border-l border-border rounded-lg',
                 'lg:relative lg:inset-y-auto lg:z-0 lg:translate-x-0',
-                isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 lg:border-none lg:opacity-0',
+                isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 g:opacity-0',
             )}
         >
             <div className={cn('flex flex-col h-full overflow-hidden w-full lg:w-80', !isOpen && 'lg:w-0')}>
-                <div className="flex items-center justify-between p-4 border-b border-border h-chat-header ">
-                    <h2 className="font-bold text-lg">Group Info</h2>
-                    <button onClick={close} className="p-2 rounded-md hover:bg-accent transition lg:hidden">
-                        <X className="h-5 w-5" />
-                    </button>
-                </div>
+                <button
+                    onClick={close}
+                    className="p-2 absolute top-4 right-4 ounded-md hover:bg-accent transition lg:hidden"
+                >
+                    <X className="h-5 w-5" />
+                </button>
 
                 <ScrollableView className="flex-1">
-                    <div className="p-4 space-y-6">
+                    <div className="px-4 mt-12 lg:mt-6 space-y-6">
                         {/* Group Profile */}
                         <div className="flex flex-col items-center text-center space-y-3">
                             <Avatar
