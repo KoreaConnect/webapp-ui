@@ -14,15 +14,20 @@ export default function ChatPanel() {
     return (
         <aside
             className={cn(
-                'absolute h-full inset-y-0 right-0 z-50 w-full lg:w-80 bg-sky-100 transition-all duration-300 transform  lg:border-l border-border rounded-lg',
+                'absolute h-full inset-y-0 right-0 z-50 w-full lg:w-80 bg-sky-100 transition-all duration-300 transform ',
                 'lg:relative lg:inset-y-auto lg:z-0 lg:translate-x-0',
                 isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 g:opacity-0',
             )}
         >
-            <div className={cn('flex flex-col h-full overflow-hidden w-full lg:w-80', !isOpen && 'lg:w-0')}>
+            <div
+                className={cn(
+                    'flex flex-col h-full overflow-hidden w-full lg:w-80 lg:border-l border-border ',
+                    !isOpen && 'lg:w-0',
+                )}
+            >
                 <button
                     onClick={close}
-                    className="p-2 absolute top-4 right-4 ounded-md hover:bg-accent transition lg:hidden"
+                    className="p-2 absolute top-4 right-4 rounded-md hover:bg-accent transition lg:hidden z-10 cursor-pointer"
                 >
                     <X className="h-5 w-5" />
                 </button>
@@ -96,8 +101,8 @@ export default function ChatPanel() {
                 </ScrollableView>
 
                 {/* Danger Zone - Fixed at bottom */}
-                <div className="p-4 border-t border-border bg-red-100">
-                    <button className="flex items-center gap-3 w-full p-2 text-destructive hover:bg-destructive/10 rounded-md transition cursor-pointer">
+                <div className="p-4 border-t border-border bg-red-100 ">
+                    <button className="flex items-center gap-3 w-full p-2 text-destructive hover:bg-destructive/10 transition cursor-pointer">
                         <LogOut className="h-4 w-4" />
                         <span className="text-sm font-medium">Leave Group</span>
                     </button>
