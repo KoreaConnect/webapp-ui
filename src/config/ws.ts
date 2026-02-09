@@ -1,5 +1,3 @@
-import { useAuthStore } from '@/store/use-auth-store';
-
 let socket: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempts = 0;
