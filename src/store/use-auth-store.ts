@@ -1,3 +1,4 @@
+import { closeSocket, getSocket } from '@/config/ws';
 import { create } from 'zustand';
 
 interface User {
@@ -23,6 +24,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     setAccessToken: (accessToken: string) => set({ accessToken }),
     login: (user: User, accessToken: string) => {
         set({ user, isAuthenticated: true, accessToken });
+        closeSocket();
+        getSocket();
     },
-    logout: () => set({ user: null, isAuthenticated: false, accessToken: '' }),
+    logout: () => {
+        closeSocket();
+        set({ user: null, isAuthenticated: false, accessToken: '' });
+    },
 }));

@@ -1,6 +1,7 @@
 let socket: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempts = 0;
+let manualClose = false;
 
 const MAX_RETRIES = 10;
 const BASE_DELAY = 1000; // 1s
@@ -14,7 +15,7 @@ export const getSocket = () => {
     if (socket && socket.readyState === WebSocket.CONNECTING) {
         return socket;
     }
-
+    manualClose = false;
     connect();
     return socket!;
 };
@@ -28,7 +29,9 @@ const connect = () => {
     };
 
     socket.onclose = () => {
-        console.warn('❌ WS disconnected');
+        if (manualClose) {
+            return; // 👈 logout hoặc chủ động đóng
+        }
         scheduleReconnect();
     };
 
@@ -57,9 +60,15 @@ const scheduleReconnect = () => {
 };
 
 export const closeSocket = () => {
-    reconnectTimer && clearTimeout(reconnectTimer);
-    reconnectTimer = null;
+    if (!socket) return;
+
+    manualClose = true;
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+    }
     reconnectAttempts = 0;
     socket?.close();
     socket = null;
+    console.log('🛑 WS closed by client');
 };
