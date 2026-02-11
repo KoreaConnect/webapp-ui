@@ -46,26 +46,24 @@ function AuthBox({ initialType = 'login' }: AuthBoxProp) {
     };
 
     const handleFormSubmit = async (e: React.FormEvent) => {
-        const formData = new FormData(e.target as HTMLFormElement);
-        const data = Object.fromEntries(formData);
-
-        try {
-            let res;
-            if (type === 'login') {
-                res = await authService.login(data);
-            } else {
-                res = await authService.register(data);
-            }
-
-            if (res?.data?.access_token) {
-                setAccessToken(res.data.access_token);
-                const userRes = await authService.getMe();
-                login(userRes.data, res.data.access_token);
-                router.push('/');
-            }
-        } catch (error) {
-            console.error(error);
-        }
+        // const formData = new FormData(e.target as HTMLFormElement);
+        // const data = Object.fromEntries(formData);
+        // try {
+        //     let res;
+        //     if (type === 'login') {
+        //         res = await authService.login(data);
+        //     } else {
+        //         res = await authService.register(data);
+        //     }
+        //     if (res?.data?.access_token) {
+        //         setAccessToken(res.data.access_token);
+        //         const userRes = await authService.getMe();
+        //         login(userRes.data, res.data.access_token);
+        //         router.push('/');
+        //     }
+        // } catch (error) {
+        //     console.error(error);
+        // }
     };
 
     return (

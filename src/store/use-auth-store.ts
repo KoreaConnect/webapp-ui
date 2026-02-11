@@ -28,7 +28,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         getSocket();
     },
     logout: () => {
-        closeSocket();
         set({ user: null, isAuthenticated: false, accessToken: '' });
+        closeSocket();
+        getSocket();
     },
 }));
