@@ -20,9 +20,9 @@ export default function RootLayout({
                 <div className="flex h-screen flex-col pb-4 overflow-hidden">
                     <Header />
                     <div className="min-h-full w-full flex flex-1 justify-center overflow-auto pb-4">
-                        <div className="relative flex w-full max-w-370 ">
+                        <div className="relative flex w-full max-w-370">
                             <Sidebar />
-                            <main className="w-full h-full ml-0 flex-1 pb-6 md:pr-4 md:pl-8 md:ml-sidebar">
+                            <main className="w-full max-w-full md:max-w-[calc(100%-var(--sidebar-width))] h-full ml-0 flex-1 pb-6 md:pr-4 md:pl-8 md:ml-sidebar">
                                 <div className="h-full">{children}</div>
                             </main>
                         </div>

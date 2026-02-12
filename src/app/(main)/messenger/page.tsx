@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useChatStore } from '@/store/use-chat-store';
 
 import ChatHeader from '@/components/chat/chat-header';
@@ -14,7 +13,18 @@ import { ScrollableView } from '@/components/ui/scrollable-view';
 
 import { cn } from '@/utils';
 
-export const DUMMY_MESSAGES = [
+// Import Editor type for ChatInput's ref type
+
+// Define the type for DUMMY_MESSAGES
+type Message = {
+    id: string;
+    text: string;
+    sender: 'me' | 'other';
+    time: string;
+    name?: string;
+};
+
+export const DUMMY_MESSAGES: Message[] = [
     {
         id: '1',
         text: 'Hello! I saw your post about the taxi share. Hello! I saw your post about the taxi share.',
@@ -33,15 +43,15 @@ export const DUMMY_MESSAGES = [
     { id: '10', text: 'Bye!', sender: 'me', time: '11:05 AM', name: 'Me' },
     { id: '11', text: 'See you later!', sender: 'other', time: '11:10 AM', name: 'John Doe' },
     { id: '12', text: 'Bye bye!', sender: 'me', time: '11:15 AM', name: 'Me' },
-] as const;
+];
 
 export default function MessengerPage() {
     const { cancelReply, replyingTo } = useChatStore();
-    const inputRef = useRef<HTMLInputElement>(null);
+    const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
 
     useEffect(() => {
-        if (replyingTo && inputRef.current) {
-            inputRef.current.focus();
+        if (replyingTo && chatInputRef.current) {
+            chatInputRef.current.focusEditor();
         }
     }, [replyingTo]);
 
@@ -72,7 +82,7 @@ export default function MessengerPage() {
                 </ScrollableView>
 
                 <ReplyBox />
-                <ChatInput onSend={handleSendMessage} ref={inputRef} />
+                <ChatInput onSend={handleSendMessage} ref={chatInputRef} />
             </div>
             <ChatPanel />
         </div>
