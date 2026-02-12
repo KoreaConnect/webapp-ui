@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { chatService } from '@/services';
+
 // A mock message type, in a real app this would be more detailed
 type Message = {
     id: string;
@@ -16,7 +18,8 @@ type ChatState = {
     currentUserId: string; // This would typically come from an auth store
     replyingTo: Message | null;
     hasJoined: boolean; // New state to track if user has joined
-    joinChat: (name: string, school: string | null, city: string) => void; // New action to join
+    isJoining: boolean;
+    joinChat: (conversationId: string) => Promise<void>; // New action to join
     toggleReaction: (messageId: string, emoji: string) => void;
     setReplyingTo: (message: Message | null) => void;
     cancelReply: () => void;
@@ -29,11 +32,16 @@ export const useChatStore = create<ChatState>((set) => ({
     currentUserId: 'user_me', // Hardcoded for demonstration
     replyingTo: null,
     hasJoined: false, // Initial state: user has not joined
-    joinChat: (name, school, city) => {
-        // In a real app, you'd send this to a backend and handle authentication/session
-        console.log(`User joined: Name=${name}, School=${school}, City=${city}`);
-        set({ hasJoined: true });
-        // Optionally store user details in state
+    isJoining: false,
+    joinChat: async (conversationId: string) => {
+        set({ isJoining: true });
+        try {
+            await chatService.joinConversation(conversationId);
+            set({ hasJoined: true, isJoining: false });
+        } catch (error) {
+            console.error('Failed to join conversation:', error);
+            set({ isJoining: false });
+        }
     },
     toggleReaction: (messageId, emoji) => {
         set((state) => {

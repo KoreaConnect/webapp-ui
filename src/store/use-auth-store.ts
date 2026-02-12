@@ -24,6 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     setAccessToken: (accessToken: string) => set({ accessToken }),
     login: (user: User, accessToken: string) => {
         set({ user, isAuthenticated: true, accessToken });
+        console.log('accessToken:', accessToken);
         closeSocket();
         getSocket();
     },

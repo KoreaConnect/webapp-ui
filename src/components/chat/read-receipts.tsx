@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 
-import type { ReadReceipt } from '@/types/chat';
+import type { ReadReceipt } from '@/types/chat.type';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 

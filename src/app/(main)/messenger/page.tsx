@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react';
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useChatStore } from '@/store/use-chat-store';
-import type { ReadReceipt } from '@/types/chat';
+import { useConversationStore } from '@/store/use-conversation-store';
+import type { ReadReceipt } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -174,8 +175,15 @@ export const DUMMY_MESSAGES: Message[] = [
 ];
 
 export default function MessengerPage() {
-    const { cancelReply, replyingTo, hasJoined } = useChatStore();
+    const { cancelReply, replyingTo } = useChatStore();
+    const { fetchConversationBySlug, activeConversation, isLoading } = useConversationStore();
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
+
+    console.log('Active Conversation:', activeConversation);
+
+    useEffect(() => {
+        fetchConversationBySlug('koco-community');
+    }, [fetchConversationBySlug]);
 
     useEffect(() => {
         if (replyingTo && chatInputRef.current) {
@@ -190,10 +198,30 @@ export default function MessengerPage() {
         cancelReply();
     };
 
+    if (isLoading) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (!activeConversation) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                <p className="text-muted-foreground">Failed to load conversation.</p>
+            </div>
+        );
+    }
+
     return (
         <div className={cn('flex h-full bg-background overflow-hidden border-x border-border  relative')}>
             <div className="flex flex-1 flex-col min-w-0">
-                <ChatHeader title="Community Chat" thumbnailUrl="/images/community-avatar.png" onlineUserCount={12} />
+                <ChatHeader
+                    title={activeConversation.title}
+                    thumbnailUrl={activeConversation.thumbnailUrl || '/images/community-avatar.png'}
+                    onlineUserCount={activeConversation.onlineCount || 0}
+                />
                 <ScrollableView className="flex-1 px-4">
                     <div className="flex flex-col gap-2 py-4">
                         {DUMMY_MESSAGES.map((msg) => (
@@ -215,7 +243,7 @@ export default function MessengerPage() {
                 <ChatInput onSend={handleSendMessage} ref={chatInputRef} />
             </div>
             <ChatPanel />
-            {/* {!hasJoined && <JoinChatOverlay />} */}
+            {!activeConversation.is_joined && <JoinChatOverlay />}
         </div>
     );
 }

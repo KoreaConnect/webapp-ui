@@ -19,6 +19,7 @@ export const authWithGoogle = async () => {
         return response.data;
     } catch (error) {
         console.log(error);
+        throw error;
     }
 };
 

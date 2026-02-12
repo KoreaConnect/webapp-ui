@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { ReadReceipt } from '@/types/chat';
+import type { ReadReceipt } from '@/types/chat.type';
 
 import { cn } from '@/utils/cn';
 

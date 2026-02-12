@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { useChatStore } from '@/store/use-chat-store';
-import type { ReadReceipt } from '@/types/chat';
+import type { ReadReceipt } from '@/types/chat.type';
 
 import Avatar from '@/components/ui/avatar';
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
+import { useConversationStore } from '@/store/use-conversation-store';
 import { Bell, FileText, Image, Info, LogOut, Users, X } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -10,6 +11,9 @@ import { ScrollableView } from '../ui/scrollable-view';
 
 export default function ChatPanel() {
     const { isOpen, close } = useChatPanelStore();
+    const { activeConversation } = useConversationStore();
+
+    if (!activeConversation) return null;
 
     return (
         <aside
@@ -40,26 +44,27 @@ export default function ChatPanel() {
                         <div className="flex flex-col items-center text-center space-y-3">
                             <Avatar
                                 className="h-20 w-20 text-2xl"
-                                src="/images/community-avatar.png"
+                                src={activeConversation.thumbnailUrl}
                                 backgroundColor="cyan"
                             />
                             <div>
-                                <h3 className="font-bold text-xl">Community Chat</h3>
-                                <p className="text-sm text-muted-foreground">Created by John Doe • 2 months ago</p>
+                                <h3 className="font-bold text-xl">{activeConversation.title}</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Created by {activeConversation.createdBy} • {activeConversation.createdAt}
+                                </p>
                             </div>
                         </div>
 
                         {/* Description */}
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                                <Info className="h-4 w-4" />
-                                <span>Description</span>
+                        {activeConversation.description && (
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                                    <Info className="h-4 w-4" />
+                                    <span>Description</span>
+                                </div>
+                                <p className="text-sm">{activeConversation.description}</p>
                             </div>
-                            <p className="text-sm">
-                                Welcome to our community chat! Share your thoughts, ask questions, and connect with
-                                others.
-                            </p>
-                        </div>
+                        )}
 
                         {/* Quick Actions */}
                         <div className="grid grid-cols-4 gap-2">
@@ -84,16 +89,24 @@ export default function ChatPanel() {
                         {/* Members Preview */}
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold">Members (12)</span>
+                                <span className="text-sm font-semibold">
+                                    Members ({activeConversation.participants.length})
+                                </span>
                                 <button className="text-xs text-primary hover:underline">View all</button>
                             </div>
                             <div className="space-y-2">
-                                {[1, 2, 3].map((m) => (
-                                    <div key={m} className="flex items-center gap-3">
-                                        <Avatar className="h-8 w-8" backgroundColor={m === 1 ? 'blue' : 'orange'} />
+                                {activeConversation.participants.slice(0, 5).map((member) => (
+                                    <div key={member.id} className="flex items-center gap-3">
+                                        <Avatar
+                                            src={member.avatar}
+                                            className="h-8 w-8"
+                                            backgroundColor={member.id === '1' ? 'blue' : 'orange'}
+                                        />
                                         <div className="flex-1 overflow-hidden">
-                                            <p className="text-sm font-medium truncate">User {m}</p>
-                                            <p className="text-xs text-muted-foreground">Online</p>
+                                            <p className="text-sm font-medium truncate">{member.name}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {member.isOnline ? 'Online' : 'Offline'}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
