@@ -25,10 +25,7 @@ function ChatMessage({ id, text, sender, time, avatar, name }: ChatMessageProps)
     const reactions = messageReactions ?? {};
 
     return (
-        <div
-            key={id}
-            className={cn('group relative mb-4 flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}
-        >
+        <div key={id} className={cn('group relative flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}>
             <div className={cn('flex items-start gap-2 max-w-[85%]', sender === 'me' && 'flex-row-reverse')}>
                 <Avatar
                     src={avatar}

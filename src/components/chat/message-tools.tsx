@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { DUMMY_MESSAGES } from '@/app/(main)/messenger/page';
 import { useChatStore } from '@/store/use-chat-store';
 import { Reply } from 'lucide-react';
 
@@ -14,11 +15,19 @@ type MessageToolsProps = {
 };
 
 function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
-    const { messageReactions, toggleReaction, replyTo, removeMessage, reportMessage, currentUserId } = useChatStore();
+    const { messageReactions, toggleReaction, setReplyingTo, removeMessage, reportMessage, currentUserId } =
+        useChatStore();
     const reactions = messageReactions[messageId] ?? {};
 
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
+
+    const handleReplyClick = () => {
+        const messageToReply = DUMMY_MESSAGES.find((msg) => msg.id === messageId);
+        if (messageToReply) {
+            setReplyingTo(messageToReply);
+        }
+    };
 
     return (
         <div
@@ -38,7 +47,7 @@ function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
             />
 
             <button
-                onClick={() => replyTo(messageId)}
+                onClick={handleReplyClick}
                 className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-pointer outline-none"
                 title="Reply"
             >

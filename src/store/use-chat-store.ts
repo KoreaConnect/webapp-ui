@@ -1,13 +1,23 @@
 import { create } from 'zustand';
 
+// A mock message type, in a real app this would be more detailed
+type Message = {
+    id: string;
+    text: string;
+    sender: 'me' | 'other';
+    name?: string;
+};
+
 // { messageId: { '👍': ['user1', 'user2'], '❤️': ['user3'] } }
 type ReactionMap = Record<string, Record<string, string[]>>;
 
 type ChatState = {
     messageReactions: ReactionMap;
     currentUserId: string; // This would typically come from an auth store
+    replyingTo: Message | null;
     toggleReaction: (messageId: string, emoji: string) => void;
-    replyTo: (messageId: string) => void;
+    setReplyingTo: (message: Message | null) => void;
+    cancelReply: () => void;
     removeMessage: (messageId: string) => void;
     reportMessage: (messageId: string) => void;
 };
@@ -15,6 +25,7 @@ type ChatState = {
 export const useChatStore = create<ChatState>((set) => ({
     messageReactions: {},
     currentUserId: 'user_me', // Hardcoded for demonstration
+    replyingTo: null,
     toggleReaction: (messageId, emoji) => {
         set((state) => {
             const currentReactions = state.messageReactions[messageId] ?? {};
@@ -41,8 +52,11 @@ export const useChatStore = create<ChatState>((set) => ({
             };
         });
     },
-    replyTo: (messageId) => {
-        console.log('Replying to message:', messageId);
+    setReplyingTo: (message) => {
+        set({ replyingTo: message });
+    },
+    cancelReply: () => {
+        set({ replyingTo: null });
     },
     removeMessage: (messageId) => {
         console.log('Removing message:', messageId);

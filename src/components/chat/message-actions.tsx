@@ -83,7 +83,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
                     side="top"
                     align={align}
                     sideOffset={8}
-                    className="min-w-[100px] bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-800 p-1 z-50 animate-in fade-in zoom-in duration-200"
+                    className="min-w-25 bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-800 p-1 z-50 animate-in fade-in zoom-in duration-200"
                 >
                     {actions.map((item) => (
                         <ActionItem
