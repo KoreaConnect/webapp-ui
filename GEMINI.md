@@ -71,7 +71,7 @@ Gemini CLI must generate code that is **fully compatible with the existing stack
     - production-ready
     - clean and readable
     - consistent with the existing codebase
-- **Do not use `any`**
+- **Do not use `any` type**
 
 ---
 

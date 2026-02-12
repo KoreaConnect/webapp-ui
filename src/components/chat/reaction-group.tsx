@@ -18,7 +18,7 @@ export const ReactionGroup: React.FC<ReactionGroupProps> = ({ reactions, sender,
     return (
         <div
             className={cn(
-                'relative -top-3 mt-1 flex flex-wrap items-center gap-1',
+                'relative -top-4 flex flex-wrap items-center gap-1',
                 sender === 'me' ? 'justify-end' : 'justify-start',
                 className,
             )}

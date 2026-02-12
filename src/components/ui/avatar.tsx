@@ -1,6 +1,6 @@
 import * as RadixAvatar from '@radix-ui/react-avatar';
 
-type AvatarSize = 'sm' | 'md' | 'lg';
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg';
 
 type AvatarProps = {
     src?: string;
@@ -12,6 +12,7 @@ type AvatarProps = {
 };
 
 const SIZE_MAP: Record<AvatarSize, number> = {
+    xs: 16,
     sm: 32,
     md: 40,
     lg: 56,

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useChatStore } from '@/store/use-chat-store';
+import type { ReadReceipt } from '@/types/chat';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -24,6 +25,7 @@ type Message = {
     time: string;
     name?: string;
     avatar?: string;
+    readBy?: ReadReceipt[];
 };
 
 // Function to generate a random avatar URL from DiceBear
@@ -38,6 +40,14 @@ export const DUMMY_MESSAGES: Message[] = [
         time: '10:00 AM',
         name: 'John Doe',
         avatar: generateAvatarUrl('John Doe'),
+        readBy: [
+            {
+                userId: 'user_me',
+                name: 'Me',
+                avatar: generateAvatarUrl('Me'),
+                readAt: '10:01 AM',
+            },
+        ],
     },
     {
         id: '2',
@@ -46,6 +56,20 @@ export const DUMMY_MESSAGES: Message[] = [
         time: '10:05 AM',
         name: 'Me',
         avatar: generateAvatarUrl('Me'),
+        readBy: [
+            {
+                userId: '2',
+                name: 'John Doe',
+                avatar: generateAvatarUrl('John Doe'),
+                readAt: '10:06 AM',
+            },
+            {
+                userId: '3',
+                name: 'Jane Smith',
+                avatar: generateAvatarUrl('Jane Smith'),
+                readAt: '10:07 AM',
+            },
+        ],
     },
     {
         id: '3',
@@ -54,6 +78,20 @@ export const DUMMY_MESSAGES: Message[] = [
         time: '10:30 AM',
         name: 'Jane Smith',
         avatar: generateAvatarUrl('Jane Smith'),
+        readBy: [
+            {
+                userId: 'user_me',
+                name: 'Me',
+                avatar: generateAvatarUrl('Me'),
+                readAt: '10:31 AM',
+            },
+            {
+                userId: '2',
+                name: 'John Doe',
+                avatar: generateAvatarUrl('John Doe'),
+                readAt: '10:32 AM',
+            },
+        ],
     },
     {
         id: '4',
@@ -62,6 +100,32 @@ export const DUMMY_MESSAGES: Message[] = [
         time: '10:35 AM',
         name: 'Me',
         avatar: generateAvatarUrl('Me'),
+        readBy: [
+            {
+                userId: '2',
+                name: 'John Doe',
+                avatar: generateAvatarUrl('John Doe'),
+                readAt: '10:36 AM',
+            },
+            {
+                userId: '3',
+                name: 'Jane Smith',
+                avatar: generateAvatarUrl('Jane Smith'),
+                readAt: '10:37 AM',
+            },
+            {
+                userId: '4',
+                name: 'Alice',
+                avatar: generateAvatarUrl('Alice'),
+                readAt: '10:38 AM',
+            },
+            {
+                userId: '5',
+                name: 'Bob',
+                avatar: generateAvatarUrl('Bob'),
+                readAt: '10:39 AM',
+            },
+        ],
     },
     {
         id: '5',
@@ -70,6 +134,7 @@ export const DUMMY_MESSAGES: Message[] = [
         time: '10:40 AM',
         name: 'Jane Smith',
         avatar: generateAvatarUrl('Jane Smith'),
+        readBy: [],
     },
     {
         id: '6',
@@ -130,7 +195,7 @@ export default function MessengerPage() {
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader title="Community Chat" thumbnailUrl="/images/community-avatar.png" onlineUserCount={12} />
                 <ScrollableView className="flex-1 px-4">
-                    <div className="flex flex-col gap-4 py-4">
+                    <div className="flex flex-col gap-2 py-4">
                         {DUMMY_MESSAGES.map((msg) => (
                             <ChatMessage
                                 key={msg.id}
@@ -140,6 +205,7 @@ export default function MessengerPage() {
                                 time={msg.time}
                                 name={msg.name}
                                 avatar={msg.avatar}
+                                readBy={msg.readBy}
                             />
                         ))}
                     </div>

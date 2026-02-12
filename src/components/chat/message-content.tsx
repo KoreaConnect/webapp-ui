@@ -1,17 +1,21 @@
 import React from 'react';
 
+import type { ReadReceipt } from '@/types/chat';
+
 import { cn } from '@/utils/cn';
 
 import { ReactionGroup } from './reaction-group';
+import { ReadReceipts } from './read-receipts';
 
 type MessageContentProps = {
     text: string;
     sender: 'me' | 'other';
     time: string;
     reactions: Record<string, string[]>;
+    readBy?: ReadReceipt[];
 };
 
-export function MessageContent({ text, sender, time, reactions }: MessageContentProps) {
+export function MessageContent({ text, sender, time, reactions, readBy }: MessageContentProps) {
     return (
         <div className="relative overflow max-w-[70vw] sm:max-w-[500px] md:max-w-[600px]">
             <div
@@ -28,6 +32,7 @@ export function MessageContent({ text, sender, time, reactions }: MessageContent
                     {time}
                 </span>
             </div>
+
             <ReactionGroup reactions={reactions} sender={sender} />
         </div>
     );

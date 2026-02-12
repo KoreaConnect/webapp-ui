@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { useChatStore } from '@/store/use-chat-store';
+import type { ReadReceipt } from '@/types/chat';
 
 import Avatar from '@/components/ui/avatar';
 
@@ -10,6 +11,7 @@ import { cn } from '@/utils/cn';
 
 import { MessageContent } from './message-content';
 import MessageTools from './message-tools';
+import { ReadReceipts } from './read-receipts';
 
 type ChatMessageProps = {
     id: string;
@@ -18,9 +20,10 @@ type ChatMessageProps = {
     time: string;
     avatar?: string;
     name?: string;
+    readBy?: ReadReceipt[];
 };
 
-function ChatMessage({ id, text, sender, time, avatar, name }: ChatMessageProps) {
+function ChatMessage({ id, text, sender, time, avatar, name, readBy }: ChatMessageProps) {
     const messageReactions = useChatStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
 
@@ -37,10 +40,12 @@ function ChatMessage({ id, text, sender, time, avatar, name }: ChatMessageProps)
 
                 <div className={cn('flex flex-col', sender === 'me' ? 'items-end' : 'items-start')}>
                     <div className={cn('flex items-center gap-2', sender === 'me' && 'flex-row-reverse')}>
-                        <MessageContent text={text} sender={sender} time={time} reactions={reactions} />
+                        <MessageContent text={text} sender={sender} time={time} reactions={reactions} readBy={readBy} />
                         <MessageTools messageId={id} position={sender === 'me' ? 'right' : 'left'} />
                     </div>
                 </div>
+
+                <ReadReceipts readBy={readBy || []} sender={sender} />
             </div>
         </div>
     );
