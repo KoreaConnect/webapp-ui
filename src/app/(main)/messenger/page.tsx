@@ -9,7 +9,12 @@ import ChatPanel from '@/components/chat/chat-panel';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
 const DUMMY_MESSAGES = [
-    { id: '1', text: 'Hello! I saw your post about the taxi share.', sender: 'other', time: '10:00 AM' },
+    {
+        id: '1',
+        text: 'Hello! I saw your post about the taxi share. Hello! I saw your post about the taxi share.',
+        sender: 'other',
+        time: '10:00 AM',
+    },
     { id: '2', text: 'Yes, it is still available. Where are you heading?', sender: 'me', time: '10:05 AM' },
     { id: '3', text: 'I am going to the airport. Can I join?', sender: 'other', time: '10:30 AM' },
     { id: '4', text: 'Sure, I can take you there.', sender: 'me', time: '10:35 AM' },

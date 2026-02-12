@@ -17,22 +17,26 @@ export const REACTIONS = [
 ];
 
 interface ReactionPickerProps {
-    currentReaction?: string | null;
-    onSelect: (emoji: string | null) => void;
+    className?: string;
+    reactions: Record<string, string[]>;
+    currentUserId: string;
+    onSelect: (emoji: string) => void;
     align?: 'start' | 'end' | 'center';
     side?: 'top' | 'bottom' | 'left' | 'right';
-    className?: string;
+    onOpenChange?: (open: boolean) => void;
 }
 
 export const ReactionPicker: React.FC<ReactionPickerProps> = ({
-    currentReaction,
+    reactions,
+    currentUserId,
     onSelect,
     align = 'start',
     side = 'top',
     className,
+    onOpenChange,
 }) => {
     return (
-        <DropdownMenu.Root>
+        <DropdownMenu.Root onOpenChange={onOpenChange}>
             <DropdownMenu.Trigger asChild>
                 <button
                     className={cn(
@@ -51,15 +55,23 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
                     sideOffset={8}
                     className="flex gap-1 p-1 bg-white dark:bg-zinc-900 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in duration-200 z-50"
                 >
-                    {REACTIONS.map((r) => (
-                        <DropdownMenu.Item
-                            key={r.label}
-                            onClick={() => onSelect(r.emoji === currentReaction ? null : r.emoji)}
-                            className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full cursor-pointer transition-transform hover:scale-125 outline-none"
-                        >
-                            <span className="text-xl leading-none select-none">{r.emoji}</span>
-                        </DropdownMenu.Item>
-                    ))}
+                    {REACTIONS.map((r) => {
+                        const isSelected = reactions[r.emoji]?.includes(currentUserId);
+                        return (
+                            <DropdownMenu.Item
+                                key={r.label}
+                                onClick={() => onSelect(r.emoji)}
+                                className={cn(
+                                    'p-1.5 rounded-full cursor-pointer transition-transform hover:scale-125 outline-none',
+                                    isSelected
+                                        ? 'bg-blue-100 dark:bg-blue-900'
+                                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800',
+                                )}
+                            >
+                                <span className="text-xl leading-none select-none">{r.emoji}</span>
+                            </DropdownMenu.Item>
+                        );
+                    })}
                 </DropdownMenu.Content>
             </DropdownMenu.Portal>
         </DropdownMenu.Root>

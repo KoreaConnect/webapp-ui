@@ -17,7 +17,14 @@ const SIZE_MAP: Record<AvatarSize, number> = {
     lg: 56,
 };
 
-export default function Avatar({ src, alt, fallback = 'U', className, size = 'md', backgroundColor }: AvatarProps) {
+export default function Avatar({
+    src,
+    alt,
+    fallback = 'U',
+    className,
+    size = 'md',
+    backgroundColor = '#e0e0e0',
+}: AvatarProps) {
     const finalSize = size ? (typeof size === 'string' ? SIZE_MAP[size] : size) : 40;
 
     return (
