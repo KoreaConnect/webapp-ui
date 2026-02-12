@@ -6,35 +6,46 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { useEditor } from '@tiptap/react';
 import { ReactRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import type { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion';
 import tippy from 'tippy.js';
+import { Instance as TippyInstance } from 'tippy.js';
 
 import { MentionList } from '@/components/tiptap/mention-list';
+
+type MentionItem = {
+    id: string;
+    name: string;
+    avatar?: string; // Add avatar to the type
+};
 
 export const CustomMention = Mention.configure({
     HTMLAttributes: {
         class: 'text-blue-500 font-medium',
     },
+
     suggestion: {
-        items: ({ query }) => {
-            // Filter users based on query
-            const users = DUMMY_MESSAGES.map((msg) => ({ id: msg.id, name: msg.name || msg.sender }));
+        items: ({ query }: { query: string }): MentionItem[] => {
+            const users: MentionItem[] = DUMMY_MESSAGES.map((msg) => ({
+                id: msg.id,
+                name: msg.name ?? msg.sender,
+                avatar: msg.avatar ?? '', // Pass the avatar URL
+            }));
+
             return users.filter((user) => user.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
         },
+
         render: () => {
-            let reactRenderer: ReactRenderer;
-            let popup: unknown;
+            let reactRenderer: ReactRenderer | null = null;
+            let popup: TippyInstance | null = null;
 
             return {
-                onStart: (props) => {
+                onStart: (props: SuggestionProps<MentionItem>) => {
                     reactRenderer = new ReactRenderer(MentionList, {
                         props,
                         editor: props.editor,
-                        // Pass a key to force remount when items change, resetting internal state
-                        // The key should uniquely identify the list of items for reset purposes.
-                        key: props.items.map((item: unknown) => item.id).join('-'),
                     });
 
-                    popup = tippy('body', {
+                    const instances = tippy(document.body, {
                         getReferenceClientRect: props.clientRect,
                         appendTo: () => document.body,
                         content: reactRenderer.element,
@@ -43,35 +54,48 @@ export const CustomMention = Mention.configure({
                         trigger: 'manual',
                         placement: 'bottom-start',
                     });
-                },
-                onUpdate(props) {
-                    reactRenderer.updateProps(props);
 
-                    popup[0].setProps({
+                    popup = instances[0];
+                },
+
+                onUpdate(props: SuggestionProps<MentionItem>) {
+                    reactRenderer?.updateProps(props);
+
+                    popup?.setProps({
                         getReferenceClientRect: props.clientRect,
                     });
                 },
-                onKeyDown(props) {
+
+                onKeyDown(props: SuggestionKeyDownProps) {
                     if (props.event.key === 'Escape') {
-                        popup[0].hide();
+                        popup?.hide();
                         return true;
                     }
+
                     if (
                         props.event.key === 'ArrowUp' ||
                         props.event.key === 'ArrowDown' ||
                         props.event.key === 'Enter'
                     ) {
-                        if (reactRenderer.ref?.onKeyDown(props)) {
+                        const handled = (
+                            reactRenderer?.ref as {
+                                onKeyDown?: (props: SuggestionKeyDownProps) => boolean;
+                            } | null
+                        )?.onKeyDown?.(props);
+
+                        if (handled) {
                             props.event.preventDefault();
-                            props.event.stopPropagation(); // Explicitly stop propagation here
+                            props.event.stopPropagation();
                             return true;
                         }
                     }
+
                     return false;
                 },
+
                 onExit() {
-                    popup[0].destroy();
-                    reactRenderer.destroy();
+                    popup?.destroy();
+                    reactRenderer?.destroy();
                 },
             };
         },

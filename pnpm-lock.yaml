@@ -44,6 +44,9 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.19.0
         version: 3.19.0
+      '@tiptap/suggestion':
+        specifier: ^3.19.0
+        version: 3.19.0(@tiptap/core@3.19.0(@tiptap/pm@3.19.0))(@tiptap/pm@3.19.0)
       '@types/tippy.js':
         specifier: ^6.3.0
         version: 6.3.0

@@ -55,7 +55,7 @@ const ChatInput = forwardRef<
                                 border border-border 
                                 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary"
                 >
-                    <EditorContent editor={editor} className="max-h-40 overflow-y-auto mx-2" />
+                    <EditorContent editor={editor} className="max-h-40 overflow-y-auto px-2" />
                 </div>
                 <Button
                     type="button"

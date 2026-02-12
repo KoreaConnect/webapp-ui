@@ -1,10 +1,12 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
+
+import Avatar from '@/components/ui/avatar';
 
 import { cn } from '@/utils/cn';
 
 interface MentionListProps {
-    items: { id: string; name: string }[];
-    command: (item: { id: string; name: string }) => void;
+    items: { id: string; name: string; avatar?: string }[];
+    command: (item: { id: string; name: string; avatar?: string }) => void;
 }
 
 export const MentionList = forwardRef<unknown, MentionListProps>(({ items, command }, ref) => {
@@ -60,14 +62,15 @@ export const MentionList = forwardRef<unknown, MentionListProps>(({ items, comma
                 <button
                     key={item.id}
                     className={cn(
-                        'block w-full text-left px-2 py-1 rounded-sm text-sm',
+                        'flex items-center gap-2 w-full text-left px-2 py-1 rounded-sm text-sm',
                         index === selectedIndex
                             ? 'bg-primary text-white'
                             : 'text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700',
                     )}
                     onClick={() => selectItem(index)}
                 >
-                    {item.name}
+                    <Avatar src={item.avatar} alt={item.name} fallback={item.name.charAt(0).toUpperCase()} size="sm" />
+                    <span>{item.name}</span>
                 </button>
             ))}
         </div>

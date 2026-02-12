@@ -22,7 +22,12 @@ type Message = {
     sender: 'me' | 'other';
     time: string;
     name?: string;
+    avatar?: string;
 };
+
+// Function to generate a random avatar URL from DiceBear
+const generateAvatarUrl = (seed: string) =>
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
 
 export const DUMMY_MESSAGES: Message[] = [
     {
@@ -31,18 +36,75 @@ export const DUMMY_MESSAGES: Message[] = [
         sender: 'other',
         time: '10:00 AM',
         name: 'John Doe',
+        avatar: generateAvatarUrl('John Doe'),
     },
-    { id: '2', text: 'Yes, it is still available. Where are you heading?', sender: 'me', time: '10:05 AM', name: 'Me' },
-    { id: '3', text: 'I am going to the airport. Can I join?', sender: 'other', time: '10:30 AM', name: 'Jane Smith' },
-    { id: '4', text: 'Sure, I can take you there.', sender: 'me', time: '10:35 AM', name: 'Me' },
-    { id: '5', text: 'Great! What time should we meet?', sender: 'other', time: '10:40 AM', name: 'Jane Smith' },
-    { id: '6', text: "Let's meet at 11:00 AM in front of the cafe.", sender: 'me', time: '10:45 AM', name: 'Me' },
-    { id: '7', text: 'Sounds good. See you then!', sender: 'other', time: '10:50 AM', name: 'John Doe' },
-    { id: '8', text: 'Goodbye!', sender: 'me', time: '10:55 AM', name: 'Me' },
-    { id: '9', text: 'See you!', sender: 'other', time: '11:00 AM', name: 'Jane Smith' },
-    { id: '10', text: 'Bye!', sender: 'me', time: '11:05 AM', name: 'Me' },
-    { id: '11', text: 'See you later!', sender: 'other', time: '11:10 AM', name: 'John Doe' },
-    { id: '12', text: 'Bye bye!', sender: 'me', time: '11:15 AM', name: 'Me' },
+    {
+        id: '2',
+        text: 'Yes, it is still available. Where are you heading?',
+        sender: 'me',
+        time: '10:05 AM',
+        name: 'Me',
+        avatar: generateAvatarUrl('Me'),
+    },
+    {
+        id: '3',
+        text: 'I am going to the airport. Can I join?',
+        sender: 'other',
+        time: '10:30 AM',
+        name: 'Jane Smith',
+        avatar: generateAvatarUrl('Jane Smith'),
+    },
+    {
+        id: '4',
+        text: 'Sure, I can take you there.',
+        sender: 'me',
+        time: '10:35 AM',
+        name: 'Me',
+        avatar: generateAvatarUrl('Me'),
+    },
+    {
+        id: '5',
+        text: 'Great! What time should we meet?',
+        sender: 'other',
+        time: '10:40 AM',
+        name: 'Jane Smith',
+        avatar: generateAvatarUrl('Jane Smith'),
+    },
+    {
+        id: '6',
+        text: "Let's meet at 11:00 AM in front of the cafe.",
+        sender: 'me',
+        time: '10:45 AM',
+        name: 'Me',
+        avatar: generateAvatarUrl('Me'),
+    },
+    {
+        id: '7',
+        text: 'Sounds good. See you then!',
+        sender: 'other',
+        time: '10:50 AM',
+        name: 'John Doe',
+        avatar: generateAvatarUrl('John Doe'),
+    },
+    { id: '8', text: 'Goodbye!', sender: 'me', time: '10:55 AM', name: 'Me', avatar: generateAvatarUrl('Me') },
+    {
+        id: '9',
+        text: 'See you!',
+        sender: 'other',
+        time: '11:00 AM',
+        name: 'Jane Smith',
+        avatar: generateAvatarUrl('Jane Smith'),
+    },
+    { id: '10', text: 'Bye!', sender: 'me', time: '11:05 AM', name: 'Me', avatar: generateAvatarUrl('Me') },
+    {
+        id: '11',
+        text: 'See you later!',
+        sender: 'other',
+        time: '11:10 AM',
+        name: 'John Doe',
+        avatar: generateAvatarUrl('John Doe'),
+    },
+    { id: '12', text: 'Bye bye!', sender: 'me', time: '11:15 AM', name: 'Me', avatar: generateAvatarUrl('Me') },
 ];
 
 export default function MessengerPage() {
@@ -76,6 +138,7 @@ export default function MessengerPage() {
                                 sender={msg.sender}
                                 time={msg.time}
                                 name={msg.name}
+                                avatar={msg.avatar}
                             />
                         ))}
                     </div>
