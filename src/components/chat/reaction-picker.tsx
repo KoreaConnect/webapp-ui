@@ -68,7 +68,7 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
                                         : 'hover:bg-zinc-100 dark:hover:bg-zinc-800',
                                 )}
                             >
-                                <span className="text-xl leading-none select-none">{r.emoji}</span>
+                                <span className="block text-xl leading-none select-none h-5 w-5">{r.emoji}</span>
                             </DropdownMenu.Item>
                         );
                     })}

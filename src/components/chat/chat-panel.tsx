@@ -16,8 +16,10 @@ export default function ChatPanel() {
             className={cn(
                 'absolute h-full inset-y-0 right-0 z-50 w-full lg:w-80 bg-sky-100 transition-all duration-300 transform ',
                 'lg:relative lg:inset-y-auto lg:z-0 lg:translate-x-0',
-                isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 g:opacity-0',
+                isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 lg:opacity-0 pointer-events-none',
             )}
+            aria-hidden={!isOpen}
+            inert={!isOpen}
         >
             <div
                 className={cn(
