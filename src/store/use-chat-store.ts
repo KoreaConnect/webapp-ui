@@ -15,6 +15,8 @@ type ChatState = {
     messageReactions: ReactionMap;
     currentUserId: string; // This would typically come from an auth store
     replyingTo: Message | null;
+    hasJoined: boolean; // New state to track if user has joined
+    joinChat: (name: string, school: string | null, city: string) => void; // New action to join
     toggleReaction: (messageId: string, emoji: string) => void;
     setReplyingTo: (message: Message | null) => void;
     cancelReply: () => void;
@@ -26,6 +28,13 @@ export const useChatStore = create<ChatState>((set) => ({
     messageReactions: {},
     currentUserId: 'user_me', // Hardcoded for demonstration
     replyingTo: null,
+    hasJoined: false, // Initial state: user has not joined
+    joinChat: (name, school, city) => {
+        // In a real app, you'd send this to a backend and handle authentication/session
+        console.log(`User joined: Name=${name}, School=${school}, City=${city}`);
+        set({ hasJoined: true });
+        // Optionally store user details in state
+    },
     toggleReaction: (messageId, emoji) => {
         set((state) => {
             const currentReactions = state.messageReactions[messageId] ?? {};

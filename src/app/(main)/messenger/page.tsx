@@ -2,18 +2,19 @@
 
 import { useEffect, useRef } from 'react';
 
+import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useChatStore } from '@/store/use-chat-store';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
 import ChatMessage from '@/components/chat/chat-message';
 import ChatPanel from '@/components/chat/chat-panel';
+import { JoinChatOverlay } from '@/components/chat/join-chat-overlay';
+// Import JoinChatOverlay
 import { ReplyBox } from '@/components/chat/reply-box';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
 import { cn } from '@/utils';
-
-// Import Editor type for ChatInput's ref type
 
 // Define the type for DUMMY_MESSAGES
 type Message = {
@@ -108,7 +109,7 @@ export const DUMMY_MESSAGES: Message[] = [
 ];
 
 export default function MessengerPage() {
-    const { cancelReply, replyingTo } = useChatStore();
+    const { cancelReply, replyingTo, hasJoined } = useChatStore();
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
 
     useEffect(() => {
@@ -148,6 +149,7 @@ export default function MessengerPage() {
                 <ChatInput onSend={handleSendMessage} ref={chatInputRef} />
             </div>
             <ChatPanel />
+            {/* {!hasJoined && <JoinChatOverlay />} */}
         </div>
     );
 }
