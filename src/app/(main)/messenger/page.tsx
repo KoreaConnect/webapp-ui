@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 
-import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useChatStore } from '@/store/use-chat-store';
 import { useConversationStore } from '@/store/use-conversation-store';
 import type { ReadReceipt } from '@/types/chat.type';
@@ -179,9 +178,8 @@ export default function MessengerPage() {
     const { fetchConversationBySlug, activeConversation, isLoading } = useConversationStore();
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
 
-    console.log('Active Conversation:', activeConversation);
-
     useEffect(() => {
+        console.log('useEffect called');
         fetchConversationBySlug('koco-community');
     }, [fetchConversationBySlug]);
 
@@ -219,7 +217,7 @@ export default function MessengerPage() {
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader
                     title={activeConversation.title}
-                    thumbnailUrl={activeConversation.thumbnailUrl || '/images/community-avatar.png'}
+                    thumbnailUrl={activeConversation.thumbnail_url}
                     onlineUserCount={activeConversation.onlineCount || 0}
                 />
                 <ScrollableView className="flex-1 px-4">

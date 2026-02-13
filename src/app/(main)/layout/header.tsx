@@ -21,7 +21,6 @@ const LoggedInHeader = () => {
     const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
 
-    console.log('Header - isAuthenticated:', isAuthenticated);
     return (
         <>
             <DialogWrapper
@@ -88,8 +87,6 @@ const UnLoggedInHeader = () => {
 export default function Header() {
     const { isAuthenticated } = useAuthStore();
     const { toggleSidebar } = useSidebar();
-
-    console.log('Header - isAuthenticated:', isAuthenticated);
 
     return (
         <header className="sticky h-header top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">

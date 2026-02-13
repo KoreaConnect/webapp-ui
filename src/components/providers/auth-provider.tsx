@@ -9,7 +9,7 @@ import { authService } from '@/services';
 import { getErrorMessage } from '@/utils';
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, login, setAccessToken } = useAuthStore();
+    const { isAuthenticated, login, setAccessToken, isInitialized, setInitialized } = useAuthStore();
     const { show } = useToastStore();
 
     useEffect(() => {
@@ -27,13 +27,21 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
                     type: 'error',
                     message: getErrorMessage(error, 'Failed to restore session. Please log in again.'),
                 });
+            } finally {
+                setInitialized(true);
             }
         };
 
         if (!isAuthenticated) {
             restoreSession();
+        } else {
+            setInitialized(true);
         }
     }, [isAuthenticated, login, setAccessToken]);
+
+    if (!isInitialized) {
+        return <div>Loading...</div>;
+    }
 
     return <>{children}</>;
 }
