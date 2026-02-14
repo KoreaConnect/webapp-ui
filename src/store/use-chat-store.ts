@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { chatService } from '@/services';
+import { conversationService } from '@/services';
 
 // A mock message type, in a real app this would be more detailed
 type Message = {
@@ -36,7 +36,7 @@ export const useChatStore = create<ChatState>((set) => ({
     joinChat: async (conversationId: string) => {
         set({ isJoining: true });
         try {
-            await chatService.joinConversation(conversationId);
+            await conversationService.joinConversation(conversationId);
             set({ hasJoined: true, isJoining: false });
         } catch (error) {
             console.error('Failed to join conversation:', error);

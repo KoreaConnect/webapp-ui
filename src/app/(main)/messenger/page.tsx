@@ -15,8 +15,6 @@ import { JoinChatOverlay } from '@/components/chat/join-chat-overlay';
 import { ReplyBox } from '@/components/chat/reply-box';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
-import { useSocketListener } from '@/hooks/use-socket-listener';
-
 import { cn } from '@/utils';
 
 // Define the type for DUMMY_MESSAGES
@@ -184,12 +182,6 @@ export default function MessengerPage() {
         console.log('useEffect called');
         fetchConversationBySlug('community');
     }, [fetchConversationBySlug]);
-
-    // Cực kỳ gọn: Chỉ nhận 'new_message'
-    useSocketListener('new_message', (data) => {
-        console.log('New message received via hook:', data);
-        // Logic xử lý tin nhắn tại đây
-    });
 
     useEffect(() => {
         if (replyingTo && chatInputRef.current) {

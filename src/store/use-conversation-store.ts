@@ -1,7 +1,7 @@
 import type { Conversation } from '@/types/chat.type';
 import { create } from 'zustand';
 
-import { chatService } from '@/services';
+import { conversationService } from '@/services';
 
 type ConversationState = {
     activeConversation: Conversation | null;
@@ -30,7 +30,7 @@ export const useConversationStore = create<ConversationState>((set) => ({
     fetchConversationBySlug: async (slug) => {
         set({ isLoading: true });
         try {
-            const response = await chatService.getConversationBySlug(slug);
+            const response = await conversationService.getConversationBySlug(slug);
             const data = response.data;
 
             const conversation: Conversation = {
