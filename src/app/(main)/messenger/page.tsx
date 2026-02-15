@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useChatStore } from '@/store/use-chat-store';
-import { useConversationStore } from '@/store/use-conversation-store';
+import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import type { ReadReceipt } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
@@ -175,7 +175,7 @@ export const DUMMY_MESSAGES: Message[] = [
 
 export default function MessengerPage() {
     const { cancelReply, replyingTo } = useChatStore();
-    const { fetchConversationBySlug, activeConversation, isLoading } = useConversationStore();
+    const { fetchConversationBySlug, activeConversation, isLoading } = useCommunityConversationStore();
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
 
     useEffect(() => {

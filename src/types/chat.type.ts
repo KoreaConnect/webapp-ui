@@ -14,6 +14,18 @@ export type User = {
     isOnline?: boolean;
 };
 
+export type Message = {
+    id: string;
+    text: string;
+    sender: MessageSender;
+    time?: string;
+    name?: string;
+    avatar?: string;
+    readBy?: ReadReceipt[];
+};
+
+export type ReactionMap = Record<string, Record<string, string[]>>;
+
 export type Conversation = {
     id: string;
     title: string;

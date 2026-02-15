@@ -3,7 +3,7 @@ import { create } from 'zustand';
 
 import { conversationService } from '@/services';
 
-type ConversationState = {
+type CommunityConversationState = {
     activeConversation: Conversation | null;
     conversations: Conversation[];
     isLoading: boolean;
@@ -13,7 +13,7 @@ type ConversationState = {
     fetchConversationBySlug: (slug: string) => Promise<void>;
 };
 
-export const useConversationStore = create<ConversationState>((set) => ({
+export const useCommunityConversationStore = create<CommunityConversationState>((set) => ({
     activeConversation: null,
     conversations: [],
     isLoading: false,

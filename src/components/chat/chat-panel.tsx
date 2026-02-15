@@ -1,7 +1,7 @@
 'use client';
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
-import { useConversationStore } from '@/store/use-conversation-store';
+import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { Bell, FileText, Image, Info, LogOut, Users, X } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -11,7 +11,7 @@ import { ScrollableView } from '../ui/scrollable-view';
 
 export default function ChatPanel() {
     const { isOpen, close } = useChatPanelStore();
-    const { activeConversation } = useConversationStore();
+    const { activeConversation } = useCommunityConversationStore();
 
     if (!activeConversation) return null;
 

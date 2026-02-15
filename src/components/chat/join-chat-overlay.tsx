@@ -4,14 +4,14 @@ import React from 'react';
 
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
-import { useConversationStore } from '@/store/use-conversation-store';
+import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 
 export function JoinChatOverlay() {
     const { hasJoined, joinChat, isJoining } = useChatStore();
-    const { activeConversation } = useConversationStore();
+    const { activeConversation } = useCommunityConversationStore();
     const { isAuthenticated } = useAuthStore();
     const router = useRouter();
 
