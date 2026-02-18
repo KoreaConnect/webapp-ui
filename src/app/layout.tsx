@@ -30,9 +30,10 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                    <SocketProvider>{children}</SocketProvider>
+                </AuthProvider>
                 <ToastProvider />
-                <SocketProvider />
             </body>
         </html>
     );

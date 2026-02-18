@@ -4,28 +4,20 @@ import { create } from 'zustand';
 import { conversationService } from '@/services';
 
 type CommunityConversationState = {
-    activeConversation: Conversation | null;
-    conversations: Conversation[];
+    conversation: Conversation | null;
     isLoading: boolean;
-    setActiveConversation: (conversation: Conversation | null) => void;
-    setConversations: (conversations: Conversation[]) => void;
+    setConversation: (conversation: Conversation | null) => void;
     updateConversation: (id: string, updates: Partial<Conversation>) => void;
     fetchConversationBySlug: (slug: string) => Promise<void>;
 };
 
 export const useCommunityConversationStore = create<CommunityConversationState>((set) => ({
-    activeConversation: null,
-    conversations: [],
+    conversation: null,
     isLoading: false,
-    setActiveConversation: (conversation) => set({ activeConversation: conversation }),
-    setConversations: (conversations) => set({ conversations }),
+    setConversation: (conversation) => set({ conversation }),
     updateConversation: (id, updates) =>
         set((state) => ({
-            conversations: state.conversations.map((c) => (c.id === id ? { ...c, ...updates } : c)),
-            activeConversation:
-                state.activeConversation?.id === id
-                    ? { ...state.activeConversation, ...updates }
-                    : state.activeConversation,
+            conversation: state.conversation?.id === id ? { ...state.conversation, ...updates } : state.conversation,
         })),
     fetchConversationBySlug: async (slug) => {
         set({ isLoading: true });
@@ -53,7 +45,7 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
                 onlineCount: 0,
             };
 
-            set({ activeConversation: conversation, isLoading: false });
+            set({ conversation: conversation, isLoading: false });
         } catch (error) {
             console.error('Failed to fetch conversation:', error);
             set({ isLoading: false });

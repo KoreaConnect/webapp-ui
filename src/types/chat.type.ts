@@ -5,23 +5,35 @@ export type ReadReceipt = {
     readAt: string;
 };
 
-export type MessageSender = 'me' | 'other';
+export type MessageSender = 'me' | 'other' | 'system';
 
 export type User = {
-    id: string;
+    id: string | number;
     name: string;
-    avatar: string;
+    avatar?: string;
+    picture?: string;
+    username?: string;
     isOnline?: boolean;
+};
+
+export type MessageMetadata = {
+    type: 'USER_JOINED' | 'USER_LEFT' | string;
+    user?: User;
+    user_id?: string | number;
 };
 
 export type Message = {
     id: string;
     text: string;
     sender: MessageSender;
+    type?: 'text' | 'system';
+    content?: string;
+    metadata?: MessageMetadata;
     time?: string;
     name?: string;
     avatar?: string;
     readBy?: ReadReceipt[];
+    created_at?: string;
 };
 
 export type ReactionMap = Record<string, Record<string, string[]>>;
@@ -31,7 +43,7 @@ export type Conversation = {
     title: string;
     thumbnail_url?: string;
     description?: string;
-    participants?: User[];
+    participants: User[];
     onlineCount?: number;
     createdAt: string;
     created_at?: string;

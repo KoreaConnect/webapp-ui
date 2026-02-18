@@ -17,3 +17,24 @@ export const joinConversation = async (conversationId: string) => {
         throw error;
     }
 };
+
+export const getMessages = async (conversationId: string) => {
+    try {
+        const response = await instance.get(`/conversations/${conversationId}/messages`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const sendMessage = async (conversationId: string, content: string, replyToMessageId?: string | null) => {
+    try {
+        const response = await instance.post(`/conversations/${conversationId}/messages`, {
+            content,
+            reply_to_message_id: replyToMessageId,
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

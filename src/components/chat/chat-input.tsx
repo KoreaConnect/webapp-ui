@@ -44,9 +44,9 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
 
         const handleSend = () => {
             if (editor && (editor.getText().trim() || selectedFiles.length > 0)) {
-                const content = editor.getHTML();
+                // const content = editor.getHTML();
                 const textContent = editor.getText();
-                onSend(content, selectedFiles); // Pass content and files
+                onSend(textContent, selectedFiles); // Pass content and files
                 editor.chain().clearContent().focus().run();
                 setSelectedFiles([]); // Clear selected files after sending
                 if (fileInputRef.current) {

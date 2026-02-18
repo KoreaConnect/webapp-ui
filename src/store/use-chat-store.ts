@@ -1,14 +1,7 @@
+import type { Message } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
-
-// A mock message type, in a real app this would be more detailed
-type Message = {
-    id: string;
-    text: string;
-    sender: 'me' | 'other';
-    name?: string;
-};
 
 // { messageId: { '👍': ['user1', 'user2'], '❤️': ['user3'] } }
 type ReactionMap = Record<string, Record<string, string[]>>;

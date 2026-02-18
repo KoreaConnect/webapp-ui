@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { useChatStore } from '@/store/use-chat-store';
-import type { ReadReceipt } from '@/types/chat.type';
+import type { Message, MessageMetadata, ReadReceipt } from '@/types/chat.type';
 
 import Avatar from '@/components/ui/avatar';
 
@@ -12,20 +12,28 @@ import { cn } from '@/utils/cn';
 import { MessageContent } from './message-content';
 import MessageTools from './message-tools';
 import { ReadReceipts } from './read-receipts';
+import { SystemMessage } from './system-message';
 
 type ChatMessageProps = {
     id: string;
     text: string;
-    sender: 'me' | 'other';
+    sender: 'me' | 'other' | 'system';
     time: string;
     avatar?: string;
     name?: string;
     readBy?: ReadReceipt[];
+    type?: 'text' | 'system';
+    metadata?: MessageMetadata;
+    content?: string;
 };
 
-function ChatMessage({ id, text, sender, time, avatar, name, readBy }: ChatMessageProps) {
+function ChatMessage({ id, text, sender, time, avatar, name, readBy, type, metadata, content }: ChatMessageProps) {
     const messageReactions = useChatStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
+
+    if (type === 'system' || sender === 'system') {
+        return <SystemMessage message={{ id, text, sender, type, metadata, content } as Message} />;
+    }
 
     return (
         <div key={id} className={cn('group relative flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}>

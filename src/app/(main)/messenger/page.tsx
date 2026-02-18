@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 
+import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
-import type { ReadReceipt } from '@/types/chat.type';
+import { useCurrentMessages } from '@/store/use-current-messages';
+import type { Message } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -15,173 +17,65 @@ import { JoinChatOverlay } from '@/components/chat/join-chat-overlay';
 import { ReplyBox } from '@/components/chat/reply-box';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
+import { useSocketListener } from '@/hooks/use-socket-listener';
+
 import { cn } from '@/utils';
 
-// Define the type for DUMMY_MESSAGES
-type Message = {
-    id: string;
-    text: string;
-    sender: 'me' | 'other';
-    time: string;
-    name?: string;
-    avatar?: string;
-    readBy?: ReadReceipt[];
-};
-
 // Function to generate a random avatar URL from DiceBear
-const generateAvatarUrl = (seed: string) =>
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
-
-export const DUMMY_MESSAGES: Message[] = [
-    {
-        id: '1',
-        text: 'Hello! I saw your post about the taxi share. Hello! I saw your post about the taxi share.',
-        sender: 'other',
-        time: '10:00 AM',
-        name: 'John Doe',
-        avatar: generateAvatarUrl('John Doe'),
-        readBy: [
-            {
-                userId: 'user_me',
-                name: 'Me',
-                avatar: generateAvatarUrl('Me'),
-                readAt: '10:01 AM',
-            },
-        ],
-    },
-    {
-        id: '2',
-        text: 'Yes, it is still available. Where are you heading?',
-        sender: 'me',
-        time: '10:05 AM',
-        name: 'Me',
-        avatar: generateAvatarUrl('Me'),
-        readBy: [
-            {
-                userId: '2',
-                name: 'John Doe',
-                avatar: generateAvatarUrl('John Doe'),
-                readAt: '10:06 AM',
-            },
-            {
-                userId: '3',
-                name: 'Jane Smith',
-                avatar: generateAvatarUrl('Jane Smith'),
-                readAt: '10:07 AM',
-            },
-        ],
-    },
-    {
-        id: '3',
-        text: 'I am going to the airport. Can I join?',
-        sender: 'other',
-        time: '10:30 AM',
-        name: 'Jane Smith',
-        avatar: generateAvatarUrl('Jane Smith'),
-        readBy: [
-            {
-                userId: 'user_me',
-                name: 'Me',
-                avatar: generateAvatarUrl('Me'),
-                readAt: '10:31 AM',
-            },
-            {
-                userId: '2',
-                name: 'John Doe',
-                avatar: generateAvatarUrl('John Doe'),
-                readAt: '10:32 AM',
-            },
-        ],
-    },
-    {
-        id: '4',
-        text: 'Sure, I can take you there.',
-        sender: 'me',
-        time: '10:35 AM',
-        name: 'Me',
-        avatar: generateAvatarUrl('Me'),
-        readBy: [
-            {
-                userId: '2',
-                name: 'John Doe',
-                avatar: generateAvatarUrl('John Doe'),
-                readAt: '10:36 AM',
-            },
-            {
-                userId: '3',
-                name: 'Jane Smith',
-                avatar: generateAvatarUrl('Jane Smith'),
-                readAt: '10:37 AM',
-            },
-            {
-                userId: '4',
-                name: 'Alice',
-                avatar: generateAvatarUrl('Alice'),
-                readAt: '10:38 AM',
-            },
-            {
-                userId: '5',
-                name: 'Bob',
-                avatar: generateAvatarUrl('Bob'),
-                readAt: '10:39 AM',
-            },
-        ],
-    },
-    {
-        id: '5',
-        text: 'Great! What time should we meet?',
-        sender: 'other',
-        time: '10:40 AM',
-        name: 'Jane Smith',
-        avatar: generateAvatarUrl('Jane Smith'),
-        readBy: [],
-    },
-    {
-        id: '6',
-        text: "Let's meet at 11:00 AM in front of the cafe.",
-        sender: 'me',
-        time: '10:45 AM',
-        name: 'Me',
-        avatar: generateAvatarUrl('Me'),
-    },
-    {
-        id: '7',
-        text: 'Sounds good. See you then!',
-        sender: 'other',
-        time: '10:50 AM',
-        name: 'John Doe',
-        avatar: generateAvatarUrl('John Doe'),
-    },
-    { id: '8', text: 'Goodbye!', sender: 'me', time: '10:55 AM', name: 'Me', avatar: generateAvatarUrl('Me') },
-    {
-        id: '9',
-        text: 'See you!',
-        sender: 'other',
-        time: '11:00 AM',
-        name: 'Jane Smith',
-        avatar: generateAvatarUrl('Jane Smith'),
-    },
-    { id: '10', text: 'Bye!', sender: 'me', time: '11:05 AM', name: 'Me', avatar: generateAvatarUrl('Me') },
-    {
-        id: '11',
-        text: 'See you later!',
-        sender: 'other',
-        time: '11:10 AM',
-        name: 'John Doe',
-        avatar: generateAvatarUrl('John Doe'),
-    },
-    { id: '12', text: 'Bye bye!', sender: 'me', time: '11:15 AM', name: 'Me', avatar: generateAvatarUrl('Me') },
-];
 
 export default function MessengerPage() {
     const { cancelReply, replyingTo } = useChatStore();
-    const { fetchConversationBySlug, activeConversation, isLoading } = useCommunityConversationStore();
+    const { fetchConversationBySlug, conversation, isLoading: isConvLoading } = useCommunityConversationStore();
+    const { messages, addMessage, fetchMessages, sendMessage, isLoading: isMessagesLoading } = useCurrentMessages();
+    const currentUser = useAuthStore((state) => state.user);
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
 
+    useSocketListener('chat:new_message', (data) => {
+        console.log({ data });
+        if (data.conversation_id !== conversation?.id) return;
+
+        // Don't add if it's our own message (we added it optimistically or via response)
+        // If we want to avoid duplicates:
+        if (useCurrentMessages.getState().messages.some((m) => m.id === data.id)) return;
+
+        const isSystem = data.type === 'system' || data.sender_id === 0;
+        let sender: Message['sender'] = 'other';
+
+        if (isSystem) {
+            sender = 'system';
+        } else if (data.sender_id.toString() === currentUser?.id?.toString()) {
+            sender = 'me';
+        }
+
+        const newMessage: Message = {
+            id: data.id,
+            text: data.content || '',
+            content: data.content,
+            sender,
+            type: data.type,
+            metadata: data.metadata,
+            time: data.created_at
+                ? new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            created_at: data.created_at,
+            name: data.sender?.name || (sender === 'me' ? 'Me' : 'Other'),
+            avatar: data.sender?.picture || data.sender?.avatar,
+        };
+
+        addMessage(newMessage);
+    });
+
+    console.log('messages', messages);
+
     useEffect(() => {
-        console.log('useEffect called');
         fetchConversationBySlug('community');
     }, [fetchConversationBySlug]);
+
+    useEffect(() => {
+        if (conversation?.id) {
+            fetchMessages(conversation.id);
+        }
+    }, [conversation?.id, fetchMessages]);
 
     useEffect(() => {
         if (replyingTo && chatInputRef.current) {
@@ -189,14 +83,18 @@ export default function MessengerPage() {
         }
     }, [replyingTo]);
 
-    const handleSendMessage = (message: string) => {
-        console.log('Sending message:', message);
-        // In a real app, you would send this message to a backend
-        // and clear the reply state
-        cancelReply();
+    const handleSendMessage = async (text: string) => {
+        if (!conversation?.id) return;
+
+        try {
+            await sendMessage(conversation.id, text, replyingTo?.id);
+            cancelReply();
+        } catch (error) {
+            console.error('Error in handleSendMessage:', error);
+        }
     };
 
-    if (isLoading) {
+    if (isConvLoading || isMessagesLoading) {
         return (
             <div className="flex h-full items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -204,7 +102,7 @@ export default function MessengerPage() {
         );
     }
 
-    if (!activeConversation) {
+    if (!conversation) {
         return (
             <div className="flex h-full items-center justify-center">
                 <p className="text-muted-foreground">Failed to load conversation.</p>
@@ -216,22 +114,25 @@ export default function MessengerPage() {
         <div className={cn('flex h-full bg-background overflow-hidden border-x border-border  relative')}>
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader
-                    title={activeConversation.title}
-                    thumbnailUrl={activeConversation.thumbnail_url}
-                    onlineUserCount={activeConversation.onlineCount || 0}
+                    title={conversation.title}
+                    thumbnailUrl={conversation.thumbnail_url}
+                    onlineUserCount={conversation.onlineCount || 0}
                 />
                 <ScrollableView className="flex-1 px-4">
                     <div className="flex flex-col gap-2 py-4">
-                        {DUMMY_MESSAGES.map((msg) => (
+                        {messages.map((msg) => (
                             <ChatMessage
                                 key={msg.id}
                                 id={msg.id}
                                 text={msg.text}
                                 sender={msg.sender}
-                                time={msg.time}
+                                time={msg.time || ''}
                                 name={msg.name}
                                 avatar={msg.avatar}
                                 readBy={msg.readBy}
+                                type={msg.type}
+                                metadata={msg.metadata}
+                                content={msg.content}
                             />
                         ))}
                     </div>
@@ -241,7 +142,7 @@ export default function MessengerPage() {
                 <ChatInput onSend={handleSendMessage} ref={chatInputRef} />
             </div>
             <ChatPanel />
-            {!activeConversation.is_joined && <JoinChatOverlay />}
+            {!conversation.is_joined && <JoinChatOverlay />}
         </div>
     );
 }

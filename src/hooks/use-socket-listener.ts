@@ -9,8 +9,9 @@ export const useSocketListener = <T>(type: string, callback: (data: T) => void) 
         const handleMessage = (event: MessageEvent) => {
             try {
                 const payload = JSON.parse(event.data);
+                console.log('payload:', payload);
                 if (payload.type === type) {
-                    callback(payload.data);
+                    callback(payload.payload);
                 }
             } catch (error) {
                 console.error('WS Parse Error:', error);

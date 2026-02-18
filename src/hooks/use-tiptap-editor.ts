@@ -1,10 +1,9 @@
 'use client';
 
-import { DUMMY_MESSAGES } from '@/app/(main)/messenger/page';
+import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import Mention from '@tiptap/extension-mention';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useEditor } from '@tiptap/react';
-import { ReactRenderer } from '@tiptap/react';
+import { ReactRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import type { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion';
 import tippy from 'tippy.js';
@@ -25,11 +24,17 @@ export const CustomMention = Mention.configure({
 
     suggestion: {
         items: ({ query }: { query: string }): MentionItem[] => {
-            const users: MentionItem[] = DUMMY_MESSAGES.map((msg) => ({
-                id: msg.id,
-                name: msg.name ?? msg.sender,
-                avatar: msg.avatar ?? '', // Pass the avatar URL
+            const conversation = useCommunityConversationStore.getState().conversation;
+            const participants = conversation?.participants ?? [];
+
+            const users: MentionItem[] = participants.map((user) => ({
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
             }));
+
+            // Fallback to some default if no participants are loaded yet
+            // or if we want to include 'everyone' etc.
 
             return users.filter((user) => user.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
         },

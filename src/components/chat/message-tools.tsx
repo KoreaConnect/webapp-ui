@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { DUMMY_MESSAGES } from '@/app/(main)/messenger/page';
 import { useChatStore } from '@/store/use-chat-store';
+import { useCurrentMessages } from '@/store/use-current-messages';
 import { Reply } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -17,13 +17,14 @@ type MessageToolsProps = {
 function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
     const { messageReactions, toggleReaction, setReplyingTo, removeMessage, reportMessage, currentUserId } =
         useChatStore();
+    const { messages } = useCurrentMessages();
     const reactions = messageReactions[messageId] ?? {};
 
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
 
     const handleReplyClick = () => {
-        const messageToReply = DUMMY_MESSAGES.find((msg) => msg.id === messageId);
+        const messageToReply = messages.find((msg) => msg.id === messageId);
         if (messageToReply) {
             setReplyingTo(messageToReply);
         }

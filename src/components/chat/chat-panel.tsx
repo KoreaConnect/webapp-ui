@@ -11,9 +11,9 @@ import { ScrollableView } from '../ui/scrollable-view';
 
 export default function ChatPanel() {
     const { isOpen, close } = useChatPanelStore();
-    const { activeConversation } = useCommunityConversationStore();
+    const { conversation } = useCommunityConversationStore();
 
-    if (!activeConversation) return null;
+    if (!conversation) return null;
 
     return (
         <aside
@@ -44,25 +44,25 @@ export default function ChatPanel() {
                         <div className="flex flex-col items-center text-center space-y-3">
                             <Avatar
                                 className="h-20 w-20 text-2xl"
-                                src={activeConversation.thumbnailUrl}
+                                src={conversation.thumbnail_url}
                                 backgroundColor="cyan"
                             />
                             <div>
-                                <h3 className="font-bold text-xl">{activeConversation.title}</h3>
+                                <h3 className="font-bold text-xl">{conversation.title}</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Created by {activeConversation.createdBy} • {activeConversation.createdAt}
+                                    Created by {conversation.createdBy} • {conversation.createdAt}
                                 </p>
                             </div>
                         </div>
 
                         {/* Description */}
-                        {activeConversation.description && (
+                        {conversation.description && (
                             <div className="space-y-2">
                                 <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                                     <Info className="h-4 w-4" />
                                     <span>Description</span>
                                 </div>
-                                <p className="text-sm">{activeConversation.description}</p>
+                                <p className="text-sm">{conversation.description}</p>
                             </div>
                         )}
 
@@ -90,12 +90,12 @@ export default function ChatPanel() {
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-semibold">
-                                    Members ({activeConversation.participants.length})
+                                    Members ({conversation.participants.length})
                                 </span>
                                 <button className="text-xs text-primary hover:underline">View all</button>
                             </div>
                             <div className="space-y-2">
-                                {activeConversation.participants.slice(0, 5).map((member) => (
+                                {conversation.participants.slice(0, 5).map((member) => (
                                     <div key={member.id} className="flex items-center gap-3">
                                         <Avatar
                                             src={member.avatar}

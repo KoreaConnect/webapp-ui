@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 
 export function JoinChatOverlay() {
     const { hasJoined, joinChat, isJoining } = useChatStore();
-    const { activeConversation } = useCommunityConversationStore();
+    const { conversation } = useCommunityConversationStore();
     const { isAuthenticated } = useAuthStore();
     const router = useRouter();
 
@@ -20,8 +20,8 @@ export function JoinChatOverlay() {
             router.push('/');
             return;
         }
-        if (activeConversation) {
-            joinChat(activeConversation.id);
+        if (conversation) {
+            joinChat(conversation.id);
         }
     };
 
