@@ -15,6 +15,8 @@ type ChatState = {
     joinChat: (conversationId: string) => Promise<void>; // New action to join
     toggleReaction: (messageId: string, emoji: string) => Promise<void>;
     setReaction: (messageId: string, emoji: string, userIds: string[]) => void;
+    addReactionToState: (messageId: string, emoji: string, userId: string) => void;
+    removeReactionFromState: (messageId: string, emoji: string, userId: string) => void;
     setMessageReactions: (reactions: ReactionMap) => void;
     setReplyingTo: (message: Message | null) => void;
     cancelReply: () => void;
@@ -44,6 +46,42 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 ...reactions,
             },
         }));
+    },
+    addReactionToState: (messageId, emoji, userId) => {
+        set((state) => {
+            const nextReactions = { ...state.messageReactions };
+            const nextMessageReactions = { ...(nextReactions[messageId] ?? {}) };
+
+            // 1. Remove this user from ANY existing reaction on this message first
+            Object.keys(nextMessageReactions).forEach((key) => {
+                nextMessageReactions[key] = nextMessageReactions[key].filter((u) => u !== userId);
+                if (nextMessageReactions[key].length === 0) {
+                    delete nextMessageReactions[key];
+                }
+            });
+
+            // 2. Add the new reaction
+            const users = nextMessageReactions[emoji] ?? [];
+            nextMessageReactions[emoji] = [...users, userId];
+
+            nextReactions[messageId] = nextMessageReactions;
+            return { messageReactions: nextReactions };
+        });
+    },
+    removeReactionFromState: (messageId, emoji, userId) => {
+        set((state) => {
+            const nextReactions = { ...state.messageReactions };
+            const nextMessageReactions = { ...(nextReactions[messageId] ?? {}) };
+            const users = nextMessageReactions[emoji] ?? [];
+
+            nextMessageReactions[emoji] = users.filter((u) => u !== userId);
+            if (nextMessageReactions[emoji].length === 0) {
+                delete nextMessageReactions[emoji];
+            }
+
+            nextReactions[messageId] = nextMessageReactions;
+            return { messageReactions: nextReactions };
+        });
     },
     setReaction: (messageId, emoji, userIds) => {
         set((state) => {

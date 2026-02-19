@@ -114,11 +114,25 @@ export default function MessengerPage() {
         addMessage(newMessage);
     });
 
-    useSocketListener<{ message_id: string | number; reaction: string; user_ids: string[] }>(
-        'chat:reaction',
+    useSocketListener<{ message_id: string; conversation_id: string; user_id: string | number; reaction: string }>(
+        'chat:reaction_added',
         (data) => {
-            const { setReaction } = useChatStore.getState();
-            setReaction(data.message_id.toString(), data.reaction, data.user_ids);
+            // Ignore if it's our own reaction (already handled optimistically)
+            if (data.user_id.toString() === currentUser?.id.toString()) return;
+
+            const { addReactionToState } = useChatStore.getState();
+            addReactionToState(data.message_id, data.reaction, data.user_id.toString());
+        },
+    );
+
+    useSocketListener<{ message_id: string; conversation_id: string; user_id: string | number; reaction: string }>(
+        'chat:reaction_removed',
+        (data) => {
+            // Ignore if it's our own reaction (already handled optimistically)
+            if (data.user_id.toString() === currentUser?.id.toString()) return;
+
+            const { removeReactionFromState } = useChatStore.getState();
+            removeReactionFromState(data.message_id, data.reaction, data.user_id.toString());
         },
     );
 
