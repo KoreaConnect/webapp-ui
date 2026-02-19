@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
-import type { Message } from '@/types/chat.type';
+import type { Message, RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -29,16 +29,26 @@ export default function MessengerPage() {
     const { messages, addMessage, fetchMessages, sendMessage, isLoading: isMessagesLoading } = useCurrentMessages();
     const currentUser = useAuthStore((state) => state.user);
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    useSocketListener('chat:new_message', (data) => {
+    const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTo({
+                top: scrollRef.current.scrollHeight,
+                behavior,
+            });
+        }
+    };
+
+    useSocketListener<RawMessage>('chat:new_message', (data) => {
         console.log({ data });
-        if (data.conversation_id !== conversation?.id) return;
+        if (data.conversation_id.toString() !== conversation?.id.toString()) return;
 
         // Don't add if it's our own message (we added it optimistically or via response)
         // If we want to avoid duplicates:
         if (useCurrentMessages.getState().messages.some((m) => m.id.toString() === data.id.toString())) return;
 
-        const isSystem = data.type === 'system' || data.sender_id === 0;
+        const isSystem = data.type === 'system' || data.sender_id.toString() === '0';
         let sender: Message['sender'] = 'other';
 
         if (isSystem) {
@@ -52,7 +62,7 @@ export default function MessengerPage() {
             text: data.content || '',
             content: data.content,
             sender,
-            type: data.type,
+            type: data.type as 'text' | 'system',
             metadata: data.metadata,
             time: data.created_at
                 ? new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -82,6 +92,16 @@ export default function MessengerPage() {
             chatInputRef.current.focusEditor();
         }
     }, [replyingTo]);
+
+    useEffect(() => {
+        if (!isMessagesLoading && messages.length > 0) {
+            // Delay slightly to ensure content is rendered
+            const timer = setTimeout(() => {
+                scrollToBottom('smooth');
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [messages, isMessagesLoading]);
 
     const handleSendMessage = async (text: string) => {
         if (!conversation?.id) return;
@@ -118,7 +138,7 @@ export default function MessengerPage() {
                     thumbnailUrl={conversation.thumbnail_url}
                     onlineUserCount={conversation.onlineCount || 0}
                 />
-                <ScrollableView className="flex-1 px-4" vertical>
+                <ScrollableView ref={scrollRef} className="flex-1 px-4" vertical>
                     <div className="flex flex-col gap-2 py-4 w-full">
                         {messages.map((msg) => (
                             <ChatMessage

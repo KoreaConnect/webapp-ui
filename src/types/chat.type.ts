@@ -36,6 +36,21 @@ export type Message = {
     created_at?: string;
 };
 
+export type RawMessage = {
+    id: string | number;
+    content: string;
+    type: 'text' | 'system' | string;
+    sender_id: string | number;
+    conversation_id: string | number;
+    created_at: string;
+    sender?: {
+        name: string;
+        picture?: string;
+        avatar?: string;
+    };
+    metadata?: MessageMetadata;
+};
+
 export type ReactionMap = Record<string, Record<string, string[]>>;
 
 export type Conversation = {
