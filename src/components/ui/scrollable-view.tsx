@@ -11,7 +11,7 @@ interface ScrollableViewProps {
     className?: string;
 }
 
-export function ScrollableView({ children, vertical = true, horizontal = true, className = '' }: ScrollableViewProps) {
+export function ScrollableView({ children, vertical = true, horizontal = false, className = '' }: ScrollableViewProps) {
     return (
         <ScrollArea.Root className={`relative overflow-hidden ${className}`}>
             <ScrollArea.Viewport className="h-full w-full">{children}</ScrollArea.Viewport>

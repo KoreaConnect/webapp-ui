@@ -36,7 +36,7 @@ export default function MessengerPage() {
 
         // Don't add if it's our own message (we added it optimistically or via response)
         // If we want to avoid duplicates:
-        if (useCurrentMessages.getState().messages.some((m) => m.id === data.id)) return;
+        if (useCurrentMessages.getState().messages.some((m) => m.id.toString() === data.id.toString())) return;
 
         const isSystem = data.type === 'system' || data.sender_id === 0;
         let sender: Message['sender'] = 'other';
@@ -48,7 +48,7 @@ export default function MessengerPage() {
         }
 
         const newMessage: Message = {
-            id: data.id,
+            id: data.id.toString(),
             text: data.content || '',
             content: data.content,
             sender,
@@ -111,15 +111,15 @@ export default function MessengerPage() {
     }
 
     return (
-        <div className={cn('flex h-full bg-background overflow-hidden border-x border-border  relative')}>
+        <div className={cn('flex h-full bg-background overflow-hidden border-x border-border')}>
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader
                     title={conversation.title}
                     thumbnailUrl={conversation.thumbnail_url}
                     onlineUserCount={conversation.onlineCount || 0}
                 />
-                <ScrollableView className="flex-1 px-4">
-                    <div className="flex flex-col gap-2 py-4">
+                <ScrollableView className="flex-1 px-4" vertical>
+                    <div className="flex flex-col gap-2 py-4 w-full">
                         {messages.map((msg) => (
                             <ChatMessage
                                 key={msg.id}

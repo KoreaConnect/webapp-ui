@@ -36,8 +36,8 @@ function ChatMessage({ id, text, sender, time, avatar, name, readBy, type, metad
     }
 
     return (
-        <div key={id} className={cn('group relative flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}>
-            <div className={cn('flex items-start gap-2 max-w-[85%]', sender === 'me' && 'flex-row-reverse')}>
+        <div key={id} className={cn('flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}>
+            <div className={cn('flex items-start gap-2 w-full', sender === 'me' && 'flex-row-reverse')}>
                 <Avatar
                     src={avatar}
                     alt={name}
@@ -46,7 +46,7 @@ function ChatMessage({ id, text, sender, time, avatar, name, readBy, type, metad
                     className="mt-1 shrink-0"
                 />
 
-                <div className={cn('flex flex-col', sender === 'me' ? 'items-end' : 'items-start')}>
+                <div className={cn('flex', sender === 'me' ? 'items-end' : 'items-start')}>
                     <div className={cn('flex items-center gap-2', sender === 'me' && 'flex-row-reverse')}>
                         <MessageContent text={text} sender={sender} time={time} reactions={reactions} readBy={readBy} />
                         <MessageTools messageId={id} position={sender === 'me' ? 'right' : 'left'} />

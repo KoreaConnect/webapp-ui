@@ -16,18 +16,24 @@ type CurrentMessagesState = {
     sendMessage: (conversationId: string, content: string, replyToMessageId?: string | null) => Promise<void>;
 };
 
-export const useCurrentMessages = create<CurrentMessagesState>((set) => ({
+export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     messages: [],
     isLoading: false,
     setMessages: (messages) => set({ messages }),
-    addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
+    addMessage: (message) =>
+        set((state) => {
+            if (state.messages.some((m) => m.id.toString() === message.id.toString())) {
+                return state;
+            }
+            return { messages: [...state.messages, message] };
+        }),
     updateMessage: (id, updates) =>
         set((state) => ({
-            messages: state.messages.map((m) => (m.id === id ? { ...m, ...updates } : m)),
+            messages: state.messages.map((m) => (m.id.toString() === id.toString() ? { ...m, ...updates } : m)),
         })),
     removeMessage: (id) =>
         set((state) => ({
-            messages: state.messages.filter((m) => m.id !== id),
+            messages: state.messages.filter((m) => m.id.toString() !== id.toString()),
         })),
     clearMessages: () => set({ messages: [] }),
     sendMessage: async (conversationId, content, replyToMessageId) => {
@@ -38,7 +44,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set) => ({
             // const currentUserId = useAuthStore.getState().user?.id;
 
             const newMessage: Message = {
-                id: msg.id,
+                id: msg.id.toString(),
                 text: msg.content || '',
                 content: msg.content,
                 sender: 'me', // It's always 'me' when sending
@@ -52,7 +58,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set) => ({
                 avatar: useAuthStore.getState().user?.picture,
             };
 
-            set((state) => ({ messages: [...state.messages, newMessage] }));
+            get().addMessage(newMessage);
         } catch (error) {
             console.error('Failed to send message:', error);
             throw error;
@@ -75,7 +81,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set) => ({
                 }
 
                 return {
-                    id: msg.id,
+                    id: msg.id.toString(),
                     text: msg.content || '',
                     content: msg.content,
                     sender,
