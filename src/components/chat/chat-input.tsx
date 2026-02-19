@@ -120,6 +120,8 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
             editor?.commands.focus();
         };
 
+        console.log('test', disabled || (!editor?.getText().trim() && selectedFiles.length === 0));
+
         return (
             <div className="flex flex-col gap-2 p-4 mb-4 border-t border-border" onKeyDown={handleKeyDown}>
                 {selectedFiles.length > 0 && (

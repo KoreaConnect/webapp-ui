@@ -9,13 +9,14 @@ interface ScrollableViewProps {
     vertical?: boolean;
     horizontal?: boolean;
     className?: string;
+    onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
 }
 
 export const ScrollableView = React.forwardRef<HTMLDivElement, ScrollableViewProps>(
-    ({ children, vertical = true, horizontal = false, className = '' }, ref) => {
+    ({ children, vertical = true, horizontal = false, className = '', onScroll }, ref) => {
         return (
             <ScrollArea.Root className={`relative overflow-hidden ${className}`}>
-                <ScrollArea.Viewport ref={ref} className="h-full w-full">
+                <ScrollArea.Viewport ref={ref} className="h-full w-full" onScroll={onScroll}>
                     {children}
                 </ScrollArea.Viewport>
 

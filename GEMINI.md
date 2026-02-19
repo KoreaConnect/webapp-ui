@@ -263,7 +263,7 @@ Gemini CLI must generate code that is **fully compatible with the existing stack
 - Don't use TypeScript const enum.
 - Don't declare empty interfaces.
 - Don't let variables evolve into any type through reassignments.
-- Don't use the any type.
+- Don't use the `any` type.
 - Don't misuse the non-null assertion operator (!) in TypeScript files.
 - Don't use implicit any type on variable declarations.
 - Don't merge interfaces and classes unsafely.

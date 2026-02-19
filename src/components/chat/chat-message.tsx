@@ -36,7 +36,7 @@ function ChatMessage({ id, text, sender, time, avatar, name, readBy, type, metad
     }
 
     return (
-        <div key={id} className={cn('flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}>
+        <div key={id} className={cn('group relative flex w-full', sender === 'me' ? 'justify-end' : 'justify-start')}>
             <div className={cn('flex items-start gap-2 w-full', sender === 'me' && 'flex-row-reverse')}>
                 <Avatar src={avatar} alt={name} fallback={name?.slice(0, 1).toUpperCase()} size="sm" />
 

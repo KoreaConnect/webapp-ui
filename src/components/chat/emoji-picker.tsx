@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import data, { Emoji, Skin } from '@emoji-mart/data';
+import data, { Skin } from '@emoji-mart/data';
 // Keep data import, use type import for Emoji
 import dynamic from 'next/dynamic';
 
@@ -41,7 +41,6 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, isVisib
                 onClickOutside={onClose}
                 onEmojiSelect={(emoji: Skin) => {
                     // Use imported Emoji type
-                    console.log(emoji);
                     onEmojiSelect(emoji.native);
                 }}
             />

@@ -1,24 +1,31 @@
 import { useAuthStore } from '@/store/use-auth-store';
-import type { Message } from '@/types/chat.type';
+import type { Message, RawMessage } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
 
+const LIMIT_MESSAGES = 50;
+
 type CurrentMessagesState = {
     messages: Message[];
     isLoading: boolean;
+    isFetchingMore: boolean;
+    hasMore: boolean;
     setMessages: (messages: Message[]) => void;
     addMessage: (message: Message) => void;
     updateMessage: (id: string, updates: Partial<Message>) => void;
     removeMessage: (id: string) => void;
     clearMessages: () => void;
     fetchMessages: (conversationId: string) => Promise<void>;
+    fetchMoreMessages: (conversationId: string) => Promise<void>;
     sendMessage: (conversationId: string, content: string, replyToMessageId?: string | null) => Promise<void>;
 };
 
 export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     messages: [],
     isLoading: false,
+    isFetchingMore: false,
+    hasMore: true,
     setMessages: (messages) => set({ messages }),
     addMessage: (message) =>
         set((state) => {
@@ -35,12 +42,11 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set((state) => ({
             messages: state.messages.filter((m) => m.id.toString() !== id.toString()),
         })),
-    clearMessages: () => set({ messages: [] }),
+    clearMessages: () => set({ messages: [], hasMore: true }),
     sendMessage: async (conversationId, content, replyToMessageId) => {
-        console.log('Sending message:', content);
         try {
             const response = await conversationService.sendMessage(conversationId, content, replyToMessageId);
-            const msg = response.data;
+            const msg: RawMessage = response.data;
             // const currentUserId = useAuthStore.getState().user?.id;
 
             const newMessage: Message = {
@@ -48,7 +54,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 text: msg.content || '',
                 content: msg.content,
                 sender: 'me', // It's always 'me' when sending
-                type: msg.type,
+                type: msg.type as 'text' | 'system',
                 metadata: msg.metadata,
                 time: msg.created_at
                     ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -65,13 +71,13 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         }
     },
     fetchMessages: async (conversationId) => {
-        set({ isLoading: true });
+        set({ isLoading: true, hasMore: true });
         try {
-            const response = await conversationService.getMessages(conversationId);
+            const response = await conversationService.getMessages(conversationId, LIMIT_MESSAGES);
             const currentUserId = useAuthStore.getState().user?.id;
 
-            const mappedMessages: Message[] = response.data.map((msg) => {
-                const isSystem = msg.type === 'system' || msg.sender_id === 0;
+            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+                const isSystem = msg.type === 'system' || msg.sender_id.toString() === '0';
                 let sender: Message['sender'] = 'other';
 
                 if (isSystem) {
@@ -85,7 +91,53 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                     text: msg.content || '',
                     content: msg.content,
                     sender,
-                    type: msg.type,
+                    type: msg.type as 'text' | 'system',
+                    metadata: msg.metadata,
+                    time: msg.created_at
+                        ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : '',
+                    created_at: msg.created_at,
+                    name: msg.sender?.name || (sender === 'me' ? 'Me' : 'Other'),
+                    avatar: msg.sender?.picture || msg.sender?.avatar || msg.metadata?.user?.picture,
+                };
+            });
+
+            set({ messages: mappedMessages, isLoading: false, hasMore: mappedMessages.length >= LIMIT_MESSAGES });
+        } catch (error) {
+            console.error('Failed to fetch messages:', error);
+            set({ isLoading: false });
+        }
+    },
+    fetchMoreMessages: async (conversationId) => {
+        const { messages, isFetchingMore, hasMore } = get();
+        if (isFetchingMore || !hasMore || messages.length === 0) return;
+
+        set({ isFetchingMore: true });
+        try {
+            const oldestMessage = messages[0];
+            const response = await conversationService.getMessages(
+                conversationId,
+                LIMIT_MESSAGES,
+                oldestMessage.created_at,
+            );
+            const currentUserId = useAuthStore.getState().user?.id;
+
+            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+                const isSystem = msg.type === 'system' || msg.sender_id.toString() === '0';
+                let sender: Message['sender'] = 'other';
+
+                if (isSystem) {
+                    sender = 'system';
+                } else if (msg.sender_id.toString() === currentUserId?.toString()) {
+                    sender = 'me';
+                }
+
+                return {
+                    id: msg.id.toString(),
+                    text: msg.content || '',
+                    content: msg.content,
+                    sender,
+                    type: msg.type as 'text' | 'system',
                     metadata: msg.metadata,
                     time: msg.created_at
                         ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -96,10 +148,18 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 };
             });
 
-            set({ messages: mappedMessages, isLoading: false });
+            if (mappedMessages.length === 0) {
+                set({ hasMore: false, isFetchingMore: false });
+            } else {
+                set((state) => ({
+                    messages: [...mappedMessages, ...state.messages],
+                    isFetchingMore: false,
+                    hasMore: mappedMessages.length >= LIMIT_MESSAGES,
+                }));
+            }
         } catch (error) {
-            console.error('Failed to fetch messages:', error);
-            set({ isLoading: false });
+            console.error('Failed to fetch more messages:', error);
+            set({ isFetchingMore: false });
         }
     },
 }));
