@@ -42,13 +42,18 @@ export function ReadReceipts({ readBy, sender }: ReadReceiptsProps) {
             className={cn('absolute -bottom-4 flex items-center gap-1', sender === 'me' ? 'right-4' : 'left-4')}
         >
             <div className="flex -space-x-1.5 overflow-hidden">
-                {displayedReadBy.map((user) => (
+                {displayedReadBy.map((receipt) => (
                     <div
-                        key={user.userId}
-                        data-tippy-content={`Read by ${user.name} at ${user.readAt}`}
+                        key={receipt.user.id}
+                        data-tippy-content={`Read by ${receipt.user.name} at ${receipt.readAt}`}
                         className="inline-block ring-2 ring-background rounded-full transition-transform hover:scale-110 hover:z-10 cursor-help"
                     >
-                        <Avatar src={user.avatar} alt={user.name} size={18} className="h-4 w-4" />
+                        <Avatar
+                            src={receipt.user.picture || undefined}
+                            alt={receipt.user.name}
+                            size={18}
+                            className="h-4 w-4"
+                        />
                     </div>
                 ))}
             </div>

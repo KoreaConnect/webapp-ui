@@ -40,3 +40,36 @@ export const sendMessage = async (conversationId: string, content: string, reply
         throw error;
     }
 };
+
+export const markAsRead = async (conversationId: string, lastMessageId: string | number) => {
+    try {
+        const response = await instance.post(`/conversations/${conversationId}/read`, {
+            last_message_id: lastMessageId,
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const addReaction = async (messageId: string | number, reaction: string) => {
+    try {
+        const response = await instance.post(`/messages/${messageId}/reactions`, {
+            reaction,
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const removeReaction = async (messageId: string | number, reaction: string) => {
+    try {
+        const response = await instance.delete(`/messages/${messageId}/reactions`, {
+            data: { reaction },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

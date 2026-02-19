@@ -33,10 +33,21 @@ export default function MessengerPage() {
         fetchMessages,
         fetchMoreMessages,
         sendMessage,
+        markAsRead,
         isLoading: isMessagesLoading,
         isFetchingMore,
         hasMore,
     } = useCurrentMessages();
+
+    // read conversation
+    useEffect(() => {
+        if (!conversation) return;
+        if (conversation?.id && conversation.is_joined && messages.length > 0 && !isMessagesLoading) {
+            const lastMessage = messages[messages.length - 1];
+            markAsRead(conversation.id, lastMessage.id);
+        }
+    }, [conversation?.id, conversation?.is_joined, messages, isMessagesLoading, markAsRead]);
+
     const currentUser = useAuthStore((state) => state.user);
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,6 +114,14 @@ export default function MessengerPage() {
         addMessage(newMessage);
     });
 
+    useSocketListener<{ message_id: string | number; reaction: string; user_ids: string[] }>(
+        'chat:reaction',
+        (data) => {
+            const { setReaction } = useChatStore.getState();
+            setReaction(data.message_id.toString(), data.reaction, data.user_ids);
+        },
+    );
+
     console.log('messages', messages);
 
     useEffect(() => {
@@ -166,7 +185,7 @@ export default function MessengerPage() {
     }
 
     return (
-        <div className={cn('flex h-full bg-background overflow-hidden border-x border-border')}>
+        <div className={cn('relative flex h-full bg-background overflow-hidden border-x border-border')}>
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader
                     title={conversation.title}
@@ -174,7 +193,7 @@ export default function MessengerPage() {
                     onlineUserCount={conversation.onlineCount || 0}
                 />
                 <ScrollableView ref={scrollRef} className="flex-1 px-4" vertical onScroll={handleScroll}>
-                    <div className="flex flex-col gap-2 py-4 w-full">
+                    <div className="flex flex-col gap-2 py-4 pb-10  w-full">
                         {isFetchingMore && <Loader size={16} className="py-2" />}
                         {messages.map((msg) => (
                             <ChatMessage

@@ -1,9 +1,14 @@
 export type ReadReceipt = {
-    userId: string;
-    name: string;
-    avatar: string;
+    user: BasicUserInfo;
     readAt: string;
 };
+
+export interface BasicUserInfo {
+    id: number;
+    name: string;
+    username: string;
+    picture: string | null;
+}
 
 export type MessageSender = 'me' | 'other' | 'system';
 
@@ -34,6 +39,8 @@ export type Message = {
     avatar?: string;
     readBy?: ReadReceipt[];
     created_at?: string;
+    reactions?: Record<string, string[]>;
+    read_by?: { user: BasicUserInfo; read_at: string | Date }[];
 };
 
 export type RawMessage = {
@@ -49,6 +56,14 @@ export type RawMessage = {
         avatar?: string;
     };
     metadata?: MessageMetadata;
+    reactions?: {
+        user: BasicUserInfo;
+        reaction: string;
+    }[];
+    read_by?: {
+        user: BasicUserInfo;
+        read_at: string;
+    }[];
 };
 
 export type ReactionMap = Record<string, Record<string, string[]>>;
@@ -67,7 +82,7 @@ export type Conversation = {
     type: string;
     slug: string;
     is_public: boolean;
-    is_joined?: boolean;
+    is_joined: boolean;
     members_count?: number;
     post_id: string | null;
     last_message_id: string | null;

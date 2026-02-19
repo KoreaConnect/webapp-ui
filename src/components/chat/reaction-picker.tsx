@@ -5,22 +5,37 @@ import React from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Smile } from 'lucide-react';
 
+import Angry from '@/assets/emoij/angry';
+import Care from '@/assets/emoij/care';
+import Haha from '@/assets/emoij/haha';
+import Like from '@/assets/emoij/like';
+import Love from '@/assets/emoij/love';
+import Sad from '@/assets/emoij/sad';
+import Wow from '@/assets/emoij/wow';
+
 import { cn } from '@/utils/cn';
 
 export const REACTIONS = [
-    { emoji: '👍', label: 'like' },
-    { emoji: '❤️', label: 'love' },
-    { emoji: '😂', label: 'haha' },
-    { emoji: '😮', label: 'wow' },
-    { emoji: '😢', label: 'cry' },
-    { emoji: '😡', label: 'angry' },
+    { Icon: Like, label: 'like' },
+
+    { Icon: Love, label: 'love' },
+
+    { Icon: Care, label: 'care' },
+
+    { Icon: Haha, label: 'haha' },
+
+    { Icon: Wow, label: 'wow' },
+
+    { Icon: Sad, label: 'sad' },
+
+    { Icon: Angry, label: 'angry' },
 ];
 
 interface ReactionPickerProps {
     className?: string;
     reactions: Record<string, string[]>;
     currentUserId: string;
-    onSelect: (emoji: string) => void;
+    onSelect: (type: string) => void;
     align?: 'start' | 'end' | 'center';
     side?: 'top' | 'bottom' | 'left' | 'right';
     onOpenChange?: (open: boolean) => void;
@@ -56,11 +71,11 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
                     className="flex gap-1 p-1 bg-white dark:bg-zinc-900 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in duration-200 z-50"
                 >
                     {REACTIONS.map((r) => {
-                        const isSelected = reactions[r.emoji]?.includes(currentUserId);
+                        const isSelected = reactions[r.label]?.includes(currentUserId);
                         return (
                             <DropdownMenu.Item
                                 key={r.label}
-                                onClick={() => onSelect(r.emoji)}
+                                onClick={() => onSelect(r.label)}
                                 className={cn(
                                     'p-1.5 rounded-full cursor-pointer transition-transform hover:scale-125 outline-none',
                                     isSelected
@@ -68,7 +83,7 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
                                         : 'hover:bg-zinc-100 dark:hover:bg-zinc-800',
                                 )}
                             >
-                                <span className="block text-xl leading-none select-none h-5 w-5">{r.emoji}</span>
+                                <r.Icon width={24} height={24} className="block select-none" />
                             </DropdownMenu.Item>
                         );
                     })}
