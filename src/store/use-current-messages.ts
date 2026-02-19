@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
-import type { Message, RawMessage } from '@/types/chat.type';
+import type { BasicUserInfo, Message, RawMessage } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
@@ -35,6 +35,7 @@ type CurrentMessagesState = {
     fetchMoreMessages: (conversationId: string) => Promise<void>;
     sendMessage: (conversationId: string, content: string, replyToMessageId?: string | null) => Promise<void>;
     markAsRead: (conversationId: string, lastMessageId: string | number) => Promise<void>;
+    updateReadStatus: (userId: string, lastReadMessageId: string, lastReadMessageAt: string) => void;
 };
 
 export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
@@ -43,16 +44,81 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     isFetchingMore: false,
     hasMore: true,
     setMessages: (messages) => set({ messages }),
+    updateReadStatus: (userId, lastReadMessageId, lastReadMessageAt) => {
+        set((state) => {
+            // 1. Find user info first from existing state
+            let userInfo: BasicUserInfo | null = null;
+            for (const m of state.messages) {
+                const found = m.readBy?.find((r) => r.user.id.toString() === userId.toString());
+                if (found) {
+                    userInfo = found.user;
+                    break;
+                }
+                if (m.metadata?.user?.id.toString() === userId.toString()) {
+                    userInfo = {
+                        id: Number(m.metadata.user.id),
+                        name: m.metadata.user.name,
+                        username: m.metadata.user.username || '',
+                        picture: m.metadata.user.picture || null,
+                    };
+                    break;
+                }
+            }
+
+            if (!userInfo) return state;
+
+            // 2. Update all messages
+            return {
+                messages: state.messages.map((msg) => {
+                    const currentReadBy = msg.readBy || [];
+                    const isTargetMessage = msg.id.toString() === lastReadMessageId.toString();
+
+                    // Remove from all messages (user can only have one "last read" position)
+                    const filteredReadBy = currentReadBy.filter((r) => r.user.id.toString() !== userId.toString());
+
+                    if (isTargetMessage) {
+                        return {
+                            ...msg,
+                            readBy: [
+                                ...filteredReadBy,
+                                {
+                                    user: userInfo!,
+                                    readAt: new Date(lastReadMessageAt).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    }),
+                                },
+                            ],
+                        };
+                    }
+
+                    return { ...msg, readBy: filteredReadBy };
+                }),
+            };
+        });
+    },
     addMessage: (message) => {
-        const { id, reactions } = message;
+        const { id, reactions, readBy } = message;
         if (reactions) {
             useChatStore.getState().setMessageReactions({ [id]: reactions });
         }
         set((state) => {
+            // 1. If the message already exists, don't add it again
             if (state.messages.some((m) => m.id.toString() === message.id.toString())) {
                 return state;
             }
-            return { messages: [...state.messages, message] };
+
+            // 2. If the new message has read receipts, remove those users from any older messages
+            let updatedMessages = [...state.messages];
+            if (readBy && readBy.length > 0) {
+                const userIdsInNewReceipts = new Set(readBy.map((r) => r.user.id.toString()));
+                updatedMessages = updatedMessages.map((m) => ({
+                    ...m,
+                    readBy: m.readBy?.filter((r) => !userIdsInNewReceipts.has(r.user.id.toString())),
+                }));
+            }
+
+            return { messages: [...updatedMessages, message] };
         });
     },
     updateMessage: (id, updates) =>
@@ -78,6 +144,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             // const currentUserId = useAuthStore.getState().user?.id;
 
             const currentUser = useAuthStore.getState().user;
+
             const newMessage: Message = {
                 id: msg.id.toString(),
                 text: msg.content || '',

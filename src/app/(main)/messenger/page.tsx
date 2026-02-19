@@ -34,16 +34,22 @@ export default function MessengerPage() {
         fetchMoreMessages,
         sendMessage,
         markAsRead,
+        updateReadStatus,
         isLoading: isMessagesLoading,
         isFetchingMore,
         hasMore,
     } = useCurrentMessages();
 
-    // read conversation
+    // Track the last seen message ID to avoid redundant markAsRead calls
+    const lastReadMessageIdRef = useRef<string | null>(null);
+
+    // read conversation - only when last message changes
     useEffect(() => {
-        if (!conversation) return;
-        if (conversation?.id && conversation.is_joined && messages.length > 0 && !isMessagesLoading) {
-            const lastMessage = messages[messages.length - 1];
+        if (!conversation?.id || !conversation.is_joined || messages.length === 0 || isMessagesLoading) return;
+
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.id !== lastReadMessageIdRef.current) {
+            lastReadMessageIdRef.current = lastMessage.id;
             markAsRead(conversation.id, lastMessage.id);
         }
     }, [conversation?.id, conversation?.is_joined, messages, isMessagesLoading, markAsRead]);
@@ -135,6 +141,19 @@ export default function MessengerPage() {
             removeReactionFromState(data.message_id, data.reaction, data.user_id.toString());
         },
     );
+
+    useSocketListener<{
+        conversation_id: string;
+        user_id: string | number;
+        last_read_message_id: string;
+        last_read_message_at: string;
+    }>('chat:read_status', (data) => {
+        // Ignore if it's our own status (already handled by local actions)
+        if (data.user_id.toString() === currentUser?.id.toString()) return;
+        if (data.conversation_id.toString() !== conversation?.id.toString()) return;
+
+        updateReadStatus(data.user_id.toString(), data.last_read_message_id, data.last_read_message_at);
+    });
 
     console.log('messages', messages);
 

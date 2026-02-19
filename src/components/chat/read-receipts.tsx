@@ -39,7 +39,7 @@ export function ReadReceipts({ readBy, sender }: ReadReceiptsProps) {
     return (
         <div
             ref={containerRef}
-            className={cn('absolute -bottom-4 flex items-center gap-1', sender === 'me' ? 'right-4' : 'left-4')}
+            className={cn('relative flex items-center gap-1', sender === 'me' ? 'right-4' : 'left-4')}
         >
             <div className="flex -space-x-1.5 overflow-hidden">
                 {displayedReadBy.map((receipt) => (
