@@ -41,6 +41,8 @@ export type Message = {
     created_at?: string;
     reactions?: Record<string, string[]>;
     read_by?: { user: BasicUserInfo; read_at: string | Date }[];
+    reply_to_message_id?: string | null;
+    reply_to_message?: Message | null;
 };
 
 export type RawMessage = {
@@ -64,6 +66,8 @@ export type RawMessage = {
         user: BasicUserInfo;
         read_at: string;
     }[];
+    reply_to_message_id?: string | null;
+    reply_to_message?: RawMessage | null;
 };
 
 export type ReactionMap = Record<string, Record<string, string[]>>;

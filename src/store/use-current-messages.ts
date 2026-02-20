@@ -21,6 +21,47 @@ const mapReactions = (reactions?: RawMessage['reactions']): Record<string, strin
     return map;
 };
 
+export const mapRawMessageToMessage = (msg: RawMessage, currentUserId?: string | number): Message => {
+    const effectiveSenderId = msg.sender_id || msg.metadata?.user?.id || msg.metadata?.user_id;
+    const isSystem = msg.type === 'system' || effectiveSenderId?.toString() === '0';
+    let sender: Message['sender'] = 'other';
+
+    if (isSystem) {
+        sender = 'system';
+    } else if (effectiveSenderId?.toString() === currentUserId?.toString()) {
+        sender = 'me';
+    }
+
+    const mappedReactions = mapReactions(msg.reactions);
+
+    return {
+        id: msg.id?.toString() || Math.random().toString(36).substring(7),
+        text: msg.content || '',
+        content: msg.content,
+        sender,
+        type: msg.type as 'text' | 'system',
+        metadata: msg.metadata,
+        time: msg.created_at
+            ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : '',
+        created_at: msg.created_at,
+        name: msg.sender?.name || msg.metadata?.user?.name || (sender === 'me' ? 'Me' : 'Other'),
+        avatar:
+            msg.sender?.picture ||
+            msg.sender?.avatar ||
+            msg.metadata?.user?.picture ||
+            msg.metadata?.user?.avatar ||
+            undefined,
+        reactions: mappedReactions,
+        readBy: msg.read_by?.map((r) => ({
+            user: r.user,
+            readAt: r.read_at ? new Date(r.read_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        })),
+        reply_to_message_id: msg.reply_to_message_id?.toString() || null,
+        reply_to_message: msg.reply_to_message ? mapRawMessageToMessage(msg.reply_to_message, currentUserId) : null,
+    };
+};
+
 type CurrentMessagesState = {
     messages: Message[];
     isLoading: boolean;
@@ -141,38 +182,15 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         try {
             const response = await conversationService.sendMessage(conversationId, content, replyToMessageId);
             const msg: RawMessage = response.data;
-            // const currentUserId = useAuthStore.getState().user?.id;
-
             const currentUser = useAuthStore.getState().user;
 
-            const newMessage: Message = {
-                id: msg.id.toString(),
-                text: msg.content || '',
-                content: msg.content,
-                sender: 'me', // It's always 'me' when sending
-                type: msg.type as 'text' | 'system',
-                metadata: msg.metadata,
-                time: msg.created_at
-                    ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                created_at: msg.created_at,
-                name: 'Me',
-                avatar: currentUser?.picture,
-                reactions: mapReactions(msg.reactions),
-                readBy: currentUser
-                    ? [
-                          {
-                              user: {
-                                  id: Number(currentUser.id),
-                                  name: currentUser.name,
-                                  username: '', // Not needed for receipt
-                                  picture: currentUser.picture || null,
-                              },
-                              readAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                          },
-                      ]
-                    : [],
-            };
+            const newMessage = mapRawMessageToMessage(msg, currentUser?.id);
+            // Overwrite sender to 'me' if needed, though mapRawMessageToMessage should handle it
+            newMessage.sender = 'me';
+            newMessage.name = 'Me';
+            if (currentUser) {
+                newMessage.avatar = currentUser.picture;
+            }
 
             get().addMessage(newMessage);
         } catch (error) {
@@ -189,37 +207,9 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             const reactionsMap: Record<string, Record<string, string[]>> = {};
 
             const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
-                const isSystem = msg.type === 'system' || msg.sender_id.toString() === '0';
-                let sender: Message['sender'] = 'other';
-
-                if (isSystem) {
-                    sender = 'system';
-                } else if (msg.sender_id.toString() === currentUserId?.toString()) {
-                    sender = 'me';
-                }
-
-                const mappedReactions = mapReactions(msg.reactions);
-                reactionsMap[msg.id.toString()] = mappedReactions;
-
-                return {
-                    id: msg.id.toString(),
-                    text: msg.content || '',
-                    content: msg.content,
-                    sender,
-                    type: msg.type as 'text' | 'system',
-                    metadata: msg.metadata,
-                    time: msg.created_at
-                        ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : '',
-                    created_at: msg.created_at,
-                    name: msg.sender?.name || (sender === 'me' ? 'Me' : 'Other'),
-                    avatar: msg.sender?.picture || msg.sender?.avatar || msg.metadata?.user?.picture,
-                    reactions: mappedReactions,
-                    readBy: msg.read_by?.map((r) => ({
-                        user: r.user,
-                        readAt: new Date(r.read_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    })),
-                };
+                const message = mapRawMessageToMessage(msg, currentUserId);
+                reactionsMap[message.id] = message.reactions || {};
+                return message;
             });
 
             useChatStore.getState().setMessageReactions(reactionsMap);
@@ -246,37 +236,9 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             const reactionsMap: Record<string, Record<string, string[]>> = {};
 
             const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
-                const isSystem = msg.type === 'system' || msg.sender_id.toString() === '0';
-                let sender: Message['sender'] = 'other';
-
-                if (isSystem) {
-                    sender = 'system';
-                } else if (msg.sender_id.toString() === currentUserId?.toString()) {
-                    sender = 'me';
-                }
-
-                const mappedReactions = mapReactions(msg.reactions);
-                reactionsMap[msg.id.toString()] = mappedReactions;
-
-                return {
-                    id: msg.id.toString(),
-                    text: msg.content || '',
-                    content: msg.content,
-                    sender,
-                    type: msg.type as 'text' | 'system',
-                    metadata: msg.metadata,
-                    time: msg.created_at
-                        ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : '',
-                    created_at: msg.created_at,
-                    name: msg.sender?.name || (sender === 'me' ? 'Me' : 'Other'),
-                    avatar: msg.sender?.picture || msg.sender?.avatar,
-                    reactions: mappedReactions,
-                    readBy: msg.read_by?.map((r) => ({
-                        user: r.user,
-                        readAt: new Date(r.read_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    })),
-                };
+                const message = mapRawMessageToMessage(msg, currentUserId);
+                reactionsMap[message.id] = message.reactions || {};
+                return message;
             });
 
             useChatStore.getState().setMessageReactions(reactionsMap);

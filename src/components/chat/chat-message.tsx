@@ -25,9 +25,22 @@ type ChatMessageProps = {
     type?: 'text' | 'system';
     metadata?: MessageMetadata;
     content?: string;
+    reply_to_message?: Message | null;
 };
 
-function ChatMessage({ id, text, sender, time, avatar, name, readBy, type, metadata, content }: ChatMessageProps) {
+function ChatMessage({
+    id,
+    text,
+    sender,
+    time,
+    avatar,
+    name,
+    readBy,
+    type,
+    metadata,
+    content,
+    reply_to_message,
+}: ChatMessageProps) {
     const messageReactions = useChatStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
 
@@ -49,7 +62,15 @@ function ChatMessage({ id, text, sender, time, avatar, name, readBy, type, metad
 
                 <div className={cn('flex', sender === 'me' ? 'items-end' : 'items-start')}>
                     <div className={cn('flex items-center gap-2', sender === 'me' && 'flex-row-reverse')}>
-                        <MessageContent text={text} sender={sender} time={time} reactions={reactions} readBy={readBy} />
+                        <MessageContent
+                            id={id}
+                            text={text}
+                            sender={sender}
+                            time={time}
+                            reactions={reactions}
+                            readBy={readBy}
+                            reply_to_message={reply_to_message}
+                        />
                         <MessageTools messageId={id} position={sender === 'me' ? 'right' : 'left'} />
                     </div>
                 </div>

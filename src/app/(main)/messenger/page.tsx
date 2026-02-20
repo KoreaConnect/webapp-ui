@@ -5,8 +5,8 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
-import { useCurrentMessages } from '@/store/use-current-messages';
-import type { Message, RawMessage } from '@/types/chat.type';
+import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
+import type { RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -93,29 +93,7 @@ export default function MessengerPage() {
         // If we want to avoid duplicates:
         if (useCurrentMessages.getState().messages.some((m) => m.id.toString() === data.id.toString())) return;
 
-        const isSystem = data.type === 'system' || data.sender_id.toString() === '0';
-        let sender: Message['sender'] = 'other';
-
-        if (isSystem) {
-            sender = 'system';
-        } else if (data.sender_id.toString() === currentUser?.id?.toString()) {
-            sender = 'me';
-        }
-
-        const newMessage: Message = {
-            id: data.id.toString(),
-            text: data.content || '',
-            content: data.content,
-            sender,
-            type: data.type as 'text' | 'system',
-            metadata: data.metadata,
-            time: data.created_at
-                ? new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            created_at: data.created_at,
-            name: data.sender?.name || (sender === 'me' ? 'Me' : 'Other'),
-            avatar: data.sender?.picture || data.sender?.avatar,
-        };
+        const newMessage = mapRawMessageToMessage(data, currentUser?.id);
 
         addMessage(newMessage);
     });
@@ -154,8 +132,6 @@ export default function MessengerPage() {
 
         updateReadStatus(data.user_id.toString(), data.last_read_message_id, data.last_read_message_at);
     });
-
-    console.log('messages', messages);
 
     useEffect(() => {
         fetchConversationBySlug('community');
@@ -241,6 +217,7 @@ export default function MessengerPage() {
                                 type={msg.type}
                                 metadata={msg.metadata}
                                 content={msg.content}
+                                reply_to_message={msg.reply_to_message}
                             />
                         ))}
                     </div>
