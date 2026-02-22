@@ -29,8 +29,30 @@ export const getMessages = async (conversationId: string, limit?: number, before
     }
 };
 
-export const sendMessage = async (conversationId: string, content: string, replyToMessageId?: string | null) => {
+export const sendMessage = async (
+    conversationId: string,
+    content: string,
+    files: File[],
+    replyToMessageId?: string | null,
+) => {
     try {
+        if (files && files.length > 0) {
+            const formData = new FormData();
+            formData.append('content', content);
+            if (replyToMessageId) {
+                formData.append('reply_to_message_id', replyToMessageId);
+            }
+            files.forEach((file) => {
+                formData.append('files', file);
+            });
+
+            const response = await instance.post(`/conversations/${conversationId}/messages`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        }
         const response = await instance.post(`/conversations/${conversationId}/messages`, {
             content,
             reply_to_message_id: replyToMessageId,

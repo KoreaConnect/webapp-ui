@@ -1,6 +1,5 @@
-import React from 'react';
-
-import type { Message, ReadReceipt } from '@/types/chat.type';
+import type { Attachment, Message } from '@/types/chat.type';
+import { FileText } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
 
@@ -10,13 +9,12 @@ type MessageContentProps = {
     id: string;
     text: string;
     sender: 'me' | 'other';
-    time: string;
     reactions: Record<string, string[]>;
-    readBy?: ReadReceipt[];
     reply_to_message?: Message | null;
+    attachments?: Attachment[];
 };
 
-export function MessageContent({ id, text, sender, time, reactions, readBy, reply_to_message }: MessageContentProps) {
+export function MessageContent({ id, text, sender, reactions, reply_to_message, attachments }: MessageContentProps) {
     const scrollToMessage = (msgId: string) => {
         const element = document.getElementById(`message-${msgId}`);
         if (element) {
@@ -38,7 +36,7 @@ export function MessageContent({ id, text, sender, time, reactions, readBy, repl
                 if (parsed.text) return parsed.text;
                 if (parsed.content) return parsed.content;
             }
-        } catch (e) {
+        } catch (_e) {
             // Not JSON
         }
         return content;
@@ -71,18 +69,57 @@ export function MessageContent({ id, text, sender, time, reactions, readBy, repl
                 </div>
             )}
 
-            <div
-                id={`message-${id}`}
-                className={cn(
-                    'rounded-2xl p-3 text-sm wrap-break-word shadow-sm mb-2 max-w-full',
-                    sender === 'me'
-                        ? 'bg-primary rounded-tr-none text-white'
-                        : 'bg-zinc-200 text-zinc-800 rounded-tl-none dark:bg-zinc-800 dark:text-zinc-100',
-                    reply_to_message && (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
-                )}
-            >
-                <p className="">{text}</p>
-            </div>
+            {attachments && attachments.length > 0 && (
+                <div
+                    className={cn(
+                        'flex flex-col gap-2 p-2 rounded-lg mb-2 max-w-full',
+                        sender === 'me'
+                            ? 'bg-primary/80 rounded-br-none text-white'
+                            : 'bg-zinc-200 text-zinc-800 rounded-bl-none dark:bg-zinc-800 dark:text-zinc-100',
+                        reply_to_message && (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
+                    )}
+                >
+                    {attachments.map((attachment) => (
+                        <a
+                            key={attachment.id}
+                            href={attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-2 rounded-md bg-white/20 hover:bg-white/30 transition-colors"
+                        >
+                            {attachment.mime_type?.startsWith('image/') ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={attachment.url}
+                                    alt={attachment.name || 'Attached image'}
+                                    className="max-h-32 object-contain rounded-md"
+                                />
+                            ) : (
+                                <FileText className="h-5 w-5 text-white" />
+                            )}
+                            <span className="text-sm text-white truncate">{attachment.name || 'File'}</span>
+                        </a>
+                    ))}
+                </div>
+            )}
+
+            {text.trim() !== '' && (
+                <div
+                    id={`message-${id}`}
+                    className={cn(
+                        'rounded-2xl p-3 text-sm wrap-break-word shadow-sm mb-2 max-w-full',
+                        sender === 'me'
+                            ? 'bg-primary rounded-tr-none text-white'
+                            : 'bg-zinc-200 text-zinc-800 rounded-tl-none dark:bg-zinc-800 dark:text-zinc-100',
+                        reply_to_message && (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
+                        attachments &&
+                            attachments.length > 0 &&
+                            (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
+                    )}
+                >
+                    <p className="">{text}</p>
+                </div>
+            )}
 
             <ReactionGroup reactions={reactions} sender={sender} />
         </div>

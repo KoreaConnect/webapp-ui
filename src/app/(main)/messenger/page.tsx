@@ -166,11 +166,11 @@ export default function MessengerPage() {
         }
     }, [messages, isMessagesLoading]);
 
-    const handleSendMessage = async (text: string) => {
+    const handleSendMessage = async (text: string, files: File[]) => {
         if (!conversation?.id) return;
 
         try {
-            await sendMessage(conversation.id, text, replyingTo?.id);
+            await sendMessage(conversation.id, text, files, replyingTo?.id);
             cancelReply();
         } catch (error) {
             console.error('Error in handleSendMessage:', error);
@@ -192,6 +192,8 @@ export default function MessengerPage() {
             </div>
         );
     }
+
+    console.log({ messages });
 
     return (
         <div className={cn('relative flex h-full bg-background overflow-hidden border-x border-border')}>
@@ -218,6 +220,7 @@ export default function MessengerPage() {
                                 metadata={msg.metadata}
                                 content={msg.content}
                                 reply_to_message={msg.reply_to_message}
+                                attachments={msg.attachments}
                             />
                         ))}
                     </div>

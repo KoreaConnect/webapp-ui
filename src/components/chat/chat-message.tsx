@@ -1,9 +1,7 @@
 'use client';
 
-import React from 'react';
-
 import { useChatStore } from '@/store/use-chat-store';
-import type { Message, MessageMetadata, ReadReceipt } from '@/types/chat.type';
+import type { Attachment, Message, MessageMetadata, ReadReceipt } from '@/types/chat.type';
 
 import Avatar from '@/components/ui/avatar';
 
@@ -26,6 +24,7 @@ type ChatMessageProps = {
     metadata?: MessageMetadata;
     content?: string;
     reply_to_message?: Message | null;
+    attachments?: Attachment[];
 };
 
 function ChatMessage({
@@ -40,6 +39,7 @@ function ChatMessage({
     metadata,
     content,
     reply_to_message,
+    attachments,
 }: ChatMessageProps) {
     const messageReactions = useChatStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
@@ -66,10 +66,9 @@ function ChatMessage({
                             id={id}
                             text={text}
                             sender={sender}
-                            time={time}
                             reactions={reactions}
-                            readBy={readBy}
                             reply_to_message={reply_to_message}
+                            attachments={attachments}
                         />
                         <MessageTools messageId={id} position={sender === 'me' ? 'right' : 'left'} />
                     </div>

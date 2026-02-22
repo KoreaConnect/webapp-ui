@@ -27,6 +27,17 @@ export type MessageMetadata = {
     user_id?: string | number;
 };
 
+export type Attachment = {
+    id: string;
+    url: string;
+    name?: string;
+    size?: number;
+    type: string;
+    mime_type?: string;
+    metadata?: Record<string, unknown>;
+    created_at?: string;
+};
+
 export type Message = {
     id: string;
     text: string;
@@ -43,6 +54,7 @@ export type Message = {
     read_by?: { user: BasicUserInfo; read_at: string | Date }[];
     reply_to_message_id?: string | null;
     reply_to_message?: Message | null;
+    attachments?: Attachment[];
 };
 
 export type RawMessage = {
@@ -68,6 +80,7 @@ export type RawMessage = {
     }[];
     reply_to_message_id?: string | null;
     reply_to_message?: RawMessage | null;
+    attachments?: Attachment[];
 };
 
 export type ReactionMap = Record<string, Record<string, string[]>>;

@@ -59,6 +59,7 @@ export const mapRawMessageToMessage = (msg: RawMessage, currentUserId?: string |
         })),
         reply_to_message_id: msg.reply_to_message_id?.toString() || null,
         reply_to_message: msg.reply_to_message ? mapRawMessageToMessage(msg.reply_to_message, currentUserId) : null,
+        attachments: msg.attachments,
     };
 };
 
@@ -178,9 +179,9 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             console.error('Failed to mark as read:', error);
         }
     },
-    sendMessage: async (conversationId, content, replyToMessageId) => {
+    sendMessage: async (conversationId, content, files, replyToMessageId) => {
         try {
-            const response = await conversationService.sendMessage(conversationId, content, replyToMessageId);
+            const response = await conversationService.sendMessage(conversationId, content, files, replyToMessageId);
             const msg: RawMessage = response.data;
             const currentUser = useAuthStore.getState().user;
 
