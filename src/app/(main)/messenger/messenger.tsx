@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 
-import { ReplyProvider, useReply } from '@/context/reply-context';
+import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
-import { useChatStore } from '@/store/use-chat-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
+import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
@@ -105,7 +105,7 @@ export default function Messenger() {
             // Ignore if it's our own reaction (already handled optimistically)
             if (data.user_id.toString() === currentUser?.id.toString()) return;
 
-            const { addReactionToState } = useChatStore.getState();
+            const { addReactionToState } = useMessageReactionStore.getState();
             addReactionToState(data.message_id, data.reaction, data.user_id.toString());
         },
     );
@@ -116,7 +116,7 @@ export default function Messenger() {
             // Ignore if it's our own reaction (already handled optimistically)
             if (data.user_id.toString() === currentUser?.id.toString()) return;
 
-            const { removeReactionFromState } = useChatStore.getState();
+            const { removeReactionFromState } = useMessageReactionStore.getState();
             removeReactionFromState(data.message_id, data.reaction, data.user_id.toString());
         },
     );

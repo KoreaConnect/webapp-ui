@@ -1,6 +1,6 @@
 'use client';
 
-import { useChatStore } from '@/store/use-chat-store';
+import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import {
     type Attachment,
     MESSAGE_ROLE,
@@ -48,7 +48,7 @@ function ChatMessage({
     reply_to_message,
     attachments,
 }: ChatMessageProps) {
-    const messageReactions = useChatStore((state) => state.messageReactions[id]);
+    const messageReactions = useMessageReactionStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
 
     if (type === 'system' || role === 'system') {

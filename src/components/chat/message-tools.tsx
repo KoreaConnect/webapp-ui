@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
-import { useChatStore } from '@/store/use-chat-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
+import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { Reply } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -17,7 +17,8 @@ type MessageToolsProps = {
 };
 
 function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
-    const { messageReactions, toggleReaction, removeMessage, reportMessage } = useChatStore();
+    const { messageReactions, toggleReaction } = useMessageReactionStore();
+    const { removeMessage, reportMessage } = useCurrentMessages();
     const { openReplyBox } = useReply();
     const currentUserId = useAuthStore((state) => state.user?.id);
     const { messages } = useCurrentMessages();

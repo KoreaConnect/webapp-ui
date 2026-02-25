@@ -1,22 +1,19 @@
 import { useAuthStore } from '@/store/use-auth-store';
+import { ReactionMap } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
 
-type ReactionMap = Record<string, Record<string, string[]>>;
-
-type ChatState = {
+type MessageReactionState = {
     messageReactions: ReactionMap;
     toggleReaction: (messageId: string, emoji: string) => Promise<void>;
     setReaction: (messageId: string, emoji: string, userIds: string[]) => void;
     addReactionToState: (messageId: string, emoji: string, userId: string) => void;
     removeReactionFromState: (messageId: string, emoji: string, userId: string) => void;
     setMessageReactions: (reactions: ReactionMap) => void;
-    removeMessage: (messageId: string) => void;
-    reportMessage: (messageId: string) => void;
 };
 
-export const useChatStore = create<ChatState>((set, get) => ({
+export const useMessageReactionStore = create<MessageReactionState>((set, get) => ({
     messageReactions: {},
 
     setMessageReactions: (reactions) => {
@@ -134,11 +131,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
             // Revert to original state on error
             set({ messageReactions: { ...get().messageReactions, [messageId]: currentMessageReactions } });
         }
-    },
-    removeMessage: (messageId) => {
-        console.log('Removing message:', messageId);
-    },
-    reportMessage: (messageId) => {
-        console.log('Reporting message:', messageId);
     },
 }));

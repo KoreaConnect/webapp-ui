@@ -1,3 +1,5 @@
+export type ReactionMap = Record<string, Record<string, string[]>>;
+
 export type ReadReceipt = {
     user: BasicUserInfo;
     readAt: string;
@@ -82,8 +84,6 @@ export type RawMessage = {
     reply_to_message?: RawMessage | null;
     attachments?: Attachment[];
 };
-
-export type ReactionMap = Record<string, Record<string, string[]>>;
 
 export type Conversation = {
     id: string;

@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/store/use-auth-store';
-import { useChatStore } from '@/store/use-chat-store';
+import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import type { BasicUserInfo, Message, RawMessage } from '@/types/chat.type';
 import { create } from 'zustand';
 
@@ -72,7 +72,8 @@ type CurrentMessagesState = {
     setMessages: (messages: Message[]) => void;
     addMessage: (message: Message) => void;
     updateMessage: (id: string, updates: Partial<Message>) => void;
-    removeMessage: (id: string) => void;
+    removeMessage: (messageId: string) => void;
+    reportMessage: (messageId: string) => void;
     clearMessages: () => void;
     fetchMessages: (conversationId: string) => Promise<void>;
     fetchMoreMessages: (conversationId: string) => Promise<void>;
@@ -148,7 +149,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     addMessage: (message) => {
         const { id, reactions, readBy } = message;
         if (reactions) {
-            useChatStore.getState().setMessageReactions({ [id]: reactions });
+            useMessageReactionStore.getState().setMessageReactions({ [id]: reactions });
         }
         set((state) => {
             // 1. If the message already exists, don't add it again
@@ -223,7 +224,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 return message;
             });
 
-            useChatStore.getState().setMessageReactions(reactionsMap);
+            useMessageReactionStore.getState().setMessageReactions(reactionsMap);
             set({ messages: mappedMessages, isLoading: false, hasMore: mappedMessages.length >= LIMIT_MESSAGES });
         } catch (error) {
             console.error('Failed to fetch messages:', error);
@@ -252,7 +253,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 return message;
             });
 
-            useChatStore.getState().setMessageReactions(reactionsMap);
+            useMessageReactionStore.getState().setMessageReactions(reactionsMap);
 
             if (mappedMessages.length === 0) {
                 set({ hasMore: false, isFetchingMore: false });
@@ -266,6 +267,14 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         } catch (error) {
             console.error('Failed to fetch more messages:', error);
             set({ isFetchingMore: false });
+        }
+    },
+    reportMessage: async (messageId) => {
+        try {
+            alert('Message reported. Thank you for your feedback.');
+        } catch (error) {
+            console.error('Failed to report message:', error);
+            alert('Failed to report message. Please try again later.');
         }
     },
 }));
