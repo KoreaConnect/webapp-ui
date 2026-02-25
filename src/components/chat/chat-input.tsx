@@ -5,7 +5,7 @@ import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { ACCEPTABLE_MIME_TYPES, ACCEPTABLE_MIME_TYPES_STRING } from '@/constants/file-types';
 import { useToastStore } from '@/store/use-toast-store';
 import { EditorContent } from '@tiptap/react';
-import { Paperclip, Scroll, Send, Smile } from 'lucide-react';
+import { Paperclip, Send, Smile } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -31,6 +31,7 @@ interface ChatInputProps {
 const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
     ({ onSend, placeholder = 'Type a message...', disabled = false }, ref) => {
         const editor = useTiptapEditor({ placeholderText: placeholder });
+        const [isEditorEmpty, setIsEditorEmpty] = useState(true); // New state
         const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
         const [selectedFiles, setSelectedFiles] = useState<File[]>([]); // State for multiple selected files
         const fileInputRef = useRef<HTMLInputElement>(null); // Ref for hidden file input
@@ -41,6 +42,25 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
                 editor?.commands.focus();
             },
         }));
+
+        React.useEffect(() => {
+            if (editor) {
+                const handleUpdate = () => {
+                    setIsEditorEmpty(!editor.getText().trim());
+                };
+
+                // Initialize state
+                setIsEditorEmpty(!editor.getText().trim());
+
+                editor.on('update', handleUpdate);
+                editor.on('selectionUpdate', handleUpdate); // Also update on selection change in case content is removed
+
+                return () => {
+                    editor.off('update', handleUpdate);
+                    editor.off('selectionUpdate', handleUpdate);
+                };
+            }
+        }, [editor]); // Re-run effect if editor instance changes
 
         const handleSend = () => {
             if (editor && (editor.getText().trim() || selectedFiles.length > 0)) {
@@ -94,8 +114,6 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
             const invalidFiles: string[] = [];
             const duplicateFiles: string[] = [];
 
-            console.log('Selected files:', files);
-
             files.forEach((file) => {
                 const isDuplicate = selectedFiles.some(
                     (existingFile) =>
@@ -117,7 +135,6 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
             });
 
             if (duplicateFiles.length > 0) {
-                console.log('Duplicate files:', duplicateFiles);
                 show({
                     type: 'info',
                     message: `These files have already been added: ${duplicateFiles.join(', ')}`,
@@ -235,7 +252,7 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
                             size="icon"
                             className="rounded-full shrink-0"
                             onClick={handleSend}
-                            disabled={disabled || (!editor?.getText().trim() && selectedFiles.length === 0)}
+                            disabled={disabled || (isEditorEmpty && selectedFiles.length === 0)}
                         >
                             <Send className="h-4 w-4" />
                         </Button>
