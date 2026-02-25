@@ -39,7 +39,7 @@ function ChatMessage({
     text,
     role,
     time,
-    avatar,
+    avatar = '',
     name,
     readBy,
     type,

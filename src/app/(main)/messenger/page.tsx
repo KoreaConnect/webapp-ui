@@ -215,7 +215,7 @@ export default function MessengerPage() {
                                 time={msg.time || ''}
                                 name={msg.sender.name}
                                 avatar={
-                                    msg.role === MESSAGE_ROLE.ME ? currentUser?.picture : (msg.sender.picture ?? '')
+                                    (msg.role === MESSAGE_ROLE.ME ? currentUser?.picture : msg.sender.picture) || ''
                                 }
                                 readBy={msg.readBy}
                                 type={msg.type}

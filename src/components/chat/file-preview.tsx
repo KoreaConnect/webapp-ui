@@ -23,7 +23,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, onRemove }) => {
                     <File size={16} />
                 </div>
             )}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-10 max-w-25">
                 <p className="text-xs font-medium truncate">{file.name}</p>
                 <p className="text-[10px] text-zinc-500">{Math.round(file.size / 1024)} KB</p>
             </div>

@@ -13,21 +13,14 @@ export function ReplyBox() {
     const getReplyText = () => {
         if (!replyingTo) return '';
         const content = replyingTo.text || replyingTo.content;
-        if (!content) return '';
-
-        try {
-            // Check if it's a JSON string by attempting to parse it
-            if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
-                const parsed = JSON.parse(content);
-                // If it's a message-like object, try to get its text/content
-                if (parsed.text) return parsed.text;
-                if (parsed.content) return parsed.content;
-                // If it's something else, we might want to stringify it nicely or show it as is if it's not a message object
-            }
-        } catch (e) {
-            // Not JSON, use as is
+        const isMedia = replyingTo.attachments && replyingTo.attachments.length > 0;
+        if (content) {
+            return content;
         }
-        return content;
+        if (isMedia) {
+            return 'Media message';
+        }
+        return '';
     };
 
     return (
@@ -45,7 +38,7 @@ export function ReplyBox() {
                     <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-[11px] font-bold text-primary uppercase tracking-wider">Replying to</span>
                         <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                            {replyingTo?.name ?? replyingTo?.sender}
+                            {replyingTo?.sender?.name || replyingTo?.sender?.username || 'Unknown User'}
                         </span>
                     </div>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate italic">{getReplyText()}</p>

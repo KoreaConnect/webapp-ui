@@ -5,16 +5,16 @@ import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { ACCEPTABLE_MIME_TYPES, ACCEPTABLE_MIME_TYPES_STRING } from '@/constants/file-types';
 import { useToastStore } from '@/store/use-toast-store';
 import { EditorContent } from '@tiptap/react';
-import { Paperclip, Send, Smile } from 'lucide-react';
+import { Paperclip, Scroll, Send, Smile } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { ScrollableView } from '@/components/ui/scrollable-view';
 
 // Import file types
 import { useTiptapEditor } from '@/hooks/use-tiptap-editor';
 
 import { cn } from '@/utils';
 
+import { ScrollableView } from '../ui/scrollable-view';
 import { EmojiPicker } from './emoji-picker';
 import { FilePreview } from './file-preview';
 
@@ -92,14 +92,38 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
             const files = Array.from(event.target.files || []);
             const validFiles: File[] = [];
             const invalidFiles: string[] = [];
+            const duplicateFiles: string[] = [];
+
+            console.log('Selected files:', files);
 
             files.forEach((file) => {
+                const isDuplicate = selectedFiles.some(
+                    (existingFile) =>
+                        existingFile.name === file.name &&
+                        existingFile.size === file.size &&
+                        existingFile.lastModified === file.lastModified,
+                );
+
+                if (isDuplicate) {
+                    duplicateFiles.push(file.name);
+                    return;
+                }
+
                 if (ACCEPTABLE_MIME_TYPES.includes(file.type)) {
                     validFiles.push(file);
                 } else {
                     invalidFiles.push(file.name);
                 }
             });
+
+            if (duplicateFiles.length > 0) {
+                console.log('Duplicate files:', duplicateFiles);
+                show({
+                    type: 'info',
+                    message: `These files have already been added: ${duplicateFiles.join(', ')}`,
+                    title: 'Duplicate Files',
+                });
+            }
 
             if (invalidFiles.length > 0) {
                 show({
@@ -132,25 +156,15 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
                                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1">
                                     Images
                                 </span>
-                                <div
-                                    className={cn(
-                                        'grid gap-2',
-                                        imageFiles.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
-                                    )}
-                                >
-                                    {imageFiles.map((file, index) => (
-                                        <div
-                                            key={`img-${file.name}-${index}`}
-                                            className={cn(
-                                                imageFiles.length % 2 !== 0 && imageFiles.length > 1 && index === 0
-                                                    ? 'col-span-2'
-                                                    : '',
-                                            )}
-                                        >
-                                            <FilePreview file={file} onRemove={() => handleRemoveFile(file)} />
-                                        </div>
-                                    ))}
-                                </div>
+                                <ScrollableView horizontal>
+                                    <div className={cn('flex flex-row overflow-x-auto whitespace-nowrap gap-2 p-1')}>
+                                        {imageFiles.map((file, index) => (
+                                            <div key={`img-${file.name}-${index}`} className="shrink-0">
+                                                <FilePreview file={file} onRemove={() => handleRemoveFile(file)} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollableView>
                             </div>
                         )}
                         {otherFiles.length > 0 && (
@@ -158,25 +172,15 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
                                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1">
                                     Files
                                 </span>
-                                <div
-                                    className={cn(
-                                        'grid gap-2',
-                                        otherFiles.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
-                                    )}
-                                >
-                                    {otherFiles.map((file, index) => (
-                                        <div
-                                            key={`file-${file.name}-${index}`}
-                                            className={cn(
-                                                otherFiles.length % 2 !== 0 && otherFiles.length > 1 && index === 0
-                                                    ? 'col-span-2'
-                                                    : '',
-                                            )}
-                                        >
-                                            <FilePreview file={file} onRemove={() => handleRemoveFile(file)} />
-                                        </div>
-                                    ))}
-                                </div>
+                                <ScrollableView horizontal>
+                                    <div className={cn('flex flex-row overflow-x-auto whitespace-nowrap gap-2 p-1')}>
+                                        {otherFiles.map((file, index) => (
+                                            <div key={`file-${file.name}-${index}`} className="shrink-0">
+                                                <FilePreview file={file} onRemove={() => handleRemoveFile(file)} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollableView>
                             </div>
                         )}
                         {selectedFiles.length >= MAX_FILES && (
