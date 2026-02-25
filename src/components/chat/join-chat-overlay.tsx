@@ -1,17 +1,13 @@
 'use client';
 
-import React from 'react';
-
 import { useAuthStore } from '@/store/use-auth-store';
-import { useChatStore } from '@/store/use-chat-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 
 export function JoinChatOverlay() {
-    const { hasJoined, joinChat, isJoining } = useChatStore();
-    const { conversation } = useCommunityConversationStore();
+    const { conversation, hasJoined, joinChat, isJoining } = useCommunityConversationStore();
     const { isAuthenticated } = useAuthStore();
     const router = useRouter();
 

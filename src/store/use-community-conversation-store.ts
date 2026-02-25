@@ -4,8 +4,11 @@ import { create } from 'zustand';
 import { conversationService } from '@/services';
 
 type CommunityConversationState = {
-    conversation: Conversation | null;
+    hasJoined: boolean;
+    isJoining: boolean;
     isLoading: boolean;
+    joinChat: (conversationId: string) => Promise<void>;
+    conversation: Conversation | null;
     setConversation: (conversation: Conversation | null) => void;
     updateConversation: (id: string, updates: Partial<Conversation>) => void;
     fetchConversationBySlug: (slug: string) => Promise<void>;
@@ -14,6 +17,18 @@ type CommunityConversationState = {
 export const useCommunityConversationStore = create<CommunityConversationState>((set) => ({
     conversation: null,
     isLoading: false,
+    hasJoined: false, // Initial state: user has not joined
+    isJoining: false,
+    joinChat: async (conversationId: string) => {
+        set({ isJoining: true });
+        try {
+            await conversationService.joinConversation(conversationId);
+            set({ hasJoined: true, isJoining: false });
+        } catch (error) {
+            console.error('Failed to join conversation:', error);
+            set({ isJoining: false });
+        }
+    },
     setConversation: (conversation) => set({ conversation }),
     updateConversation: (id, updates) =>
         set((state) => ({

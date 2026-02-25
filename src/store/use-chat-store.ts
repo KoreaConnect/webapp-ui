@@ -1,17 +1,12 @@
 import { useAuthStore } from '@/store/use-auth-store';
-import type { Message } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
 
-// { messageId: { '👍': ['user1', 'user2'], '❤️': ['user3'] } }
 type ReactionMap = Record<string, Record<string, string[]>>;
 
 type ChatState = {
     messageReactions: ReactionMap;
-    hasJoined: boolean; // New state to track if user has joined
-    isJoining: boolean;
-    joinChat: (conversationId: string) => Promise<void>; // New action to join
     toggleReaction: (messageId: string, emoji: string) => Promise<void>;
     setReaction: (messageId: string, emoji: string, userIds: string[]) => void;
     addReactionToState: (messageId: string, emoji: string, userId: string) => void;
@@ -23,18 +18,7 @@ type ChatState = {
 
 export const useChatStore = create<ChatState>((set, get) => ({
     messageReactions: {},
-    hasJoined: false, // Initial state: user has not joined
-    isJoining: false,
-    joinChat: async (conversationId: string) => {
-        set({ isJoining: true });
-        try {
-            await conversationService.joinConversation(conversationId);
-            set({ hasJoined: true, isJoining: false });
-        } catch (error) {
-            console.error('Failed to join conversation:', error);
-            set({ isJoining: false });
-        }
-    },
+
     setMessageReactions: (reactions) => {
         set((state) => ({
             messageReactions: {
