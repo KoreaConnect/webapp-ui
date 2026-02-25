@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/use-auth-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
-import { MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
+import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -99,16 +99,29 @@ export default function Messenger() {
         addMessage(newMessage);
     });
 
-    useSocketListener<{ message_id: string; conversation_id: string; user_id: string | number; reaction: string }>(
-        'chat:reaction_added',
-        (data) => {
-            // Ignore if it's our own reaction (already handled optimistically)
-            if (data.user_id.toString() === currentUser?.id.toString()) return;
+    useSocketListener<{
+        message_id: string;
+        conversation_id: string;
+        user_id: string | number;
+        reaction: string;
+        user?: BasicUserInfo;
+    }>('chat:reaction_added', (data) => {
+        // Ignore if it's our own reaction (already handled optimistically)
+        if (data.user_id.toString() === currentUser?.id.toString()) return;
 
-            const { addReactionToState } = useMessageReactionStore.getState();
-            addReactionToState(data.message_id, data.reaction, data.user_id.toString());
-        },
-    );
+        const { addReactionToState } = useMessageReactionStore.getState();
+
+        // Try to find user info from existing messages or the event itself
+        const userInfo: BasicUserInfo = data.user ||
+            messages.find((m) => m.sender.id.toString() === data.user_id.toString())?.sender || {
+                id: data.user_id,
+                name: 'Unknown',
+                username: '',
+                picture: null,
+            };
+
+        addReactionToState(data.message_id, data.reaction, userInfo);
+    });
 
     useSocketListener<{ message_id: string; conversation_id: string; user_id: string | number; reaction: string }>(
         'chat:reaction_removed',

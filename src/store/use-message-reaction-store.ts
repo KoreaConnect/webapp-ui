@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/store/use-auth-store';
-import { ReactionMap } from '@/types/chat.type';
+import { BasicUserInfo, MessageReactions, ReactionMap } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
@@ -7,8 +7,8 @@ import { conversationService } from '@/services';
 type MessageReactionState = {
     messageReactions: ReactionMap;
     toggleReaction: (messageId: string, emoji: string) => Promise<void>;
-    setReaction: (messageId: string, emoji: string, userIds: string[]) => void;
-    addReactionToState: (messageId: string, emoji: string, userId: string) => void;
+    setReaction: (messageId: string, emoji: string, userInfos: BasicUserInfo[]) => void;
+    addReactionToState: (messageId: string, emoji: string, userInfo: BasicUserInfo) => void;
     removeReactionFromState: (messageId: string, emoji: string, userId: string) => void;
     setMessageReactions: (reactions: ReactionMap) => void;
 };
@@ -24,14 +24,16 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
             },
         }));
     },
-    addReactionToState: (messageId, emoji, userId) => {
+    addReactionToState: (messageId, emoji, userInfo) => {
         set((state) => {
             const nextReactions = { ...state.messageReactions };
-            const nextMessageReactions = { ...(nextReactions[messageId] ?? {}) };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
 
             // 1. Remove this user from ANY existing reaction on this message first
             Object.keys(nextMessageReactions).forEach((key) => {
-                nextMessageReactions[key] = nextMessageReactions[key].filter((u) => u !== userId);
+                nextMessageReactions[key] = nextMessageReactions[key].filter(
+                    (u) => u.id.toString() !== userInfo.id.toString(),
+                );
                 if (nextMessageReactions[key].length === 0) {
                     delete nextMessageReactions[key];
                 }
@@ -39,7 +41,7 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
 
             // 2. Add the new reaction
             const users = nextMessageReactions[emoji] ?? [];
-            nextMessageReactions[emoji] = [...users, userId];
+            nextMessageReactions[emoji] = [...users, userInfo];
 
             nextReactions[messageId] = nextMessageReactions;
             return { messageReactions: nextReactions };
@@ -48,10 +50,10 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
     removeReactionFromState: (messageId, emoji, userId) => {
         set((state) => {
             const nextReactions = { ...state.messageReactions };
-            const nextMessageReactions = { ...(nextReactions[messageId] ?? {}) };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
             const users = nextMessageReactions[emoji] ?? [];
 
-            nextMessageReactions[emoji] = users.filter((u) => u !== userId);
+            nextMessageReactions[emoji] = users.filter((u) => u.id.toString() !== userId.toString());
             if (nextMessageReactions[emoji].length === 0) {
                 delete nextMessageReactions[emoji];
             }
@@ -60,13 +62,13 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
             return { messageReactions: nextReactions };
         });
     },
-    setReaction: (messageId, emoji, userIds) => {
+    setReaction: (messageId, emoji, userInfos) => {
         set((state) => {
             const nextReactions = { ...state.messageReactions };
-            const nextMessageReactions = { ...(nextReactions[messageId] ?? {}) };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
 
-            if (userIds.length > 0) {
-                nextMessageReactions[emoji] = userIds;
+            if (userInfos.length > 0) {
+                nextMessageReactions[emoji] = userInfos;
             } else {
                 delete nextMessageReactions[emoji];
             }
@@ -76,16 +78,16 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
         });
     },
     toggleReaction: async (messageId, emoji) => {
-        const currentUser = useAuthStore.getState().user?.id;
+        const currentUser = useAuthStore.getState().user;
         if (!currentUser) return;
 
-        const userIdStr = currentUser.toString();
+        const userIdStr = currentUser.id.toString();
         const currentMessageReactions = get().messageReactions[messageId] ?? {};
 
         // Find if user already has ANY reaction on this message
         let existingEmoji: string | null = null;
         for (const [key, users] of Object.entries(currentMessageReactions)) {
-            if (users.includes(userIdStr)) {
+            if (users.some((u) => u.id.toString() === userIdStr)) {
                 existingEmoji = key;
                 break;
             }
@@ -96,12 +98,12 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
         // Optimistic update
         set((state) => {
             const nextReactions = { ...state.messageReactions };
-            const nextMessageReactions = { ...(nextReactions[messageId] ?? {}) };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
 
             // 1. Remove previous reaction if it exists
             if (existingEmoji) {
                 nextMessageReactions[existingEmoji] = (nextMessageReactions[existingEmoji] ?? []).filter(
-                    (u) => u !== userIdStr,
+                    (u) => u.id.toString() !== userIdStr,
                 );
                 if (nextMessageReactions[existingEmoji].length === 0) {
                     delete nextMessageReactions[existingEmoji];
@@ -110,7 +112,13 @@ export const useMessageReactionStore = create<MessageReactionState>((set, get) =
 
             // 2. Add new reaction if it's different from the old one
             if (!isSameEmoji) {
-                nextMessageReactions[emoji] = [...(nextMessageReactions[emoji] ?? []), userIdStr];
+                const userInfo: BasicUserInfo = {
+                    id: currentUser.id,
+                    name: currentUser.name,
+                    username: currentUser.email || '',
+                    picture: currentUser.picture || null,
+                };
+                nextMessageReactions[emoji] = [...(nextMessageReactions[emoji] ?? []), userInfo];
             }
 
             nextReactions[messageId] = nextMessageReactions;

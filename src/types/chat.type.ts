@@ -1,4 +1,5 @@
-export type ReactionMap = Record<string, Record<string, string[]>>;
+export type MessageReactions = Record<string, BasicUserInfo[]>;
+export type ReactionMap = Record<string, MessageReactions>;
 
 export type ReadReceipt = {
     user: BasicUserInfo;
@@ -56,7 +57,7 @@ export type Message = {
     time?: string;
     readBy?: ReadReceipt[];
     created_at?: string;
-    reactions?: Record<string, string[]>;
+    reactions?: MessageReactions;
     read_by?: { user: BasicUserInfo; read_at: string | Date }[];
     reply_to_message_id?: string | null;
     reply_to_message?: Message | null;

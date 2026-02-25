@@ -1,4 +1,11 @@
-import { type Attachment, MESSAGE_ROLE, type Message, type MessageRole } from '@/types/chat.type';
+import {
+    type Attachment,
+    BasicUserInfo,
+    MESSAGE_ROLE,
+    type Message,
+    MessageReactions,
+    type MessageRole,
+} from '@/types/chat.type';
 import { FileText } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -9,7 +16,7 @@ type MessageContentProps = {
     id: string;
     text: string;
     sender: MessageRole;
-    reactions: Record<string, string[]>;
+    reactions: MessageReactions;
     reply_to_message?: Message | null;
     attachments?: Attachment[];
 };

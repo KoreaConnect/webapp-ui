@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import { BasicUserInfo, MessageReactions } from '@/types/chat.type';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Smile } from 'lucide-react';
 
@@ -33,7 +34,7 @@ export const REACTIONS = [
 
 interface ReactionPickerProps {
     className?: string;
-    reactions: Record<string, string[]>;
+    reactions: MessageReactions;
     currentUserId: string;
     onSelect: (type: string) => void;
     align?: 'start' | 'end' | 'center';
@@ -71,7 +72,7 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
                     className="flex gap-1 p-1 bg-white dark:bg-zinc-900 rounded-full shadow-lg border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in duration-200 z-50"
                 >
                     {REACTIONS.map((r) => {
-                        const isSelected = reactions[r.label]?.includes(currentUserId);
+                        const isSelected = reactions[r.label]?.some((u) => u.id.toString() === currentUserId);
                         return (
                             <DropdownMenu.Item
                                 key={r.label}

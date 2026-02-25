@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { MESSAGE_ROLE, MessageRole } from '@/types/chat.type';
+import { BasicUserInfo, MESSAGE_ROLE, MessageReactions, MessageRole } from '@/types/chat.type';
 
 import { cn } from '@/utils/cn';
 
 import { REACTIONS } from './reaction-picker';
 
 type ReactionGroupProps = {
-    reactions: Record<string, string[]>;
+    reactions: MessageReactions;
     sender: MessageRole;
     className?: string;
 };

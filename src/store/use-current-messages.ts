@@ -1,14 +1,14 @@
 import { useAuthStore } from '@/store/use-auth-store';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
-import type { BasicUserInfo, Message, RawMessage } from '@/types/chat.type';
+import type { BasicUserInfo, Message, MessageReactions, RawMessage, ReactionMap } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
 
 const LIMIT_MESSAGES = 50;
 
-const mapReactions = (reactions?: RawMessage['reactions']): Record<string, string[]> => {
-    const map: Record<string, string[]> = {};
+const mapReactions = (reactions?: RawMessage['reactions']): MessageReactions => {
+    const map: MessageReactions = {};
     if (!reactions) return map;
 
     reactions.forEach((r) => {
@@ -16,7 +16,7 @@ const mapReactions = (reactions?: RawMessage['reactions']): Record<string, strin
         if (!map[type]) {
             map[type] = [];
         }
-        map[type].push(r.user.id.toString());
+        map[type].push(r.user);
     });
     return map;
 };
@@ -216,7 +216,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             const response = await conversationService.getMessages(conversationId, LIMIT_MESSAGES);
             const currentUserId = useAuthStore.getState().user?.id;
 
-            const reactionsMap: Record<string, Record<string, string[]>> = {};
+            const reactionsMap: ReactionMap = {};
 
             const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
                 const message = mapRawMessageToMessage(msg, currentUserId);
@@ -245,7 +245,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             );
             const currentUserId = useAuthStore.getState().user?.id;
 
-            const reactionsMap: Record<string, Record<string, string[]>> = {};
+            const reactionsMap: ReactionMap = {};
 
             const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
                 const message = mapRawMessageToMessage(msg, currentUserId);
