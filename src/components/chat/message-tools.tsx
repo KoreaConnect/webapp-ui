@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
@@ -16,7 +17,8 @@ type MessageToolsProps = {
 };
 
 function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
-    const { messageReactions, toggleReaction, setReplyingTo, removeMessage, reportMessage } = useChatStore();
+    const { messageReactions, toggleReaction, removeMessage, reportMessage } = useChatStore();
+    const { openReplyBox } = useReply();
     const currentUserId = useAuthStore((state) => state.user?.id);
     const { messages } = useCurrentMessages();
     const reactions = messageReactions[messageId] ?? {};
@@ -27,7 +29,7 @@ function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
     const handleReplyClick = () => {
         const messageToReply = messages.find((msg) => msg.id === messageId);
         if (messageToReply) {
-            setReplyingTo(messageToReply);
+            openReplyBox(messageToReply);
         }
     };
 

@@ -9,7 +9,7 @@ type ReactionMap = Record<string, Record<string, string[]>>;
 
 type ChatState = {
     messageReactions: ReactionMap;
-    replyingTo: Message | null;
+
     hasJoined: boolean; // New state to track if user has joined
     isJoining: boolean;
     joinChat: (conversationId: string) => Promise<void>; // New action to join
@@ -18,15 +18,13 @@ type ChatState = {
     addReactionToState: (messageId: string, emoji: string, userId: string) => void;
     removeReactionFromState: (messageId: string, emoji: string, userId: string) => void;
     setMessageReactions: (reactions: ReactionMap) => void;
-    setReplyingTo: (message: Message | null) => void;
-    cancelReply: () => void;
+
     removeMessage: (messageId: string) => void;
     reportMessage: (messageId: string) => void;
 };
 
 export const useChatStore = create<ChatState>((set, get) => ({
     messageReactions: {},
-    replyingTo: null,
     hasJoined: false, // Initial state: user has not joined
     isJoining: false,
     joinChat: async (conversationId: string) => {
@@ -154,12 +152,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
             // Revert to original state on error
             set({ messageReactions: { ...get().messageReactions, [messageId]: currentMessageReactions } });
         }
-    },
-    setReplyingTo: (message) => {
-        set({ replyingTo: message });
-    },
-    cancelReply: () => {
-        set({ replyingTo: null });
     },
     removeMessage: (messageId) => {
         console.log('Removing message:', messageId);
