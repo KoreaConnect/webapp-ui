@@ -3,7 +3,6 @@
 import React from 'react';
 
 import { useReply } from '@/context/reply-context';
-import { useChatStore } from '@/store/use-chat-store';
 import { Reply, X } from 'lucide-react';
 
 import { cn } from '@/utils';

@@ -9,7 +9,6 @@ type ReactionMap = Record<string, Record<string, string[]>>;
 
 type ChatState = {
     messageReactions: ReactionMap;
-
     hasJoined: boolean; // New state to track if user has joined
     isJoining: boolean;
     joinChat: (conversationId: string) => Promise<void>; // New action to join
@@ -18,7 +17,6 @@ type ChatState = {
     addReactionToState: (messageId: string, emoji: string, userId: string) => void;
     removeReactionFromState: (messageId: string, emoji: string, userId: string) => void;
     setMessageReactions: (reactions: ReactionMap) => void;
-
     removeMessage: (messageId: string) => void;
     reportMessage: (messageId: string) => void;
 };

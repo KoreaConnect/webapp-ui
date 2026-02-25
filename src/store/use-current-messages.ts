@@ -102,12 +102,12 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                     userInfo = found.user;
                     break;
                 }
-                if (m.metadata?.user?.id.toString() === userId.toString()) {
+                if (m.metadata?.target_user?.id.toString() === userId.toString()) {
                     userInfo = {
-                        id: Number(m.metadata.user.id),
-                        name: m.metadata.user.name,
-                        username: m.metadata.user.username || '',
-                        picture: m.metadata.user.picture || null,
+                        id: Number(m.metadata.target_user.id),
+                        name: m.metadata.target_user.name,
+                        username: m.metadata.target_user.username || '',
+                        picture: m.metadata.target_user.picture || null,
                     };
                     break;
                 }

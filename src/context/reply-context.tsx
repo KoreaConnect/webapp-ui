@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, createContext, useContext, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 import { Message } from '@/types/chat.type';
 
@@ -29,12 +29,14 @@ export function ReplyProvider({ children }: { children: ReactNode }) {
 
     const closeReplyBox = () => {
         setIsReplyBoxOpen(false);
-        setReplyingTo(null);
+        setTimeout(() => {
+            setReplyingTo(null);
+        }, 300); // Match the transition duration in ReplyBox.tsx
     };
 
     const openReplyBox = (message: Message) => {
-        setReplyingTo(message);
         setIsReplyBoxOpen(true);
+        setReplyingTo(message);
     };
 
     return (

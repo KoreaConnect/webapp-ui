@@ -17,7 +17,7 @@ export function SystemMessage({ message }: SystemMessageProps) {
                 return (
                     <span className="text-zinc-500 dark:text-zinc-400">
                         <span className="font-semibold">
-                            {metadata.user?.name || metadata.user?.username || 'Someone'}
+                            {metadata.target_user?.name || metadata.target_user?.username || 'Someone'}
                         </span>{' '}
                         joined the conversation
                     </span>
@@ -26,7 +26,7 @@ export function SystemMessage({ message }: SystemMessageProps) {
                 return (
                     <span className="text-zinc-500 dark:text-zinc-400">
                         <span className="font-semibold">
-                            {metadata.user?.name || metadata.user?.username || 'Someone'}
+                            {metadata.target_user?.name || metadata.target_user?.username || 'Someone'}
                         </span>{' '}
                         left the conversation
                     </span>

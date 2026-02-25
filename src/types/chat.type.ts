@@ -28,7 +28,7 @@ export type User = {
 
 export type MessageMetadata = {
     type: 'USER_JOINED' | 'USER_LEFT' | string;
-    user?: User;
+    target_user?: User;
     user_id?: string | number;
 };
 
