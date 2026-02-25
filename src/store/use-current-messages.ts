@@ -22,22 +22,30 @@ const mapReactions = (reactions?: RawMessage['reactions']): Record<string, strin
 };
 
 export const mapRawMessageToMessage = (msg: RawMessage, currentUserId?: string | number): Message => {
-    const effectiveSenderId = msg.sender_id || msg.metadata?.user?.id || msg.metadata?.user_id;
+    const effectiveSenderId = msg.sender_id || msg.sender?.id;
     const isSystem = msg.type === 'system' || effectiveSenderId?.toString() === '0';
-    let sender: Message['sender'] = 'other';
+    let role: Message['role'] = 'other';
 
     if (isSystem) {
-        sender = 'system';
+        role = 'system';
     } else if (effectiveSenderId?.toString() === currentUserId?.toString()) {
-        sender = 'me';
+        role = 'me';
     }
 
     const mappedReactions = mapReactions(msg.reactions);
+
+    const sender: BasicUserInfo = {
+        id: msg.sender?.id || effectiveSenderId || '0',
+        name: msg.sender?.name || 'Unknown',
+        username: msg.sender?.username || '',
+        picture: msg.sender?.picture || null,
+    };
 
     return {
         id: msg.id?.toString() || Math.random().toString(36).substring(7),
         text: msg.content || '',
         content: msg.content,
+        role,
         sender,
         type: msg.type as 'text' | 'system',
         metadata: msg.metadata,
@@ -45,13 +53,6 @@ export const mapRawMessageToMessage = (msg: RawMessage, currentUserId?: string |
             ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             : '',
         created_at: msg.created_at,
-        name: msg.sender?.name || msg.metadata?.user?.name || (sender === 'me' ? 'Me' : 'Other'),
-        avatar:
-            msg.sender?.picture ||
-            msg.sender?.avatar ||
-            msg.metadata?.user?.picture ||
-            msg.metadata?.user?.avatar ||
-            undefined,
         reactions: mappedReactions,
         readBy: msg.read_by?.map((r) => ({
             user: r.user,
@@ -75,7 +76,12 @@ type CurrentMessagesState = {
     clearMessages: () => void;
     fetchMessages: (conversationId: string) => Promise<void>;
     fetchMoreMessages: (conversationId: string) => Promise<void>;
-    sendMessage: (conversationId: string, content: string, replyToMessageId?: string | null) => Promise<void>;
+    sendMessage: (
+        conversationId: string,
+        content: string,
+        files: File[],
+        replyToMessageId?: string | null,
+    ) => Promise<void>;
     markAsRead: (conversationId: string, lastMessageId: string | number) => Promise<void>;
     updateReadStatus: (userId: string, lastReadMessageId: string, lastReadMessageAt: string) => void;
 };
@@ -186,11 +192,15 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             const currentUser = useAuthStore.getState().user;
 
             const newMessage = mapRawMessageToMessage(msg, currentUser?.id);
-            // Overwrite sender to 'me' if needed, though mapRawMessageToMessage should handle it
-            newMessage.sender = 'me';
-            newMessage.name = 'Me';
+            // Overwrite role to 'me' if needed, though mapRawMessageToMessage should handle it
+            newMessage.role = 'me';
             if (currentUser) {
-                newMessage.avatar = currentUser.picture;
+                newMessage.sender = {
+                    id: currentUser.id,
+                    name: currentUser.name,
+                    username: '',
+                    picture: currentUser.picture || null,
+                };
             }
 
             get().addMessage(newMessage);

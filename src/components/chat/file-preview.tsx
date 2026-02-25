@@ -14,7 +14,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, onRemove }) => {
     const previewUrl = isImage ? URL.createObjectURL(file) : null;
 
     return (
-        <div className="relative flex items-center gap-2 rounded-lg p-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 min-w-[150px] max-w-[200px] overflow-hidden mb-1">
+        <div className="relative flex items-center gap-2 rounded-lg p-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 w-full overflow-hidden mb-1">
             {isImage && previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={previewUrl} alt={file.name} className="h-10 w-10 object-cover rounded-md shrink-0" />

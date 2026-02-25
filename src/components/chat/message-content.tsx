@@ -1,4 +1,4 @@
-import type { Attachment, Message } from '@/types/chat.type';
+import { type Attachment, MESSAGE_ROLE, type Message, type MessageRole } from '@/types/chat.type';
 import { FileText } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -8,7 +8,7 @@ import { ReactionGroup } from './reaction-group';
 type MessageContentProps = {
     id: string;
     text: string;
-    sender: 'me' | 'other';
+    sender: MessageRole;
     reactions: Record<string, string[]>;
     reply_to_message?: Message | null;
     attachments?: Attachment[];
@@ -42,11 +42,14 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
         return content;
     };
 
+    const imageAttachments = attachments?.filter((a) => a.mime_type?.startsWith('image/')) || [];
+    const fileAttachments = attachments?.filter((a) => !a.mime_type?.startsWith('image/')) || [];
+
     return (
         <div
             className={cn(
                 'max-w-[50vw] md:max-w-[calc(50vw-var(--sidebar-width)+100px)] lg:max-w-100 xl:max-w-125 flex flex-col',
-                sender === 'me' ? 'items-end' : 'items-start',
+                sender === MESSAGE_ROLE.ME ? 'items-end' : 'items-start',
             )}
         >
             {reply_to_message && (
@@ -55,13 +58,15 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
                     className={cn(
                         'flex flex-col gap-0.5 px-3 py-2 pb-3 -mb-2 cursor-pointer transition-colors \
                         hover:bg-zinc-200 dark:hover:bg-zinc-800/50 max-w-full',
-                        sender === 'me'
+                        sender === MESSAGE_ROLE.ME
                             ? 'bg-zinc-300 dark:bg-zinc-800/30 rounded-tl-2xl'
                             : 'bg-zinc-300 dark:bg-zinc-800/50 rounded-tr-2xl',
                     )}
                 >
                     <span className="text-[10px] font-bold text-primary uppercase leading-none">
-                        {reply_to_message.sender === 'me' ? 'You' : reply_to_message.name}
+                        {reply_to_message.role === MESSAGE_ROLE.ME
+                            ? 'You'
+                            : reply_to_message.sender.name || reply_to_message.sender.username || 'Unknown'}
                     </span>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 italic leading-tight truncate">
                         {getReplyText(reply_to_message)}
@@ -69,52 +74,86 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
                 </div>
             )}
 
-            {attachments && attachments.length > 0 && (
-                <div
-                    className={cn(
-                        'flex flex-col gap-2 p-2 rounded-lg mb-2 max-w-full',
-                        sender === 'me'
-                            ? 'bg-primary/80 rounded-br-none text-white'
-                            : 'bg-zinc-200 text-zinc-800 rounded-bl-none dark:bg-zinc-800 dark:text-zinc-100',
-                        reply_to_message && (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
-                    )}
-                >
-                    {attachments.map((attachment) => (
-                        <a
-                            key={attachment.id}
-                            href={attachment.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-2 rounded-md bg-white/20 hover:bg-white/30 transition-colors"
-                        >
-                            {attachment.mime_type?.startsWith('image/') ? (
-                                // eslint-disable-next-line @next/next/no-img-element
+            <div
+                className={cn(
+                    'bg-primary/80',
+                    text.trim() === '' && (imageAttachments.length > 0 || fileAttachments.length > 0) ? 'mb-2' : '',
+                )}
+            >
+                {imageAttachments.length > 0 && (
+                    <div
+                        className={cn(
+                            'grid gap-2 p-2 rounded-lg w-full max-w-full',
+                            imageAttachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+                            sender === MESSAGE_ROLE.ME
+                                ? 'rounded-br-none text-white'
+                                : 'bg-zinc-200 text-zinc-800 rounded-bl-none dark:bg-zinc-800 dark:text-zinc-100',
+                            reply_to_message && (sender === MESSAGE_ROLE.ME ? 'rounded-tr-none' : 'rounded-tl-none'),
+                        )}
+                    >
+                        {imageAttachments.map((attachment, index) => (
+                            <a
+                                key={attachment.id}
+                                href={attachment.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                    'relative overflow-hidden rounded-md group',
+                                    imageAttachments.length === 1 ? 'aspect-auto max-h-[300px]' : 'aspect-square',
+                                    imageAttachments.length % 2 !== 0 && imageAttachments.length > 1 && index === 0
+                                        ? 'col-span-2 aspect-video'
+                                        : '',
+                                )}
+                            >
                                 <img
                                     src={attachment.url}
                                     alt={attachment.name || 'Attached image'}
-                                    className="max-h-32 object-contain rounded-md"
+                                    className="w-full h-full object-cover transition-transform hover:scale-105"
                                 />
-                            ) : (
-                                <FileText className="h-5 w-5 text-white" />
-                            )}
-                            <span className="text-sm text-white truncate">{attachment.name || 'File'}</span>
-                        </a>
-                    ))}
-                </div>
-            )}
+                            </a>
+                        ))}
+                    </div>
+                )}
+
+                {fileAttachments.length > 0 && (
+                    <div
+                        className={cn(
+                            'grid gap-2 p-2 rounded-lg w-full max-w-full',
+                            fileAttachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+                            sender === MESSAGE_ROLE.ME
+                                ? 'rounded-br-none text-white'
+                                : 'bg-zinc-200 text-zinc-800 rounded-bl-none dark:bg-zinc-800 dark:text-zinc-100',
+                            reply_to_message && (sender === MESSAGE_ROLE.ME ? 'rounded-tr-none' : 'rounded-tl-none'),
+                        )}
+                    >
+                        {fileAttachments.map((attachment) => (
+                            <a
+                                key={attachment.id}
+                                href={attachment.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 p-2 rounded-md bg-white/20 hover:bg-white/30 transition-colors overflow-hidden"
+                            >
+                                <FileText className="h-4 w-4 shrink-0 text-white" />
+                                <span className="text-xs text-white truncate">{attachment.name || 'File'}</span>
+                            </a>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {text.trim() !== '' && (
                 <div
                     id={`message-${id}`}
                     className={cn(
                         'rounded-2xl p-3 text-sm wrap-break-word shadow-sm mb-2 max-w-full',
-                        sender === 'me'
+                        sender === MESSAGE_ROLE.ME
                             ? 'bg-primary rounded-tr-none text-white'
                             : 'bg-zinc-200 text-zinc-800 rounded-tl-none dark:bg-zinc-800 dark:text-zinc-100',
-                        reply_to_message && (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
+                        reply_to_message && (sender === MESSAGE_ROLE.ME ? 'rounded-tr-none' : 'rounded-tl-none'),
                         attachments &&
                             attachments.length > 0 &&
-                            (sender === 'me' ? 'rounded-tr-none' : 'rounded-tl-none'),
+                            (sender === MESSAGE_ROLE.ME ? 'rounded-tr-none' : 'rounded-tl-none'),
                     )}
                 >
                     <p className="">{text}</p>

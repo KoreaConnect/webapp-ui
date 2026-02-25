@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/use-auth-store';
 import { useChatStore } from '@/store/use-chat-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
-import type { RawMessage } from '@/types/chat.type';
+import { MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -211,10 +211,12 @@ export default function MessengerPage() {
                                 key={msg.id}
                                 id={msg.id}
                                 text={msg.text}
-                                sender={msg.sender}
+                                role={msg.role}
                                 time={msg.time || ''}
-                                name={msg.name}
-                                avatar={msg.sender === 'me' ? currentUser?.picture || msg.avatar : msg.avatar}
+                                name={msg.sender.name}
+                                avatar={
+                                    msg.role === MESSAGE_ROLE.ME ? currentUser?.picture : (msg.sender.picture ?? '')
+                                }
                                 readBy={msg.readBy}
                                 type={msg.type}
                                 metadata={msg.metadata}

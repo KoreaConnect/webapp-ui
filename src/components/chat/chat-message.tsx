@@ -1,7 +1,14 @@
 'use client';
 
 import { useChatStore } from '@/store/use-chat-store';
-import type { Attachment, Message, MessageMetadata, ReadReceipt } from '@/types/chat.type';
+import {
+    type Attachment,
+    MESSAGE_ROLE,
+    type Message,
+    type MessageMetadata,
+    type MessageRole,
+    type ReadReceipt,
+} from '@/types/chat.type';
 
 import Avatar from '@/components/ui/avatar';
 
@@ -15,7 +22,7 @@ import { SystemMessage } from './system-message';
 type ChatMessageProps = {
     id: string;
     text: string;
-    sender: 'me' | 'other' | 'system';
+    role: MessageRole;
     time: string;
     avatar?: string;
     name?: string;
@@ -30,7 +37,7 @@ type ChatMessageProps = {
 function ChatMessage({
     id,
     text,
-    sender,
+    role,
     time,
     avatar,
     name,
@@ -44,8 +51,8 @@ function ChatMessage({
     const messageReactions = useChatStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
 
-    if (type === 'system' || sender === 'system') {
-        return <SystemMessage message={{ id, text, sender, type, metadata, content } as Message} />;
+    if (type === 'system' || role === 'system') {
+        return <SystemMessage message={{ id, text, role, type, metadata, content } as Message} />;
     }
 
     return (
@@ -53,28 +60,28 @@ function ChatMessage({
             key={id}
             className={cn(
                 'group relative flex flex-col w-full',
-                sender === 'me' ? 'justify-end' : 'justify-start',
-                sender === 'me' ? 'items-end' : 'items-start',
+                role === MESSAGE_ROLE.ME ? 'justify-end' : 'justify-start',
+                role === MESSAGE_ROLE.ME ? 'items-end' : 'items-start',
             )}
         >
-            <div className={cn('flex items-start gap-2 w-full', sender === 'me' && 'flex-row-reverse')}>
+            <div className={cn('flex items-start gap-2 w-full', role === MESSAGE_ROLE.ME && 'flex-row-reverse')}>
                 <Avatar src={avatar} alt={name} fallback={name?.slice(0, 1).toUpperCase()} size="sm" />
 
-                <div className={cn('flex', sender === 'me' ? 'items-end' : 'items-start')}>
-                    <div className={cn('flex items-center gap-2', sender === 'me' && 'flex-row-reverse')}>
+                <div className={cn('flex', role === MESSAGE_ROLE.ME ? 'items-end' : 'items-start')}>
+                    <div className={cn('flex items-center gap-2', role === MESSAGE_ROLE.ME && 'flex-row-reverse')}>
                         <MessageContent
                             id={id}
                             text={text}
-                            sender={sender}
+                            sender={role}
                             reactions={reactions}
                             reply_to_message={reply_to_message}
                             attachments={attachments}
                         />
-                        <MessageTools messageId={id} position={sender === 'me' ? 'right' : 'left'} />
+                        <MessageTools messageId={id} position={role === MESSAGE_ROLE.ME ? 'right' : 'left'} />
                     </div>
                 </div>
             </div>
-            <ReadReceipts readBy={readBy || []} sender={sender} />
+            <ReadReceipts readBy={readBy || []} sender={role} />
         </div>
     );
 }

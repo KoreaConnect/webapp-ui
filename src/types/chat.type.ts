@@ -4,13 +4,18 @@ export type ReadReceipt = {
 };
 
 export interface BasicUserInfo {
-    id: number;
+    id: number | string;
     name: string;
     username: string;
     picture: string | null;
 }
 
-export type MessageSender = 'me' | 'other' | 'system';
+export type MessageRole = 'me' | 'other' | 'system';
+export enum MESSAGE_ROLE {
+    ME = 'me',
+    OTHER = 'other',
+    SYSTEM = 'system',
+}
 
 export type User = {
     id: string | number;
@@ -41,13 +46,12 @@ export type Attachment = {
 export type Message = {
     id: string;
     text: string;
-    sender: MessageSender;
+    role: MessageRole;
+    sender: BasicUserInfo;
     type?: 'text' | 'system';
     content?: string;
     metadata?: MessageMetadata;
     time?: string;
-    name?: string;
-    avatar?: string;
     readBy?: ReadReceipt[];
     created_at?: string;
     reactions?: Record<string, string[]>;
@@ -64,11 +68,7 @@ export type RawMessage = {
     sender_id: string | number;
     conversation_id: string | number;
     created_at: string;
-    sender?: {
-        name: string;
-        picture?: string;
-        avatar?: string;
-    };
+    sender?: BasicUserInfo;
     metadata?: MessageMetadata;
     reactions?: {
         user: BasicUserInfo;

@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import { MESSAGE_ROLE } from '@/types/chat.type';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Flag, MoreVertical, Trash2 } from 'lucide-react';
 
@@ -61,7 +62,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
     onOpenChange,
 }) => {
     const actions =
-        sender === 'me'
+        sender === MESSAGE_ROLE.ME
             ? [{ label: 'Delete', action: 'delete', icon: 'delete', color: 'danger', handler: onRemove }]
             : [{ label: 'Report', action: 'report', icon: 'report', color: 'warning', handler: onReport }];
 

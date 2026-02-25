@@ -1,12 +1,14 @@
 import React from 'react';
 
+import { MESSAGE_ROLE, MessageRole } from '@/types/chat.type';
+
 import { cn } from '@/utils/cn';
 
 import { REACTIONS } from './reaction-picker';
 
 type ReactionGroupProps = {
     reactions: Record<string, string[]>;
-    sender: 'me' | 'other';
+    sender: MessageRole;
     className?: string;
 };
 
@@ -25,7 +27,7 @@ export const ReactionGroup: React.FC<ReactionGroupProps> = ({ reactions, sender,
         <div
             className={cn(
                 'relative -top-4 flex flex-wrap items-center gap-1',
-                sender === 'me' ? 'justify-end' : 'justify-start',
+                sender === MESSAGE_ROLE.ME ? 'justify-end' : 'justify-start',
                 className,
             )}
         >

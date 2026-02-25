@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-import type { ReadReceipt } from '@/types/chat.type';
+import { MESSAGE_ROLE, type MessageRole, type ReadReceipt } from '@/types/chat.type';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 
@@ -12,7 +12,7 @@ import { cn } from '@/utils/cn';
 
 type ReadReceiptsProps = {
     readBy: ReadReceipt[];
-    sender: 'me' | 'other';
+    sender: MessageRole;
 };
 
 export function ReadReceipts({ readBy, sender }: ReadReceiptsProps) {
@@ -39,7 +39,7 @@ export function ReadReceipts({ readBy, sender }: ReadReceiptsProps) {
     return (
         <div
             ref={containerRef}
-            className={cn('relative flex items-center gap-1', sender === 'me' ? 'right-4' : 'left-4')}
+            className={cn('relative flex items-center gap-1', sender === MESSAGE_ROLE.ME ? 'right-4' : 'left-4')}
         >
             <div className="flex -space-x-1.5 overflow-hidden">
                 {displayedReadBy.map((receipt) => (

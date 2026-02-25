@@ -120,27 +120,69 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
             editor?.commands.focus();
         };
 
-        console.log('test', disabled || (!editor?.getText().trim() && selectedFiles.length === 0));
+        const imageFiles = selectedFiles.filter((file) => file.type.startsWith('image/'));
+        const otherFiles = selectedFiles.filter((file) => !file.type.startsWith('image/'));
 
         return (
             <div className="flex flex-col gap-2 p-4 mb-4 border-t border-border" onKeyDown={handleKeyDown}>
                 {selectedFiles.length > 0 && (
-                    <ScrollableView horizontal className="pb-2">
-                        <div className="flex gap-2">
-                            {selectedFiles.map((file, index) => (
-                                <FilePreview
-                                    key={file.name + file.size + index}
-                                    file={file}
-                                    onRemove={() => handleRemoveFile(file)}
-                                />
-                            ))}
-                            {selectedFiles.length >= MAX_FILES && (
-                                <span className="text-[12px] text-red-500 font-medium self-center">
-                                    Max {MAX_FILES} files
+                    <div className="flex flex-col gap-3 pb-2 max-h-60 overflow-y-auto">
+                        {imageFiles.length > 0 && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1">
+                                    Images
                                 </span>
-                            )}
-                        </div>
-                    </ScrollableView>
+                                <div
+                                    className={cn(
+                                        'grid gap-2',
+                                        imageFiles.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+                                    )}
+                                >
+                                    {imageFiles.map((file, index) => (
+                                        <div
+                                            key={`img-${file.name}-${index}`}
+                                            className={cn(
+                                                imageFiles.length % 2 !== 0 && imageFiles.length > 1 && index === 0
+                                                    ? 'col-span-2'
+                                                    : '',
+                                            )}
+                                        >
+                                            <FilePreview file={file} onRemove={() => handleRemoveFile(file)} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {otherFiles.length > 0 && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1">
+                                    Files
+                                </span>
+                                <div
+                                    className={cn(
+                                        'grid gap-2',
+                                        otherFiles.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
+                                    )}
+                                >
+                                    {otherFiles.map((file, index) => (
+                                        <div
+                                            key={`file-${file.name}-${index}`}
+                                            className={cn(
+                                                otherFiles.length % 2 !== 0 && otherFiles.length > 1 && index === 0
+                                                    ? 'col-span-2'
+                                                    : '',
+                                            )}
+                                        >
+                                            <FilePreview file={file} onRemove={() => handleRemoveFile(file)} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {selectedFiles.length >= MAX_FILES && (
+                            <span className="text-[12px] text-red-500 font-medium px-1">Max {MAX_FILES} files</span>
+                        )}
+                    </div>
                 )}
                 <div className="flex items-end gap-2 relative">
                     {/* Hidden file input */}
