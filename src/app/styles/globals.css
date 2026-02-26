@@ -68,3 +68,17 @@ body {
 button {
     cursor: pointer;
 }
+
+/* Tippy Mention Theme */
+.tippy-box[data-theme~='mention'] {
+    @apply bg-white dark:bg-zinc-800   rounded-md shadow-lg;
+    color: inherit;
+}
+
+.tippy-box[data-theme~='mention'] .tippy-content {
+    padding: 0;
+}
+
+.tippy-box[data-theme~='mention']:focus {
+    outline: none;
+}

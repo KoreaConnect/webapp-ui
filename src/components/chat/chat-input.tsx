@@ -229,12 +229,12 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
 
                     <div
                         className={cn(
-                            'flex-1 max-w-full min-w-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800 rounded-2xl py-2 min-h-[42px] text-md',
+                            'flex-1 max-w-full min-w-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800 rounded-2xl py-2 px-2 min-h-[42px] text-md',
                             'border border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary',
                             isEmojiPickerVisible ? 'border-primary ring-1 ring-primary' : '',
                         )}
                     >
-                        <EditorContent editor={editor} className="max-h-40 overflow-y-auto px-2" />
+                        <EditorContent editor={editor} className="max-h-40 overflow-y-auto" />
                     </div>
                     <div className="flex items-center gap-1">
                         {/* Wrapper for emoji and send buttons */}

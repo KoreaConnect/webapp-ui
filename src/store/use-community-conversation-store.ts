@@ -56,8 +56,8 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
                 thumbnail_url: data.thumbnail_url || '/images/community-avatar.png', // Default
                 is_joined: data.is_joined,
                 members_count: data.members_count,
-                participants: [],
-                onlineCount: 0,
+                participants: data.participants || data.members || [],
+                onlineCount: data.online_count || 0,
             };
 
             set({ conversation: conversation, isLoading: false });

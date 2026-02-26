@@ -55,11 +55,10 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
             <div
                 id={`message-${id}`}
                 className={cn(
-                    'rounded-2xl p-3 text-sm wrap-break-word shadow-sm mb-2 max-w-full',
+                    'relative rounded-xl p-3 text-sm wrap-break-word shadow-sm mb-2 max-w-full',
                     sender === MESSAGE_ROLE.ME
-                        ? 'bg-primary rounded-tr-none text-white'
-                        : 'bg-zinc-200 text-zinc-800 rounded-tl-none dark:bg-zinc-800 dark:text-zinc-100',
-                    reply_to_message && (sender === MESSAGE_ROLE.ME ? 'rounded-tr-none' : 'rounded-tl-none'),
+                        ? 'bg-primary text-white after:content-[""] after:absolute after:top-3 after:-right-2 after:border-t-[10px] after:border-t-primary after:border-r-[10px] after:border-r-transparent'
+                        : 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100 before:content-[""] before:absolute before:top-3 before:-left-2 before:border-t-[10px] before:border-t-zinc-200 dark:before:border-t-zinc-800 before:border-l-[10px] before:border-l-transparent',
                 )}
             >
                 {reply_to_message && (

@@ -5,7 +5,7 @@ import Messenger from './messenger';
 function Page() {
     return (
         <ReplyProvider>
-            <Messenger />;
+            <Messenger />
         </ReplyProvider>
     );
 }

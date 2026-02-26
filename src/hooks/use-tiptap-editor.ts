@@ -1,6 +1,8 @@
 'use client';
 
+import { useAuthStore } from '@/store/use-auth-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentMessages } from '@/store/use-current-messages';
 import Mention from '@tiptap/extension-mention';
 import Placeholder from '@tiptap/extension-placeholder';
 import { ReactRenderer, useEditor } from '@tiptap/react';
@@ -8,6 +10,7 @@ import StarterKit from '@tiptap/starter-kit';
 import type { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion';
 import tippy from 'tippy.js';
 import { Instance as TippyInstance } from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
 
 import { MentionList } from '@/components/tiptap/mention-list';
 
@@ -25,18 +28,45 @@ export const CustomMention = Mention.configure({
     suggestion: {
         items: ({ query }: { query: string }): MentionItem[] => {
             const conversation = useCommunityConversationStore.getState().conversation;
+            const messages = useCurrentMessages.getState().messages;
+            const currentUser = useAuthStore.getState().user;
+
+            // Get participants from conversation
             const participants = conversation?.participants ?? [];
+            const usersFromParticipants: MentionItem[] = participants
+                .filter((user) => user.id.toString() !== currentUser?.id.toString())
+                .map((user) => ({
+                    id: user.username || user.id.toString(),
+                    name: user.name || user.username || 'Unknown',
+                    avatar: user.picture || user.avatar,
+                }));
 
-            const users: MentionItem[] = participants.map((user) => ({
-                id: user.id,
-                name: user.name,
-                avatar: user.avatar,
-            }));
+            // Get unique senders from messages as fallback/addition
+            const usersFromMessages: MentionItem[] = [];
+            const seenIds = new Set(usersFromParticipants.map((u) => u.id));
+            // Add current user to seenIds to prevent them from being added via messages loop
+            if (currentUser) {
+                seenIds.add(currentUser.username || currentUser.id.toString());
+                seenIds.add(currentUser.id.toString());
+            }
 
-            // Fallback to some default if no participants are loaded yet
-            // or if we want to include 'everyone' etc.
+            messages.forEach((msg) => {
+                const identifier = msg.sender.username || msg.sender.id.toString();
+                const senderId = msg.sender.id.toString();
 
-            return users.filter((user) => user.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
+                if (senderId !== currentUser?.id.toString() && !seenIds.has(identifier) && msg.sender.name) {
+                    seenIds.add(identifier);
+                    usersFromMessages.push({
+                        id: identifier,
+                        name: msg.sender.name,
+                        avatar: msg.sender.picture || undefined,
+                    });
+                }
+            });
+
+            const allUsers = [...usersFromParticipants, ...usersFromMessages];
+
+            return allUsers.filter((user) => user.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
         },
 
         render: () => {
@@ -50,6 +80,10 @@ export const CustomMention = Mention.configure({
                         editor: props.editor,
                     });
 
+                    if (!props.clientRect) {
+                        return;
+                    }
+
                     const instances = tippy(document.body, {
                         getReferenceClientRect: props.clientRect,
                         appendTo: () => document.body,
@@ -58,6 +92,8 @@ export const CustomMention = Mention.configure({
                         interactive: true,
                         trigger: 'manual',
                         placement: 'bottom-start',
+                        theme: 'mention',
+                        arrow: false,
                     });
 
                     popup = instances[0];
@@ -66,9 +102,11 @@ export const CustomMention = Mention.configure({
                 onUpdate(props: SuggestionProps<MentionItem>) {
                     reactRenderer?.updateProps(props);
 
-                    popup?.setProps({
-                        getReferenceClientRect: props.clientRect,
-                    });
+                    if (props.clientRect) {
+                        popup?.setProps({
+                            getReferenceClientRect: () => props.clientRect?.() || new DOMRect(),
+                        });
+                    }
                 },
 
                 onKeyDown(props: SuggestionKeyDownProps) {

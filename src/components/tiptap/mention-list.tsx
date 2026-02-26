@@ -57,7 +57,7 @@ export const MentionList = forwardRef<unknown, MentionListProps>(({ items, comma
     }
 
     return (
-        <div className="relative z-50 p-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg">
+        <div className="relative z-50 p-1">
             {items.map((item, index) => (
                 <button
                     key={item.id}
