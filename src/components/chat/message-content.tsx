@@ -52,28 +52,6 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
                 sender === MESSAGE_ROLE.ME ? 'items-end' : 'items-start',
             )}
         >
-            {reply_to_message && (
-                <div
-                    onClick={() => scrollToMessage(reply_to_message.id)}
-                    className={cn(
-                        'flex flex-col gap-0.5 px-3 py-2 pb-3 -mb-2 cursor-pointer transition-colors \
-                        hover:bg-zinc-200 dark:hover:bg-zinc-800/50 max-w-full',
-                        sender === MESSAGE_ROLE.ME
-                            ? 'bg-zinc-300 dark:bg-zinc-800/30 rounded-tl-2xl'
-                            : 'bg-zinc-300 dark:bg-zinc-800/50 rounded-tr-2xl',
-                    )}
-                >
-                    <span className="text-[10px] font-bold text-primary uppercase leading-none">
-                        {reply_to_message.role === MESSAGE_ROLE.ME
-                            ? 'You'
-                            : reply_to_message.sender.name || reply_to_message.sender.username || 'Unknown'}
-                    </span>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 italic leading-tight truncate">
-                        {getReplyText(reply_to_message)}
-                    </p>
-                </div>
-            )}
-
             <div
                 id={`message-${id}`}
                 className={cn(
@@ -84,6 +62,26 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
                     reply_to_message && (sender === MESSAGE_ROLE.ME ? 'rounded-tr-none' : 'rounded-tl-none'),
                 )}
             >
+                {reply_to_message && (
+                    <div
+                        onClick={() => scrollToMessage(reply_to_message.id)}
+                        className={cn(
+                            'flex flex-col gap-0.5 font-medium cursor-pointer transition-colors max-w-full border-b mb-2 pb-2',
+                            sender === MESSAGE_ROLE.ME
+                                ? 'text-gray-300 hover:text-white border-gray-300 hover:border-white'
+                                : 'text-gray-500 hover:text-gray-700 border-gray-400 hover:border-gray-600',
+                        )}
+                    >
+                        <span className="text-[10px]  uppercase leading-none">
+                            Reply to{' '}
+                            {reply_to_message.role === MESSAGE_ROLE.ME
+                                ? 'You'
+                                : reply_to_message.sender.name || reply_to_message.sender.username || 'Unknown'}
+                        </span>
+                        <p className="text-xs  italic leading-tight truncate">{getReplyText(reply_to_message)}</p>
+                    </div>
+                )}
+
                 {text.trim() !== '' && <p className="">{text}</p>}
 
                 <div
