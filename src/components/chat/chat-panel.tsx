@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { Bell, FileText, Image, Info, LogOut, Users, X } from 'lucide-react';
@@ -8,10 +10,11 @@ import { cn } from '@/utils/cn';
 
 import Avatar from '../ui/avatar';
 import { ScrollableView } from '../ui/scrollable-view';
+import { MemberList } from './member-list';
 
 export default function ChatPanel() {
     const { isOpen, close } = useChatPanelStore();
-    const { conversation } = useCommunityConversationStore();
+    const { conversation, members } = useCommunityConversationStore();
 
     if (!conversation) return null;
 
@@ -86,31 +89,13 @@ export default function ChatPanel() {
                             ))}
                         </div>
 
-                        {/* Members Preview */}
+                        {/* Members List */}
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold">
-                                    Members ({conversation.participants.length})
-                                </span>
+                                <span className="text-sm font-semibold">Members ({members.length})</span>
                                 <button className="text-xs text-primary hover:underline">View all</button>
                             </div>
-                            <div className="space-y-2">
-                                {conversation.participants.slice(0, 5).map((member) => (
-                                    <div key={member.id} className="flex items-center gap-3">
-                                        <Avatar
-                                            src={member.avatar}
-                                            className="h-8 w-8"
-                                            backgroundColor={member.id === '1' ? 'blue' : 'orange'}
-                                        />
-                                        <div className="flex-1 overflow-hidden">
-                                            <p className="text-sm font-medium truncate">{member.name}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {member.isOnline ? 'Online' : 'Offline'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <MemberList />
                         </div>
                     </div>
                 </ScrollableView>

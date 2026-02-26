@@ -23,7 +23,7 @@ import { FilePreview } from './file-preview';
 const MAX_FILES = 5;
 
 interface ChatInputProps {
-    onSend: (message: string, files: File[]) => void; // onSend now accepts files
+    onSend: (message: string, files: File[], mentions?: (string | number)[]) => void; // onSend now accepts files and mentions
     placeholder?: string;
     disabled?: boolean;
 }
@@ -66,7 +66,26 @@ const ChatInput = forwardRef<{ focusEditor: () => void }, ChatInputProps>(
             if (editor && (editor.getText().trim() || selectedFiles.length > 0)) {
                 // const content = editor.getHTML();
                 const textContent = editor.getText();
-                onSend(textContent, selectedFiles); // Pass content and files
+
+                console.log('Editor Doc JSON:', editor.getJSON());
+
+                // Extract mention IDs
+                const mentionIds: (string | number)[] = [];
+                editor.state.doc.descendants((node) => {
+                    if (node.type.name === 'mention') {
+                        console.log('Found mention node:', node.attrs);
+                        if (node.attrs.userId) {
+                            mentionIds.push(node.attrs.userId);
+                        }
+                    }
+                });
+
+                // Remove duplicates
+                const uniqueMentionIds = Array.from(new Set(mentionIds));
+
+                console.log('Unique Mention IDs:', uniqueMentionIds);
+
+                onSend(textContent, selectedFiles, uniqueMentionIds); // Pass content, files and mentions
                 editor.chain().clearContent().focus().run();
                 setSelectedFiles([]); // Clear selected files after sending
                 if (fileInputRef.current) {

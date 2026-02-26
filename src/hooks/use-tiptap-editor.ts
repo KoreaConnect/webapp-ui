@@ -5,66 +5,102 @@ import { useCommunityConversationStore } from '@/store/use-community-conversatio
 import { useCurrentMessages } from '@/store/use-current-messages';
 import Mention from '@tiptap/extension-mention';
 import Placeholder from '@tiptap/extension-placeholder';
-import { ReactRenderer, useEditor } from '@tiptap/react';
+import { type Editor, Range, ReactRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import type { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion';
-import tippy from 'tippy.js';
-import { Instance as TippyInstance } from 'tippy.js';
+import tippy, { type Instance as TippyInstance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 
 import { MentionList } from '@/components/tiptap/mention-list';
 
-type MentionItem = {
-    id: string;
+export type MentionItem = {
+    userId: string | number; // This is the actual numeric ID
+    username: string; // This can be the username or fallback
     name: string;
-    avatar?: string; // Add avatar to the type
+    avatar?: string;
 };
 
-export const CustomMention = Mention.configure({
+// Define interface for mention command props
+interface MentionCommandProps {
+    id: string;
+    userId: string | number;
+    label: string;
+}
+
+export const CustomMention = Mention.extend({
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            userId: {
+                default: null,
+                parseHTML: (element) => element.getAttribute('data-user-id'),
+                renderHTML: (attributes) => {
+                    if (!attributes.userId) {
+                        return {};
+                    }
+                    return {
+                        'data-user-id': attributes.userId,
+                    };
+                },
+            },
+        };
+    },
+}).configure({
     HTMLAttributes: {
         class: 'text-blue-500 font-medium',
     },
-
     suggestion: {
-        items: ({ query }: { query: string }): MentionItem[] => {
-            const conversation = useCommunityConversationStore.getState().conversation;
-            const messages = useCurrentMessages.getState().messages;
+        items: ({ query, editor }: { query: string; editor: Editor }): MentionItem[] => {
+            const { members, conversation } = useCommunityConversationStore.getState();
+
             const currentUser = useAuthStore.getState().user;
 
-            // Get participants from conversation
-            const participants = conversation?.participants ?? [];
-            const usersFromParticipants: MentionItem[] = participants
-                .filter((user) => user.id.toString() !== currentUser?.id.toString())
-                .map((user) => ({
-                    id: user.username || user.id.toString(),
-                    name: user.name || user.username || 'Unknown',
-                    avatar: user.picture || user.avatar,
-                }));
-
-            // Get unique senders from messages as fallback/addition
-            const usersFromMessages: MentionItem[] = [];
-            const seenIds = new Set(usersFromParticipants.map((u) => u.id));
-            // Add current user to seenIds to prevent them from being added via messages loop
-            if (currentUser) {
-                seenIds.add(currentUser.username || currentUser.id.toString());
-                seenIds.add(currentUser.id.toString());
-            }
-
-            messages.forEach((msg) => {
-                const identifier = msg.sender.username || msg.sender.id.toString();
-                const senderId = msg.sender.id.toString();
-
-                if (senderId !== currentUser?.id.toString() && !seenIds.has(identifier) && msg.sender.name) {
-                    seenIds.add(identifier);
-                    usersFromMessages.push({
-                        id: identifier,
-                        name: msg.sender.name,
-                        avatar: msg.sender.picture || undefined,
-                    });
+            // Get existing mentions from the editor content to avoid duplicates
+            const existingMentionIds = new Set<string>();
+            editor.state.doc.descendants((node) => {
+                if (node.type.name === 'mention' && node.attrs.userId) {
+                    existingMentionIds.add(node.attrs.userId.toString());
                 }
             });
 
-            const allUsers = [...usersFromParticipants, ...usersFromMessages];
+            // 1. Map members from the official list
+            const usersFromMembers: MentionItem[] = members
+                .filter((user) => {
+                    const userIdStr = user.id.toString();
+                    return userIdStr !== currentUser?.id.toString() && !existingMentionIds.has(userIdStr);
+                })
+                .map((user) => ({
+                    userId: user.id,
+                    username: user.username || user.id.toString(),
+                    name: user.name,
+                    avatar: (user.avatar || user.picture) ?? undefined,
+                }));
+
+            const seenUserIds = new Set(usersFromMembers.map((u) => u.userId.toString()));
+            if (currentUser) seenUserIds.add(currentUser.id.toString());
+
+            // 2. Fallback: Map participants from conversation object
+            const participants = conversation?.participants ?? [];
+            const usersFromParticipants: MentionItem[] = participants
+                .filter((user) => {
+                    const userIdStr = user.id.toString();
+                    return (
+                        !seenUserIds.has(userIdStr) &&
+                        userIdStr !== currentUser?.id.toString() &&
+                        !existingMentionIds.has(userIdStr)
+                    );
+                })
+                .map((user) => ({
+                    id: user.username || user.id.toString(),
+                    userId: user.id,
+                    username: user.username || user.id.toString(),
+                    name: user.name,
+                    avatar: (user.picture || user.avatar) ?? undefined,
+                }));
+
+            usersFromParticipants.forEach((u) => seenUserIds.add(u.userId.toString()));
+
+            const allUsers = [...usersFromMembers, ...usersFromParticipants];
 
             return allUsers.filter((user) => user.name.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
         },
@@ -91,7 +127,7 @@ export const CustomMention = Mention.configure({
                         showOnCreate: true,
                         interactive: true,
                         trigger: 'manual',
-                        placement: 'bottom-start',
+                        placement: 'top-start',
                         theme: 'mention',
                         arrow: false,
                     });
@@ -104,7 +140,7 @@ export const CustomMention = Mention.configure({
 
                     if (props.clientRect) {
                         popup?.setProps({
-                            getReferenceClientRect: () => props.clientRect?.() || new DOMRect(),
+                            getReferenceClientRect: props.clientRect,
                         });
                     }
                 },
@@ -142,12 +178,30 @@ export const CustomMention = Mention.configure({
                 },
             };
         },
+
+        command: ({ editor, range, props }: { editor: Editor; range: Range; props: MentionCommandProps }) => {
+            editor
+                .chain()
+                .focus()
+                .insertContentAt(range, [
+                    {
+                        type: 'mention',
+                        attrs: {
+                            id: props.id,
+                            label: props.id, // Hiển thị username trong chat input
+                            userId: props.userId,
+                        },
+                    },
+                    { type: 'text', text: ' ' },
+                ])
+                .run();
+        },
     },
 });
 
 export function useTiptapEditor({ placeholderText = 'Type a message...' }: { placeholderText?: string }) {
     const editor = useEditor({
-        immediatelyRender: false, // Added this to address the SSR error
+        immediatelyRender: false,
         extensions: [
             StarterKit.configure({
                 heading: false,
@@ -167,7 +221,7 @@ export function useTiptapEditor({ placeholderText = 'Type a message...' }: { pla
             Placeholder.configure({
                 placeholder: placeholderText,
             }),
-            CustomMention, // Use the CustomMention defined above
+            CustomMention,
         ],
         editorProps: {
             attributes: {

@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/use-auth-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
+import { useToastStore } from '@/store/use-toast-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
@@ -26,8 +27,14 @@ import { cn } from '@/utils';
 // Function to generate a random avatar URL from DiceBear
 
 export default function Messenger() {
-    const { fetchConversationBySlug, conversation, isLoading: isConvLoading } = useCommunityConversationStore();
+    const {
+        fetchConversationBySlug,
+        conversation,
+        fetchMembers,
+        isLoading: isConvLoading,
+    } = useCommunityConversationStore();
     const { replyingTo, closeReplyBox } = useReply();
+    const { show } = useToastStore();
     const {
         messages,
         addMessage,
@@ -58,15 +65,17 @@ export default function Messenger() {
     const currentUser = useAuthStore((state) => state.user);
     const chatInputRef = useRef<{ focusEditor: () => void }>(null); // Ref to hold the ChatInput's custom focus function
     const scrollRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastScrollHeightRef = useRef<number>(0);
     const lastMessageIdRef = useRef<string | null>(null);
 
     const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
-        if (scrollRef.current) {
-            console.log('Scrolling to bottom', {
-                scrollHeight: scrollRef.current.scrollHeight,
-                clientHeight: scrollRef.current.clientHeight,
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({
+                behavior,
+                block: 'end',
             });
+        } else if (scrollRef.current) {
             scrollRef.current.scrollTo({
                 top: scrollRef.current.scrollHeight,
                 behavior,
@@ -101,6 +110,15 @@ export default function Messenger() {
         const newMessage = mapRawMessageToMessage(data, currentUser?.id);
 
         addMessage(newMessage);
+    });
+
+    useSocketListener<RawMessage>('chat:mention', (data) => {
+        // This is received when the current user is mentioned
+        show({
+            title: 'New Mention',
+            message: `${data.sender?.name} mentioned you: "${data.content.slice(0, 50)}${data.content.length > 50 ? '...' : ''}"`,
+            type: 'info',
+        });
     });
 
     useSocketListener<{
@@ -158,8 +176,9 @@ export default function Messenger() {
     useEffect(() => {
         if (conversation?.id) {
             fetchMessages(conversation.id);
+            fetchMembers(conversation.id); // Fetch members immediately for mentions
         }
-    }, [conversation?.id, fetchMessages]);
+    }, [conversation?.id, fetchMessages, fetchMembers]);
 
     useEffect(() => {
         if (replyingTo && chatInputRef.current) {
@@ -174,22 +193,30 @@ export default function Messenger() {
             // Only scroll to bottom if the last message has changed (new message arrived)
             // or if it's the first load
             if (lastMessage.id !== lastMessageIdRef.current) {
-                console.log('Attempting to scroll to bottom', lastMessage.id, lastMessageIdRef.current);
+                const isInitialLoad = lastMessageIdRef.current === null;
                 lastMessageIdRef.current = lastMessage.id;
 
-                requestAnimationFrame(() => {
-                    scrollToBottom();
-                });
+                // For initial load, use auto behavior for instant scroll
+                // For new messages, use smooth behavior
+                const behavior = isInitialLoad ? 'auto' : 'smooth';
+
+                // Delay to ensure DOM is updated and images (if any) have some space
+                const timer = setTimeout(() => {
+                    scrollToBottom(behavior);
+                }, 100);
+                return () => clearTimeout(timer);
             }
         }
     }, [messages, isMessagesLoading]);
 
-    const handleSendMessage = async (text: string, files: File[]) => {
+    const handleSendMessage = async (text: string, files: File[], mentions?: (string | number)[]) => {
         if (!conversation?.id) return;
 
         try {
-            await sendMessage(conversation.id, text, files, replyingTo?.id);
+            await sendMessage(conversation.id, text, files, replyingTo?.id, mentions);
             closeReplyBox();
+            // Scroll to bottom immediately after sending for better UX
+            setTimeout(() => scrollToBottom('smooth'), 50);
         } catch (error) {
             console.error('Error in handleSendMessage:', error);
         }
@@ -241,8 +268,10 @@ export default function Messenger() {
                                 content={msg.content}
                                 reply_to_message={msg.reply_to_message}
                                 attachments={msg.attachments}
+                                mentions={msg.mentions}
                             />
                         ))}
+                        <div ref={messagesEndRef} className="h-px w-full" />
                     </div>
                 </ScrollableView>
 

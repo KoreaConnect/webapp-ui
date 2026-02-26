@@ -1,12 +1,21 @@
+'use client';
+
 import React, { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 import Avatar from '@/components/ui/avatar';
 
 import { cn } from '@/utils/cn';
 
+export type MentionItem = {
+    userId: string | number; // This is the actual numeric ID
+    username: string; // This can be the username or fallback
+    name: string;
+    avatar?: string;
+};
+
 interface MentionListProps {
-    items: { id: string; name: string; avatar?: string }[];
-    command: (item: { id: string; name: string; avatar?: string }) => void;
+    items: MentionItem[];
+    command: (item: { id: string; userId: string | number; label: string }) => void;
 }
 
 export const MentionList = forwardRef<unknown, MentionListProps>(({ items, command }, ref) => {
@@ -16,7 +25,14 @@ export const MentionList = forwardRef<unknown, MentionListProps>(({ items, comma
         (index: number) => {
             const item = items[index];
             if (item) {
-                command(item);
+                // Tiptap's mention extension expects 'id' and optionally 'label'.
+                // We map 'username' to 'id' for the extension's default behavior,
+                // and pass 'userId' as our custom attribute.
+                command({
+                    id: item.username,
+                    userId: item.userId,
+                    label: item.name,
+                });
             }
         },
         [command, items],
@@ -60,7 +76,7 @@ export const MentionList = forwardRef<unknown, MentionListProps>(({ items, comma
         <div className="relative z-50 p-1">
             {items.map((item, index) => (
                 <button
-                    key={item.id}
+                    key={item.userId}
                     className={cn(
                         'flex items-center gap-2 w-full text-left px-2 py-1 rounded-sm text-sm',
                         index === selectedIndex

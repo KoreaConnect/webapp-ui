@@ -3,6 +3,7 @@
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import {
     type Attachment,
+    type BasicUserInfo,
     MESSAGE_ROLE,
     type Message,
     type MessageMetadata,
@@ -32,6 +33,7 @@ type ChatMessageProps = {
     content?: string;
     reply_to_message?: Message | null;
     attachments?: Attachment[];
+    mentions?: BasicUserInfo[];
 };
 
 function ChatMessage({
@@ -47,12 +49,13 @@ function ChatMessage({
     content,
     reply_to_message,
     attachments,
+    mentions,
 }: ChatMessageProps) {
     const messageReactions = useMessageReactionStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
 
     if (type === 'system' || role === 'system') {
-        return <SystemMessage message={{ id, text, role, type, metadata, content } as Message} />;
+        return <SystemMessage message={{ id, text, role, type, metadata, content, mentions } as Message} />;
     }
 
     return (
@@ -76,6 +79,7 @@ function ChatMessage({
                             reactions={reactions}
                             reply_to_message={reply_to_message}
                             attachments={attachments}
+                            mentions={mentions}
                         />
                         <MessageTools messageId={id} position={role === MESSAGE_ROLE.ME ? 'right' : 'left'} />
                     </div>

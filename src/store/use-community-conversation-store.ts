@@ -1,4 +1,4 @@
-import type { Conversation } from '@/types/chat.type';
+import type { Conversation, RawConversationMember, User } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
@@ -7,16 +7,21 @@ type CommunityConversationState = {
     hasJoined: boolean;
     isJoining: boolean;
     isLoading: boolean;
+    isMembersLoading: boolean;
     joinChat: (conversationId: string) => Promise<void>;
     conversation: Conversation | null;
+    members: User[];
     setConversation: (conversation: Conversation | null) => void;
     updateConversation: (id: string, updates: Partial<Conversation>) => void;
     fetchConversationBySlug: (slug: string) => Promise<void>;
+    fetchMembers: (conversationId: string) => Promise<void>;
 };
 
 export const useCommunityConversationStore = create<CommunityConversationState>((set) => ({
     conversation: null,
+    members: [],
     isLoading: false,
+    isMembersLoading: false,
     hasJoined: false, // Initial state: user has not joined
     isJoining: false,
     joinChat: async (conversationId: string) => {
@@ -64,6 +69,24 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
         } catch (error) {
             console.error('Failed to fetch conversation:', error);
             set({ isLoading: false });
+        }
+    },
+    fetchMembers: async (conversationId: string) => {
+        set({ isMembersLoading: true });
+        try {
+            const response = await conversationService.getMembers(conversationId);
+            const data = response.data as RawConversationMember[];
+            const mappedMembers: User[] = data.map((member) => ({
+                id: member.user_id,
+                name: member.name,
+                username: member.username,
+                avatar: member.picture || undefined,
+                isOnline: member.is_online || false,
+            }));
+            set({ members: mappedMembers, isMembersLoading: false });
+        } catch (error) {
+            console.error('Failed to fetch members:', error);
+            set({ isMembersLoading: false });
         }
     },
 }));

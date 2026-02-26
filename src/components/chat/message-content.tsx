@@ -1,4 +1,11 @@
-import { type Attachment, MESSAGE_ROLE, type Message, MessageReactions, type MessageRole } from '@/types/chat.type';
+import {
+    type Attachment,
+    type BasicUserInfo,
+    MESSAGE_ROLE,
+    type Message,
+    MessageReactions,
+    type MessageRole,
+} from '@/types/chat.type';
 import { FileText } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
@@ -12,9 +19,18 @@ type MessageContentProps = {
     reactions: MessageReactions;
     reply_to_message?: Message | null;
     attachments?: Attachment[];
+    mentions?: BasicUserInfo[];
 };
 
-export function MessageContent({ id, text, sender, reactions, reply_to_message, attachments }: MessageContentProps) {
+export function MessageContent({
+    id,
+    text,
+    sender,
+    reactions,
+    reply_to_message,
+    attachments,
+    mentions,
+}: MessageContentProps) {
     const scrollToMessage = (msgId: string) => {
         const element = document.getElementById(`message-${msgId}`);
         if (element) {
@@ -40,6 +56,31 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
             // Not JSON
         }
         return content;
+    };
+
+    const renderTextWithMentions = (textContent: string) => {
+        if (!mentions || mentions.length === 0) return textContent;
+
+        // Create a regex to match @username
+        // We need to be careful with usernames that might contain special characters
+        // or be substrings of each other.
+        const parts = textContent.split(/(@\w+)/g);
+
+        return parts.map((part, index) => {
+            if (part.startsWith('@')) {
+                const username = part.slice(1);
+                const mention = mentions.find((m) => m.username === username);
+
+                if (mention) {
+                    return (
+                        <span key={index} className="font-bold text-blue-400 dark:text-blue-300">
+                            {part}
+                        </span>
+                    );
+                }
+            }
+            return part;
+        });
     };
 
     const imageAttachments = attachments?.filter((a) => a.mime_type?.startsWith('image/')) || [];
@@ -81,7 +122,7 @@ export function MessageContent({ id, text, sender, reactions, reply_to_message, 
                     </div>
                 )}
 
-                {text.trim() !== '' && <p className="">{text}</p>}
+                {text.trim() !== '' && <p className="">{renderTextWithMentions(text)}</p>}
 
                 <div
                     className={cn(

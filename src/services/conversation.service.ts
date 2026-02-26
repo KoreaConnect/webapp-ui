@@ -29,11 +29,21 @@ export const getMessages = async (conversationId: string, limit?: number, before
     }
 };
 
+export const getMembers = async (conversationId: string) => {
+    try {
+        const response = await instance.get(`/conversations/${conversationId}/members`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const sendMessage = async (
     conversationId: string,
     content: string,
     files: File[],
     replyToMessageId?: string | null,
+    mentions?: (string | number)[],
 ) => {
     try {
         if (files && files.length > 0) {
@@ -41,6 +51,9 @@ export const sendMessage = async (
             formData.append('content', content);
             if (replyToMessageId) {
                 formData.append('reply_to_message_id', replyToMessageId);
+            }
+            if (mentions && mentions.length > 0) {
+                formData.append('mentions', JSON.stringify(mentions));
             }
             files.forEach((file) => {
                 formData.append('files', file);
@@ -56,6 +69,7 @@ export const sendMessage = async (
         const response = await instance.post(`/conversations/${conversationId}/messages`, {
             content,
             reply_to_message_id: replyToMessageId,
+            mentions,
         });
         return response.data;
     } catch (error) {

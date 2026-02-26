@@ -62,6 +62,7 @@ export type Message = {
     reply_to_message_id?: string | null;
     reply_to_message?: Message | null;
     attachments?: Attachment[];
+    mentions?: BasicUserInfo[];
 };
 
 export type RawMessage = {
@@ -84,6 +85,17 @@ export type RawMessage = {
     reply_to_message_id?: string | null;
     reply_to_message?: RawMessage | null;
     attachments?: Attachment[];
+    mentions?: BasicUserInfo[];
+};
+
+export type RawConversationMember = {
+    user_id: string | number;
+    name: string;
+    username: string;
+    picture: string | null;
+    is_online?: boolean;
+    role?: string;
+    joined_at?: string;
 };
 
 export type Conversation = {
