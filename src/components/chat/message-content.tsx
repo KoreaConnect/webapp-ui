@@ -10,6 +10,7 @@ import { FileText } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
 
+import { MentionBadge } from './mention-badge';
 import { ReactionGroup } from './reaction-group';
 
 type MessageContentProps = {
@@ -62,8 +63,6 @@ export function MessageContent({
         if (!mentions || mentions.length === 0) return textContent;
 
         // Create a regex to match @username
-        // We need to be careful with usernames that might contain special characters
-        // or be substrings of each other.
         const parts = textContent.split(/(@\w+)/g);
 
         return parts.map((part, index) => {
@@ -72,11 +71,7 @@ export function MessageContent({
                 const mention = mentions.find((m) => m.username === username);
 
                 if (mention) {
-                    return (
-                        <span key={index} className="font-bold text-blue-400 dark:text-blue-300">
-                            {part}
-                        </span>
-                    );
+                    return <MentionBadge key={index} mention={mention} />;
                 }
             }
             return part;
