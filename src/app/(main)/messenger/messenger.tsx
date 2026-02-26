@@ -63,6 +63,10 @@ export default function Messenger() {
 
     const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
         if (scrollRef.current) {
+            console.log('Scrolling to bottom', {
+                scrollHeight: scrollRef.current.scrollHeight,
+                clientHeight: scrollRef.current.clientHeight,
+            });
             scrollRef.current.scrollTo({
                 top: scrollRef.current.scrollHeight,
                 behavior,
@@ -170,12 +174,12 @@ export default function Messenger() {
             // Only scroll to bottom if the last message has changed (new message arrived)
             // or if it's the first load
             if (lastMessage.id !== lastMessageIdRef.current) {
+                console.log('Attempting to scroll to bottom', lastMessage.id, lastMessageIdRef.current);
                 lastMessageIdRef.current = lastMessage.id;
-                // Delay slightly to ensure content is rendered
-                const timer = setTimeout(() => {
-                    scrollToBottom('smooth');
-                }, 100);
-                return () => clearTimeout(timer);
+
+                requestAnimationFrame(() => {
+                    scrollToBottom();
+                });
             }
         }
     }, [messages, isMessagesLoading]);

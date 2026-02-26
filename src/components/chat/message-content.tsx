@@ -1,11 +1,4 @@
-import {
-    type Attachment,
-    BasicUserInfo,
-    MESSAGE_ROLE,
-    type Message,
-    MessageReactions,
-    type MessageRole,
-} from '@/types/chat.type';
+import { type Attachment, MESSAGE_ROLE, type Message, MessageReactions, type MessageRole } from '@/types/chat.type';
 import { FileText } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
