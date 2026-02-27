@@ -67,7 +67,6 @@ export default function Messenger() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastScrollHeightRef = useRef<number>(0);
-    const lastMessageIdRef = useRef<string | null>(null);
 
     const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
         if (messagesEndRef.current) {
@@ -110,6 +109,9 @@ export default function Messenger() {
         const newMessage = mapRawMessageToMessage(data, currentUser?.id);
 
         addMessage(newMessage);
+
+        // Scroll to bottom when a new message arrives
+        setTimeout(() => scrollToBottom('smooth'), 100);
     });
 
     useSocketListener<RawMessage>('chat:mention', (data) => {
@@ -175,7 +177,10 @@ export default function Messenger() {
 
     useEffect(() => {
         if (conversation?.id) {
-            fetchMessages(conversation.id);
+            fetchMessages(conversation.id).then(() => {
+                // Scroll to bottom on initial load
+                setTimeout(() => scrollToBottom('auto'), 100);
+            });
             fetchMembers(conversation.id); // Fetch members immediately for mentions
         }
     }, [conversation?.id, fetchMessages, fetchMembers]);
@@ -185,29 +190,6 @@ export default function Messenger() {
             chatInputRef.current.focusEditor();
         }
     }, [replyingTo]);
-
-    useEffect(() => {
-        if (!isMessagesLoading && messages.length > 0) {
-            const lastMessage = messages[messages.length - 1];
-
-            // Only scroll to bottom if the last message has changed (new message arrived)
-            // or if it's the first load
-            if (lastMessage.id !== lastMessageIdRef.current) {
-                const isInitialLoad = lastMessageIdRef.current === null;
-                lastMessageIdRef.current = lastMessage.id;
-
-                // For initial load, use auto behavior for instant scroll
-                // For new messages, use smooth behavior
-                const behavior = isInitialLoad ? 'auto' : 'smooth';
-
-                // Delay to ensure DOM is updated and images (if any) have some space
-                const timer = setTimeout(() => {
-                    scrollToBottom(behavior);
-                }, 100);
-                return () => clearTimeout(timer);
-            }
-        }
-    }, [messages, isMessagesLoading]);
 
     const handleSendMessage = async (text: string, files: File[], mentions?: (string | number)[]) => {
         if (!conversation?.id) return;
@@ -222,7 +204,7 @@ export default function Messenger() {
         }
     };
 
-    if (isConvLoading || isMessagesLoading) {
+    if (isConvLoading || (isMessagesLoading && messages.length === 0)) {
         return (
             <div className="flex h-full items-center justify-center">
                 <Loader size={32} />

@@ -1,3 +1,5 @@
+import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentMessages } from '@/store/use-current-messages';
 import {
     type Attachment,
     type BasicUserInfo,
@@ -32,14 +34,34 @@ export function MessageContent({
     attachments,
     mentions,
 }: MessageContentProps) {
-    const scrollToMessage = (msgId: string) => {
+    const { fetchMessageContext } = useCurrentMessages();
+    const { conversation } = useCommunityConversationStore();
+
+    const applyHighlight = (msgId: string, behavior: ScrollBehavior = 'smooth') => {
         const element = document.getElementById(`message-${msgId}`);
         if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.scrollIntoView({ behavior, block: 'center' });
             element.classList.add('ring-2', 'ring-primary/50', 'transition-all', 'duration-500');
             setTimeout(() => {
                 element.classList.remove('ring-2', 'ring-primary/50');
             }, 2000);
+            return true;
+        }
+        return false;
+    };
+
+    const scrollToMessage = async (msgId: string) => {
+        // 1. Try to find and scroll immediately (if in current messages)
+        if (applyHighlight(msgId)) return;
+
+        // 2. If not found, fetch context
+        if (conversation?.id) {
+            await fetchMessageContext(conversation.id, msgId);
+            // 3. After context is loaded, jump instantly (behavior: 'auto')
+            // Then highlight. 'auto' is much more stable after a large DOM swap.
+            setTimeout(() => {
+                applyHighlight(msgId, 'auto');
+            }, 200);
         }
     };
 

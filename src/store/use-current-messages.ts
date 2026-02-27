@@ -69,6 +69,7 @@ type CurrentMessagesState = {
     messages: Message[];
     isLoading: boolean;
     isFetchingMore: boolean;
+    isFetchingContext: boolean;
     hasMore: boolean;
     setMessages: (messages: Message[]) => void;
     addMessage: (message: Message) => void;
@@ -78,6 +79,7 @@ type CurrentMessagesState = {
     clearMessages: () => void;
     fetchMessages: (conversationId: string) => Promise<void>;
     fetchMoreMessages: (conversationId: string) => Promise<void>;
+    fetchMessageContext: (conversationId: string, messageId: string) => Promise<void>;
     sendMessage: (
         conversationId: string,
         content: string,
@@ -93,6 +95,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     messages: [],
     isLoading: false,
     isFetchingMore: false,
+    isFetchingContext: false,
     hasMore: true,
     setMessages: (messages) => set({ messages }),
     updateReadStatus: (userId, lastReadMessageId, lastReadMessageAt) => {
@@ -275,6 +278,31 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         } catch (error) {
             console.error('Failed to fetch more messages:', error);
             set({ isFetchingMore: false });
+        }
+    },
+    fetchMessageContext: async (conversationId, messageId) => {
+        set({ isFetchingContext: true });
+        try {
+            const response = await conversationService.getMessageContext(conversationId, messageId, LIMIT_MESSAGES);
+            const currentUserId = useAuthStore.getState().user?.id;
+
+            const reactionsMap: ReactionMap = {};
+
+            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+                const message = mapRawMessageToMessage(msg, currentUserId);
+                reactionsMap[message.id] = message.reactions || {};
+                return message;
+            });
+
+            useMessageReactionStore.getState().setMessageReactions(reactionsMap);
+            set({
+                messages: mappedMessages,
+                isFetchingContext: false,
+                hasMore: true,
+            });
+        } catch (error) {
+            console.error('Failed to fetch message context:', error);
+            set({ isFetchingContext: false });
         }
     },
     reportMessage: async (messageId) => {

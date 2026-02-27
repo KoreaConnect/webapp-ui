@@ -29,6 +29,17 @@ export const getMessages = async (conversationId: string, limit?: number, before
     }
 };
 
+export const getMessageContext = async (conversationId: string, messageId: string, limit?: number) => {
+    try {
+        const response = await instance.get(`/conversations/${conversationId}/messages/${messageId}/context`, {
+            params: { limit },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getMembers = async (conversationId: string) => {
     try {
         const response = await instance.get(`/conversations/${conversationId}/members`);
