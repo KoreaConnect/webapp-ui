@@ -69,8 +69,11 @@ type CurrentMessagesState = {
     messages: Message[];
     isLoading: boolean;
     isFetchingMore: boolean;
+    isFetchingNewer: boolean;
     isFetchingContext: boolean;
-    hasMore: boolean;
+    hasMore: boolean; // Keep for backward compatibility (maps to hasMoreBefore)
+    hasMoreBefore: boolean;
+    hasMoreAfter: boolean;
     setMessages: (messages: Message[]) => void;
     addMessage: (message: Message) => void;
     updateMessage: (id: string, updates: Partial<Message>) => void;
@@ -79,6 +82,7 @@ type CurrentMessagesState = {
     clearMessages: () => void;
     fetchMessages: (conversationId: string) => Promise<void>;
     fetchMoreMessages: (conversationId: string) => Promise<void>;
+    fetchNewerMessages: (conversationId: string) => Promise<void>;
     fetchMessageContext: (conversationId: string, messageId: string) => Promise<void>;
     sendMessage: (
         conversationId: string,
@@ -95,8 +99,11 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     messages: [],
     isLoading: false,
     isFetchingMore: false,
+    isFetchingNewer: false,
     isFetchingContext: false,
     hasMore: true,
+    hasMoreBefore: true,
+    hasMoreAfter: false,
     setMessages: (messages) => set({ messages }),
     updateReadStatus: (userId, lastReadMessageId, lastReadMessageAt) => {
         set((state) => {
@@ -183,7 +190,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set((state) => ({
             messages: state.messages.filter((m) => m.id.toString() !== id.toString()),
         })),
-    clearMessages: () => set({ messages: [], hasMore: true }),
+    clearMessages: () => set({ messages: [], hasMore: true, hasMoreBefore: true, hasMoreAfter: false }),
     markAsRead: async (conversationId, lastMessageId) => {
         try {
             await conversationService.markAsRead(conversationId, lastMessageId);
@@ -222,7 +229,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         }
     },
     fetchMessages: async (conversationId) => {
-        set({ isLoading: true, hasMore: true });
+        set({ isLoading: true, hasMore: true, hasMoreBefore: true, hasMoreAfter: false });
         try {
             const response = await conversationService.getMessages(conversationId, LIMIT_MESSAGES);
             const currentUserId = useAuthStore.getState().user?.id;
@@ -236,15 +243,22 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             });
 
             useMessageReactionStore.getState().setMessageReactions(reactionsMap);
-            set({ messages: mappedMessages, isLoading: false, hasMore: mappedMessages.length >= LIMIT_MESSAGES });
+            const hasMoreMessages = mappedMessages.length >= LIMIT_MESSAGES;
+            set({
+                messages: mappedMessages,
+                isLoading: false,
+                hasMore: hasMoreMessages,
+                hasMoreBefore: hasMoreMessages,
+                hasMoreAfter: false,
+            });
         } catch (error) {
             console.error('Failed to fetch messages:', error);
             set({ isLoading: false });
         }
     },
     fetchMoreMessages: async (conversationId) => {
-        const { messages, isFetchingMore, hasMore } = get();
-        if (isFetchingMore || !hasMore || messages.length === 0) return;
+        const { messages, isFetchingMore, hasMoreBefore } = get();
+        if (isFetchingMore || !hasMoreBefore || messages.length === 0) return;
 
         set({ isFetchingMore: true });
         try {
@@ -267,17 +281,60 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             useMessageReactionStore.getState().setMessageReactions(reactionsMap);
 
             if (mappedMessages.length === 0) {
-                set({ hasMore: false, isFetchingMore: false });
+                set({ hasMoreBefore: false, hasMore: false, isFetchingMore: false });
             } else {
                 set((state) => ({
                     messages: [...mappedMessages, ...state.messages],
                     isFetchingMore: false,
+                    hasMoreBefore: mappedMessages.length >= LIMIT_MESSAGES,
                     hasMore: mappedMessages.length >= LIMIT_MESSAGES,
                 }));
             }
         } catch (error) {
             console.error('Failed to fetch more messages:', error);
             set({ isFetchingMore: false });
+        }
+    },
+    fetchNewerMessages: async (conversationId) => {
+        const { messages, isFetchingNewer, hasMoreAfter } = get();
+        if (isFetchingNewer || !hasMoreAfter || messages.length === 0) return;
+
+        set({ isFetchingNewer: true });
+        try {
+            const latestMessage = messages[messages.length - 1];
+            // We need a getMessages that supports 'after'
+            // Assuming conversationService.getMessages supports a 4th param or we use a separate function
+            // Let's check services/conversation.service.ts later, for now assume we can pass 'after'
+            const response = await conversationService.getMessages(
+                conversationId,
+                LIMIT_MESSAGES,
+                undefined,
+                latestMessage.created_at,
+            );
+            const currentUserId = useAuthStore.getState().user?.id;
+
+            const reactionsMap: ReactionMap = {};
+
+            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+                const message = mapRawMessageToMessage(msg, currentUserId);
+                reactionsMap[message.id] = message.reactions || {};
+                return message;
+            });
+
+            useMessageReactionStore.getState().setMessageReactions(reactionsMap);
+
+            if (mappedMessages.length === 0) {
+                set({ hasMoreAfter: false, isFetchingNewer: false });
+            } else {
+                set((state) => ({
+                    messages: [...state.messages, ...mappedMessages],
+                    isFetchingNewer: false,
+                    hasMoreAfter: mappedMessages.length >= LIMIT_MESSAGES,
+                }));
+            }
+        } catch (error) {
+            console.error('Failed to fetch newer messages:', error);
+            set({ isFetchingNewer: false });
         }
     },
     fetchMessageContext: async (conversationId, messageId) => {
@@ -298,6 +355,8 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             set({
                 messages: mappedMessages,
                 isFetchingContext: false,
+                hasMoreBefore: true,
+                hasMoreAfter: true,
                 hasMore: true,
             });
         } catch (error) {

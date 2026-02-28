@@ -40,12 +40,16 @@ export default function Messenger() {
         addMessage,
         fetchMessages,
         fetchMoreMessages,
+        fetchNewerMessages,
         sendMessage,
         markAsRead,
         updateReadStatus,
         isLoading: isMessagesLoading,
         isFetchingMore,
-        hasMore,
+        isFetchingNewer,
+        isFetchingContext,
+        hasMoreBefore,
+        hasMoreAfter,
     } = useCurrentMessages();
 
     // Track the last seen message ID to avoid redundant markAsRead calls
@@ -67,6 +71,7 @@ export default function Messenger() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastScrollHeightRef = useRef<number>(0);
+    const lastScrollTopRef = useRef<number>(0);
 
     const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
         if (messagesEndRef.current) {
@@ -83,14 +88,22 @@ export default function Messenger() {
     };
 
     const handleScroll = () => {
-        if (!scrollRef.current || isFetchingMore || !hasMore || !conversation?.id) return;
+        if (!scrollRef.current || isFetchingMore || isFetchingNewer || isFetchingContext || !conversation?.id) return;
 
-        if (scrollRef.current.scrollTop === 0) {
-            lastScrollHeightRef.current = scrollRef.current.scrollHeight;
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+
+        // Fetch older messages (scroll to top)
+        if (scrollTop === 0 && hasMoreBefore) {
+            lastScrollHeightRef.current = scrollHeight;
             fetchMoreMessages(conversation.id);
+        }
+        // Fetch newer messages (scroll to bottom)
+        else if (scrollTop + clientHeight >= scrollHeight - 10 && hasMoreAfter) {
+            fetchNewerMessages(conversation.id);
         }
     };
 
+    // Maintain scroll position when older messages are prepended
     useEffect(() => {
         if (!isFetchingMore && lastScrollHeightRef.current > 0 && scrollRef.current) {
             const newScrollHeight = scrollRef.current.scrollHeight;
@@ -102,12 +115,14 @@ export default function Messenger() {
     useSocketListener<RawMessage>('chat:new_message', (data) => {
         if (data.conversation_id.toString() !== conversation?.id.toString()) return;
 
+        // If we are in historical mode (hasMoreAfter), don't add new messages to the list
+        // as they would be added at the end of the current (old) context.
+        if (hasMoreAfter) return;
+
         // Don't add if it's our own message (we added it optimistically or via response)
-        // If we want to avoid duplicates:
         if (useCurrentMessages.getState().messages.some((m) => m.id.toString() === data.id.toString())) return;
 
         const newMessage = mapRawMessageToMessage(data, currentUser?.id);
-
         addMessage(newMessage);
 
         // Scroll to bottom when a new message arrives
@@ -231,7 +246,12 @@ export default function Messenger() {
                     onlineUserCount={conversation.onlineCount || 0}
                 />
                 <ScrollableView ref={scrollRef} className="flex-1 px-4" vertical onScroll={handleScroll}>
-                    <div className="flex flex-col gap-2 py-4 pb-10  w-full">
+                    <div className="flex flex-col gap-2 py-4 pb-10  w-full min-h-full">
+                        {isFetchingContext && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+                                <Loader size={32} />
+                            </div>
+                        )}
                         {isFetchingMore && <Loader size={16} className="py-2" />}
                         {messages.map((msg) => (
                             <ChatMessage
@@ -253,6 +273,7 @@ export default function Messenger() {
                                 mentions={msg.mentions}
                             />
                         ))}
+                        {isFetchingNewer && <Loader size={16} className="py-2" />}
                         <div ref={messagesEndRef} className="h-px w-full" />
                     </div>
                 </ScrollableView>
