@@ -40,7 +40,7 @@ export function MessageContent({
     const applyHighlight = (msgId: string, behavior: ScrollBehavior = 'smooth') => {
         const element = document.getElementById(`message-${msgId}`);
         if (element) {
-            element.scrollIntoView({ behavior, block: 'center' });
+            element.scrollIntoView({ behavior, block: 'end' });
             element.classList.add('ring-2', 'ring-primary/50', 'transition-all', 'duration-500');
             setTimeout(() => {
                 element.classList.remove('ring-2', 'ring-primary/50');
@@ -60,7 +60,7 @@ export function MessageContent({
             // 3. After context is loaded, jump instantly (behavior: 'auto')
             // Then highlight. 'auto' is much more stable after a large DOM swap.
             setTimeout(() => {
-                applyHighlight(msgId, 'auto');
+                applyHighlight(msgId, 'smooth');
             }, 200);
         }
     };

@@ -71,7 +71,6 @@ export default function Messenger() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastScrollHeightRef = useRef<number>(0);
-    const lastScrollTopRef = useRef<number>(0);
 
     const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
         if (messagesEndRef.current) {
@@ -234,8 +233,6 @@ export default function Messenger() {
             </div>
         );
     }
-
-    console.log({ messages });
 
     return (
         <div className={cn('relative flex h-full bg-background overflow-hidden border-x border-border')}>
