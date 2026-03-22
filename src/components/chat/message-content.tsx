@@ -158,7 +158,7 @@ export function MessageContent({
                                 ? 'You'
                                 : reply_to_message.sender.name || reply_to_message.sender.username || 'Unknown'}
                         </span>
-                        <p className="text-xs  italic leading-tight truncate">{getReplyText(reply_to_message)}</p>
+                        <p className="text-xs  italic leading-tight line-clamp-2">{getReplyText(reply_to_message)}</p>
                     </div>
                 )}
 

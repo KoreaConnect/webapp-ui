@@ -52,6 +52,8 @@ export default function Messenger() {
         hasMoreAfter,
     } = useCurrentMessages();
 
+    console.log({ messages });
+
     // Track the last seen message ID to avoid redundant markAsRead calls
     const lastReadMessageIdRef = useRef<string | null>(null);
 
@@ -98,6 +100,7 @@ export default function Messenger() {
         }
         // Fetch newer messages (scroll to bottom)
         else if (scrollTop + clientHeight >= scrollHeight - 10 && hasMoreAfter) {
+            console.log('fetch after');
             fetchNewerMessages(conversation.id);
         }
     };
