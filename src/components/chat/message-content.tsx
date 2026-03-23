@@ -82,9 +82,7 @@ export function MessageContent({
             await fetchMessageContext(conversation.id, msgId);
             // 3. After context is loaded, jump instantly (behavior: 'auto')
             // Then highlight. 'auto' is much more stable after a large DOM swap.
-            setTimeout(() => {
-                applyHighlight(msgId, 'smooth');
-            }, 200);
+            requestAnimationFrame(() => applyHighlight(msgId, 'smooth'));
         }
     };
 

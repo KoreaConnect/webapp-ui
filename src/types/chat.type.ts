@@ -1,3 +1,13 @@
+export type Pagination = {
+    has_more_before: boolean;
+    has_more_after: boolean;
+};
+
+export type PaginatedResponse<T> = {
+    data: T;
+    pagination: Pagination;
+};
+
 export type MessageReactions = Record<string, BasicUserInfo[]>;
 export type ReactionMap = Record<string, MessageReactions>;
 

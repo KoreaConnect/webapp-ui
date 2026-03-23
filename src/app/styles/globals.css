@@ -82,7 +82,3 @@ button {
 .tippy-box[data-theme~='mention']:focus {
     outline: none;
 }
-
-[data-radix-scroll-area-viewport] > div {
-    display: block !important;
-}

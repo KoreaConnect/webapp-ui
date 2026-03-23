@@ -96,6 +96,7 @@ export default function Messenger() {
         // Fetch older messages (scroll to top)
         if (scrollTop === 0 && hasMoreBefore) {
             lastScrollHeightRef.current = scrollHeight;
+            console.log('fetch before');
             fetchMoreMessages(conversation.id);
         }
         // Fetch newer messages (scroll to bottom)

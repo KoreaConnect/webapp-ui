@@ -1,4 +1,5 @@
 import instance from '@/config/axios';
+import type { PaginatedResponse, RawMessage } from '@/types/chat.type';
 
 export const getConversationBySlug = async (slug: string) => {
     try {
@@ -18,7 +19,12 @@ export const joinConversation = async (conversationId: string) => {
     }
 };
 
-export const getMessages = async (conversationId: string, limit?: number, before?: string, after?: string) => {
+export const getMessages = async (
+    conversationId: string,
+    limit?: number,
+    before?: string,
+    after?: string,
+): Promise<PaginatedResponse<RawMessage[]>> => {
     try {
         const response = await instance.get(`/conversations/${conversationId}/messages`, {
             params: { limit, before, after },
@@ -29,7 +35,11 @@ export const getMessages = async (conversationId: string, limit?: number, before
     }
 };
 
-export const getMessageContext = async (conversationId: string, messageId: string, limit?: number) => {
+export const getMessageContext = async (
+    conversationId: string,
+    messageId: string,
+    limit?: number,
+): Promise<PaginatedResponse<RawMessage[]>> => {
     try {
         const response = await instance.get(`/conversations/${conversationId}/messages/${messageId}/context`, {
             params: { limit },

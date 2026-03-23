@@ -232,24 +232,24 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set({ isLoading: true, hasMore: true, hasMoreBefore: true, hasMoreAfter: false });
         try {
             const response = await conversationService.getMessages(conversationId, LIMIT_MESSAGES);
+            const { data, pagination } = response;
             const currentUserId = useAuthStore.getState().user?.id;
 
             const reactionsMap: ReactionMap = {};
 
-            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+            const mappedMessages: Message[] = data.map((msg: RawMessage) => {
                 const message = mapRawMessageToMessage(msg, currentUserId);
                 reactionsMap[message.id] = message.reactions || {};
                 return message;
             });
 
             useMessageReactionStore.getState().setMessageReactions(reactionsMap);
-            const hasMoreMessages = mappedMessages.length >= LIMIT_MESSAGES;
             set({
                 messages: mappedMessages,
                 isLoading: false,
-                hasMore: hasMoreMessages,
-                hasMoreBefore: hasMoreMessages,
-                hasMoreAfter: false,
+                hasMore: pagination.has_more_before,
+                hasMoreBefore: pagination.has_more_before,
+                hasMoreAfter: pagination.has_more_after,
             });
         } catch (error) {
             console.error('Failed to fetch messages:', error);
@@ -268,11 +268,12 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 LIMIT_MESSAGES,
                 oldestMessage.created_at,
             );
+            const { data, pagination } = response;
             const currentUserId = useAuthStore.getState().user?.id;
 
             const reactionsMap: ReactionMap = {};
 
-            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+            const mappedMessages: Message[] = data.map((msg: RawMessage) => {
                 const message = mapRawMessageToMessage(msg, currentUserId);
                 reactionsMap[message.id] = message.reactions || {};
                 return message;
@@ -280,16 +281,12 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
 
             useMessageReactionStore.getState().setMessageReactions(reactionsMap);
 
-            if (mappedMessages.length === 0) {
-                set({ hasMoreBefore: false, hasMore: false, isFetchingMore: false });
-            } else {
-                set((state) => ({
-                    messages: [...mappedMessages, ...state.messages],
-                    isFetchingMore: false,
-                    hasMoreBefore: mappedMessages.length >= LIMIT_MESSAGES,
-                    hasMore: mappedMessages.length >= LIMIT_MESSAGES,
-                }));
-            }
+            set((state) => ({
+                messages: [...mappedMessages, ...state.messages],
+                isFetchingMore: false,
+                hasMoreBefore: pagination.has_more_before,
+                hasMore: pagination.has_more_before,
+            }));
         } catch (error) {
             console.error('Failed to fetch more messages:', error);
             set({ isFetchingMore: false });
@@ -302,20 +299,18 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set({ isFetchingNewer: true });
         try {
             const latestMessage = messages[messages.length - 1];
-            // We need a getMessages that supports 'after'
-            // Assuming conversationService.getMessages supports a 4th param or we use a separate function
-            // Let's check services/conversation.service.ts later, for now assume we can pass 'after'
             const response = await conversationService.getMessages(
                 conversationId,
                 LIMIT_MESSAGES,
                 undefined,
                 latestMessage.created_at,
             );
+            const { data, pagination } = response;
             const currentUserId = useAuthStore.getState().user?.id;
 
             const reactionsMap: ReactionMap = {};
 
-            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+            const mappedMessages: Message[] = data.map((msg: RawMessage) => {
                 const message = mapRawMessageToMessage(msg, currentUserId);
                 reactionsMap[message.id] = message.reactions || {};
                 return message;
@@ -323,15 +318,11 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
 
             useMessageReactionStore.getState().setMessageReactions(reactionsMap);
 
-            if (mappedMessages.length === 0) {
-                set({ hasMoreAfter: false, isFetchingNewer: false });
-            } else {
-                set((state) => ({
-                    messages: [...state.messages, ...mappedMessages],
-                    isFetchingNewer: false,
-                    hasMoreAfter: mappedMessages.length >= LIMIT_MESSAGES,
-                }));
-            }
+            set((state) => ({
+                messages: [...state.messages, ...mappedMessages],
+                isFetchingNewer: false,
+                hasMoreAfter: pagination.has_more_after,
+            }));
         } catch (error) {
             console.error('Failed to fetch newer messages:', error);
             set({ isFetchingNewer: false });
@@ -341,11 +332,12 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set({ isFetchingContext: true });
         try {
             const response = await conversationService.getMessageContext(conversationId, messageId, LIMIT_MESSAGES);
+            const { data, pagination } = response;
             const currentUserId = useAuthStore.getState().user?.id;
 
             const reactionsMap: ReactionMap = {};
 
-            const mappedMessages: Message[] = response.data.map((msg: RawMessage) => {
+            const mappedMessages: Message[] = data.map((msg: RawMessage) => {
                 const message = mapRawMessageToMessage(msg, currentUserId);
                 reactionsMap[message.id] = message.reactions || {};
                 return message;
@@ -355,9 +347,9 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             set({
                 messages: mappedMessages,
                 isFetchingContext: false,
-                hasMoreBefore: true,
-                hasMoreAfter: true,
-                hasMore: true,
+                hasMoreBefore: pagination.has_more_before,
+                hasMoreAfter: pagination.has_more_after,
+                hasMore: pagination.has_more_before,
             });
         } catch (error) {
             console.error('Failed to fetch message context:', error);

@@ -17,7 +17,7 @@ export const ScrollableView = React.forwardRef<HTMLDivElement, ScrollableViewPro
         return (
             <ScrollArea.Root className={`relative overflow-hidden ${className}`}>
                 <ScrollArea.Viewport ref={ref} className="h-full w-full" onScroll={onScroll}>
-                    <div className="flex">{children}</div>
+                    {children}
                 </ScrollArea.Viewport>
 
                 {vertical && (
