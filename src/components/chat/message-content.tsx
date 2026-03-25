@@ -34,7 +34,7 @@ export function MessageContent({
     attachments,
     mentions,
 }: MessageContentProps) {
-    const { fetchMessageContext } = useCurrentMessages();
+    const { fetchMessageContext, setIsWaitContextMessageScrolling } = useCurrentMessages();
     const { conversation } = useCommunityConversationStore();
 
     const applyHighlight = (msgId: string, behavior: ScrollBehavior = 'smooth') => {
@@ -82,7 +82,11 @@ export function MessageContent({
             await fetchMessageContext(conversation.id, msgId);
             // 3. After context is loaded, jump instantly (behavior: 'auto')
             // Then highlight. 'auto' is much more stable after a large DOM swap.
-            requestAnimationFrame(() => applyHighlight(msgId, 'smooth'));
+            setIsWaitContextMessageScrolling(true);
+            requestAnimationFrame(() => {
+                applyHighlight(msgId, 'smooth');
+                setIsWaitContextMessageScrolling(false);
+            });
         }
     };
 

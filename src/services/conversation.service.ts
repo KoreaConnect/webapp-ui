@@ -24,10 +24,12 @@ export const getMessages = async (
     limit?: number,
     before?: string,
     after?: string,
+    before_id?: string,
+    after_id?: string,
 ): Promise<PaginatedResponse<RawMessage[]>> => {
     try {
         const response = await instance.get(`/conversations/${conversationId}/messages`, {
-            params: { limit, before, after },
+            params: { limit, before, after, before_id, after_id },
         });
         return response.data;
     } catch (error) {

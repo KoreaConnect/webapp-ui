@@ -48,6 +48,7 @@ export default function Messenger() {
         isFetchingMore,
         isFetchingNewer,
         isFetchingContext,
+        isWaitContextMessageScrolling,
         hasMoreBefore,
         hasMoreAfter,
     } = useCurrentMessages();
@@ -89,7 +90,15 @@ export default function Messenger() {
     };
 
     const handleScroll = () => {
-        if (!scrollRef.current || isFetchingMore || isFetchingNewer || isFetchingContext || !conversation?.id) return;
+        if (
+            !scrollRef.current ||
+            isFetchingMore ||
+            isFetchingNewer ||
+            isFetchingContext ||
+            isWaitContextMessageScrolling ||
+            !conversation?.id
+        )
+            return;
 
         const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
 

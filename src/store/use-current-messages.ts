@@ -71,7 +71,8 @@ type CurrentMessagesState = {
     isFetchingMore: boolean;
     isFetchingNewer: boolean;
     isFetchingContext: boolean;
-    hasMore: boolean; // Keep for backward compatibility (maps to hasMoreBefore)
+    isWaitContextMessageScrolling: boolean;
+    setIsWaitContextMessageScrolling: (value: boolean) => void;
     hasMoreBefore: boolean;
     hasMoreAfter: boolean;
     setMessages: (messages: Message[]) => void;
@@ -101,9 +102,10 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     isFetchingMore: false,
     isFetchingNewer: false,
     isFetchingContext: false,
-    hasMore: true,
+    isWaitContextMessageScrolling: false,
     hasMoreBefore: true,
     hasMoreAfter: false,
+    setIsWaitContextMessageScrolling: (value) => set({ isWaitContextMessageScrolling: value }),
     setMessages: (messages) => set({ messages }),
     updateReadStatus: (userId, lastReadMessageId, lastReadMessageAt) => {
         set((state) => {
@@ -190,7 +192,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set((state) => ({
             messages: state.messages.filter((m) => m.id.toString() !== id.toString()),
         })),
-    clearMessages: () => set({ messages: [], hasMore: true, hasMoreBefore: true, hasMoreAfter: false }),
+    clearMessages: () => set({ messages: [], hasMoreBefore: true, hasMoreAfter: false }),
     markAsRead: async (conversationId, lastMessageId) => {
         try {
             await conversationService.markAsRead(conversationId, lastMessageId);
@@ -229,7 +231,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         }
     },
     fetchMessages: async (conversationId) => {
-        set({ isLoading: true, hasMore: true, hasMoreBefore: true, hasMoreAfter: false });
+        set({ isLoading: true, hasMoreBefore: true, hasMoreAfter: false });
         try {
             const response = await conversationService.getMessages(conversationId, LIMIT_MESSAGES);
             const { data, pagination } = response;
@@ -247,7 +249,6 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
             set({
                 messages: mappedMessages,
                 isLoading: false,
-                hasMore: pagination.has_more_before,
                 hasMoreBefore: pagination.has_more_before,
                 hasMoreAfter: pagination.has_more_after,
             });
@@ -267,6 +268,8 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 conversationId,
                 LIMIT_MESSAGES,
                 oldestMessage.created_at,
+                undefined,
+                oldestMessage.id,
             );
             const { data, pagination } = response;
             const currentUserId = useAuthStore.getState().user?.id;
@@ -285,7 +288,6 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 messages: [...mappedMessages, ...state.messages],
                 isFetchingMore: false,
                 hasMoreBefore: pagination.has_more_before,
-                hasMore: pagination.has_more_before,
             }));
         } catch (error) {
             console.error('Failed to fetch more messages:', error);
@@ -304,6 +306,8 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 LIMIT_MESSAGES,
                 undefined,
                 latestMessage.created_at,
+                undefined,
+                latestMessage.id,
             );
             const { data, pagination } = response;
             const currentUserId = useAuthStore.getState().user?.id;
@@ -349,7 +353,6 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
                 isFetchingContext: false,
                 hasMoreBefore: pagination.has_more_before,
                 hasMoreAfter: pagination.has_more_after,
-                hasMore: pagination.has_more_before,
             });
         } catch (error) {
             console.error('Failed to fetch message context:', error);
