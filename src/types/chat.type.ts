@@ -37,6 +37,7 @@ export type User = {
     picture?: string;
     username?: string;
     isOnline?: boolean;
+    joined_at?: string;
 };
 
 export type MessageMetadata = {

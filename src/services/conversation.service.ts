@@ -1,5 +1,5 @@
 import instance from '@/config/axios';
-import type { PaginatedResponse, RawMessage } from '@/types/chat.type';
+import type { Attachment, PaginatedResponse, RawMessage } from '@/types/chat.type';
 
 export const getConversationBySlug = async (slug: string) => {
     try {
@@ -52,9 +52,37 @@ export const getMessageContext = async (
     }
 };
 
-export const getMembers = async (conversationId: string) => {
+export const getMembers = async (
+    conversationId: string,
+    params: {
+        limit?: number;
+        before?: string;
+        beforeId?: string | number;
+    } = {},
+): Promise<{ data: { members: RawConversationMember[]; total: number; hasMore: boolean } }> => {
     try {
-        const response = await instance.get(`/conversations/${conversationId}/members`);
+        const response = await instance.get(`/conversations/${conversationId}/members`, {
+            params,
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getAttachments = async (
+    conversationId: string,
+    params: {
+        type?: 'image' | 'file' | 'video' | 'audio';
+        limit?: number;
+        before?: string;
+        beforeId?: string;
+    } = {},
+): Promise<{ data: { attachments: Attachment[]; hasMore: boolean } }> => {
+    try {
+        const response = await instance.get(`/conversations/${conversationId}/attachments`, {
+            params,
+        });
         return response.data;
     } catch (error) {
         throw error;

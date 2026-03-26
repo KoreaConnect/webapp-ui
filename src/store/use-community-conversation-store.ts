@@ -1,4 +1,4 @@
-import type { Conversation, RawConversationMember, User } from '@/types/chat.type';
+import type { Attachment, Conversation, User } from '@/types/chat.type';
 import { create } from 'zustand';
 
 import { conversationService } from '@/services';
@@ -8,20 +8,39 @@ type CommunityConversationState = {
     isJoining: boolean;
     isLoading: boolean;
     isMembersLoading: boolean;
+    isMediaLoading: boolean;
+    isFilesLoading: boolean;
     joinChat: (conversationId: string) => Promise<void>;
     conversation: Conversation | null;
     members: User[];
+    media: Attachment[];
+    files: Attachment[];
+    hasMoreMedia: boolean;
+    hasMoreFiles: boolean;
+    hasMoreMembers: boolean;
     setConversation: (conversation: Conversation | null) => void;
     updateConversation: (id: string, updates: Partial<Conversation>) => void;
     fetchConversationBySlug: (slug: string) => Promise<void>;
-    fetchMembers: (conversationId: string) => Promise<void>;
+    fetchMembers: (conversationId: string, loadMore?: boolean) => Promise<void>;
+    fetchAttachments: (
+        conversationId: string,
+        type: 'image' | 'file' | 'video' | 'audio',
+        loadMore?: boolean,
+    ) => Promise<void>;
 };
 
-export const useCommunityConversationStore = create<CommunityConversationState>((set) => ({
+export const useCommunityConversationStore = create<CommunityConversationState>((set, get) => ({
     conversation: null,
     members: [],
+    media: [],
+    files: [],
+    hasMoreMedia: false,
+    hasMoreFiles: false,
+    hasMoreMembers: false,
     isLoading: false,
     isMembersLoading: false,
+    isMediaLoading: false,
+    isFilesLoading: false,
     hasJoined: false, // Initial state: user has not joined
     isJoining: false,
     joinChat: async (conversationId: string) => {
@@ -71,22 +90,74 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
             set({ isLoading: false });
         }
     },
-    fetchMembers: async (conversationId: string) => {
+    fetchMembers: async (conversationId: string, loadMore = false) => {
         set({ isMembersLoading: true });
         try {
-            const response = await conversationService.getMembers(conversationId);
-            const data = response.data as RawConversationMember[];
-            const mappedMembers: User[] = data.map((member) => ({
+            const currentMembers = get().members;
+            const lastMember = loadMore && currentMembers.length > 0 ? currentMembers[currentMembers.length - 1] : null;
+
+            const response = await conversationService.getMembers(conversationId, {
+                limit: 20,
+                before: lastMember?.joined_at,
+                beforeId: lastMember?.id,
+            });
+
+            const { members: rawMembers, hasMore, total } = response.data;
+
+            const mappedMembers: User[] = rawMembers.map((member) => ({
                 id: member.user_id,
                 name: member.name,
                 username: member.username,
                 avatar: member.picture || undefined,
                 isOnline: member.is_online || false,
+                joined_at: member.joined_at,
             }));
-            set({ members: mappedMembers, isMembersLoading: false });
+
+            const newMembers = loadMore ? [...currentMembers, ...mappedMembers] : mappedMembers;
+
+            set({
+                members: newMembers,
+                isMembersLoading: false,
+                hasMoreMembers: hasMore,
+            });
+
+            if (get().conversation && total !== undefined) {
+                get().updateConversation(conversationId, { members_count: total });
+            }
         } catch (error) {
             console.error('Failed to fetch members:', error);
             set({ isMembersLoading: false });
+        }
+    },
+    fetchAttachments: async (conversationId, type, loadMore = false) => {
+        const isMedia = type === 'image' || type === 'video';
+        const loadingKey = isMedia ? 'isMediaLoading' : 'isFilesLoading';
+        const dataKey = isMedia ? 'media' : 'files';
+        const hasMoreKey = isMedia ? 'hasMoreMedia' : 'hasMoreFiles';
+
+        set({ [loadingKey]: true } as { [key: string]: boolean });
+
+        try {
+            const currentItems = get()[dataKey];
+            const lastItem = loadMore && currentItems.length > 0 ? currentItems[currentItems.length - 1] : null;
+
+            const response = await conversationService.getAttachments(conversationId, {
+                type,
+                limit: 20,
+                before: lastItem?.created_at,
+                beforeId: lastItem?.id,
+            });
+
+            const { attachments, hasMore } = response.data;
+
+            set({
+                [dataKey]: loadMore ? [...currentItems, ...attachments] : attachments,
+                [hasMoreKey]: hasMore,
+                [loadingKey]: false,
+            } as { [key: string]: Attachment[] | boolean });
+        } catch (error) {
+            console.error(`Failed to fetch ${type} attachments:`, error);
+            set({ [loadingKey]: false } as { [key: string]: boolean });
         }
     },
 }));
