@@ -4,11 +4,13 @@ import { useEffect, useRef } from 'react';
 
 import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
+import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { useToastStore } from '@/store/use-toast-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
+import { Search, X } from 'lucide-react';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -35,6 +37,7 @@ export default function Messenger() {
     } = useCommunityConversationStore();
     const { replyingTo, closeReplyBox } = useReply();
     const { show } = useToastStore();
+    const { isSearchOpen, closeSearch } = useChatPanelStore();
     const {
         messages,
         addMessage,
@@ -255,6 +258,25 @@ export default function Messenger() {
                     thumbnailUrl={conversation.thumbnail_url}
                     onlineUserCount={conversation.onlineCount || 0}
                 />
+                {isSearchOpen && (
+                    <div className="px-4 py-3 bg-background border-b border-border ">
+                        <div className="relative flex items-center">
+                            <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                            <input
+                                type="text"
+                                placeholder="Search in conversation..."
+                                className="w-full bg-accent/50 rounded-lg py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                                autoFocus
+                            />
+                            <button
+                                onClick={closeSearch}
+                                className="absolute right-3 p-1 rounded-md hover:bg-accent transition cursor-pointer"
+                            >
+                                <X className="h-4 w-4 text-muted-foreground" />
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <ScrollableView ref={scrollRef} className="flex-1 px-4" vertical onScroll={handleScroll}>
                     <div className="flex flex-col gap-2 py-4 pb-10  w-full min-h-full">
                         {isFetchingContext && (

@@ -2,11 +2,12 @@
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
-import { FileText, Image, Info, LogOut, Users } from 'lucide-react';
+import { BellRing, FileText, Image, Info, LogOut, Search, Users } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
 
 import Avatar from '../ui/avatar';
+import { Button } from '../ui/button';
 import CloseButton from '../ui/close-button';
 import { Collapsible } from '../ui/collapsible';
 import { ScrollableView } from '../ui/scrollable-view';
@@ -15,7 +16,7 @@ import { MediaList } from './media-list';
 import { MemberList } from './member-list';
 
 export default function ChatPanel() {
-    const { isOpen, close } = useChatPanelStore();
+    const { isOpen, close, toggleSearch } = useChatPanelStore();
     const {
         conversation,
         members,
@@ -84,6 +85,21 @@ export default function ChatPanel() {
                                     Created by {conversation.createdBy} •{' '}
                                     {new Date(conversation.createdAt).toLocaleDateString()}
                                 </p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center gap-8">
+                            <div className="flex flex-col items-center gap-2">
+                                <Button variant="secondary" size="icon" className="shadow-sm" onClick={toggleSearch}>
+                                    <Search className="h-4 w-4" />
+                                </Button>
+                                <span className="text-xs font-medium text-muted-foreground">Search</span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                                <Button variant="secondary" size="icon" className="shadow-sm">
+                                    <BellRing className="h-4 w-4" />
+                                </Button>
+                                <span className="text-xs font-medium text-muted-foreground">Mute</span>
                             </div>
                         </div>
 
