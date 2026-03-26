@@ -1,23 +1,30 @@
 'use client';
 
-import { useEffect } from 'react';
-
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
-import { Bell, FileText, Image, Info, LogOut, Users, X } from 'lucide-react';
+import { FileText, Image, Info, LogOut, Users } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
 
 import Avatar from '../ui/avatar';
 import CloseButton from '../ui/close-button';
+import { Collapsible } from '../ui/collapsible';
 import { ScrollableView } from '../ui/scrollable-view';
+import { FileList } from './file-list';
+import { MediaList } from './media-list';
 import { MemberList } from './member-list';
 
 export default function ChatPanel() {
     const { isOpen, close } = useChatPanelStore();
-    const { conversation, members } = useCommunityConversationStore();
+    const { conversation, members, fetchMembers } = useCommunityConversationStore();
 
     if (!conversation) return null;
+
+    const handleOpenMembers = () => {
+        if (members.length === 0) {
+            fetchMembers(conversation.id);
+        }
+    };
 
     return (
         <aside
@@ -35,74 +42,66 @@ export default function ChatPanel() {
                     !isOpen && 'lg:w-0',
                 )}
             >
-                <CloseButton onClick={close} className="absolute top-4 right-4 z-1" />
+                {/* Header - Only Close Button */}
+                <div className="flex items-center justify-end p-4">
+                    <CloseButton onClick={close} />
+                </div>
 
                 <ScrollableView className="flex-1">
-                    <div className="px-4 mt-12 lg:mt-6 space-y-6">
+                    <div className="p-4 space-y-6">
                         {/* Group Profile */}
-                        <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="flex flex-col items-center text-center space-y-3 py-4">
                             <Avatar
-                                className="h-20 w-20 text-2xl"
+                                className="h-24 w-24 text-3xl shadow-sm"
                                 src={conversation.thumbnail_url}
                                 backgroundColor="cyan"
                             />
                             <div>
                                 <h3 className="font-bold text-xl">{conversation.title}</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Created by {conversation.createdBy} • {conversation.createdAt}
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Created by {conversation.createdBy} •{' '}
+                                    {new Date(conversation.createdAt).toLocaleDateString()}
                                 </p>
                             </div>
                         </div>
 
-                        {/* Description */}
-                        {conversation.description && (
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                                    <Info className="h-4 w-4" />
-                                    <span>Description</span>
-                                </div>
-                                <p className="text-sm">{conversation.description}</p>
-                            </div>
-                        )}
+                        {/* Collapsible Sections */}
+                        <div className="space-y-1">
+                            {conversation.description && (
+                                <Collapsible title="Description" icon={<Info className="h-4 w-4" />} defaultOpen>
+                                    <p className="text-sm text-muted-foreground leading-relaxed px-1">
+                                        {conversation.description}
+                                    </p>
+                                </Collapsible>
+                            )}
 
-                        {/* Quick Actions */}
-                        <div className="grid grid-cols-4 gap-2">
-                            {[
-                                { icon: Bell, label: 'Mute' },
-                                { icon: Users, label: 'Members' },
-                                { icon: Image, label: 'Media' },
-                                { icon: FileText, label: 'Files' },
-                            ].map((action, i) => (
-                                <button
-                                    key={i}
-                                    className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-accent transition cursor-pointer"
-                                >
-                                    <div className="p-2 rounded-full bg-accent/50">
-                                        <action.icon className="h-5 w-5" />
-                                    </div>
-                                    <span className="text-[10px] font-medium">{action.label}</span>
+                            <Collapsible
+                                title="Members"
+                                icon={<Users className="h-4 w-4" />}
+                                badge={members.length || conversation.members_count}
+                                onOpen={handleOpenMembers}
+                            >
+                                <MemberList />
+                            </Collapsible>
+
+                            <Collapsible title="Media" icon={<Image className="h-4 w-4" />} badge={4}>
+                                <MediaList />
+                            </Collapsible>
+
+                            <Collapsible title="Files" icon={<FileText className="h-4 w-4" />} badge={2}>
+                                <FileList />
+                            </Collapsible>
+
+                            {/* Leave Group Button */}
+                            <div className="pt-6">
+                                <button className="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all font-semibold text-sm group cursor-pointer shadow-sm">
+                                    <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                                    <span>Leave Group</span>
                                 </button>
-                            ))}
-                        </div>
-
-                        {/* Members List */}
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold">Members ({members.length})</span>
-                                <button className="text-xs text-primary hover:underline">View all</button>
                             </div>
-                            <MemberList />
                         </div>
                     </div>
                 </ScrollableView>
-
-                {/* Danger Zone - Fixed at bottom */}
-                <div className="p-4 border-t border-border bg-red-100 ">
-                    <button className="flex items-center gap-3 w-full p-2 text-destructive hover:bg-destructive/10 transition cursor-pointer">
-                        <LogOut className="h-4 w-4" />
-                        <span className="text-sm font-medium">Leave Group</span>
-                    </button>
-                </div>
             </div>
         </aside>
     );
