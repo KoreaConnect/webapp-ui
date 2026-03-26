@@ -26,6 +26,7 @@ export default function Avatar({
     size = 'md',
     backgroundColor = '#e0e0e0',
 }: AvatarProps) {
+    console.log({ src });
     const finalSize = size ? (typeof size === 'string' ? SIZE_MAP[size] : size) : 40;
 
     return (

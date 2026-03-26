@@ -1,6 +1,5 @@
 'use client';
 import { useSidebar } from '@/context/sidebar-context';
-import * as RovingFocus from '@radix-ui/react-roving-focus';
 import {
     Briefcase,
     Calendar,
@@ -22,9 +21,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
+import CloseButton from '@/components/ui/close-button';
 import { RovingItem } from '@/components/ui/roving-item';
 import { RovingList } from '@/components/ui/roving-list';
 import { ScrollableView } from '@/components/ui/scrollable-view';
+
+import { cn } from '@/utils';
 
 const categories = [
     {
@@ -106,30 +108,35 @@ export default function Sidebar() {
             {/* Mobile Overlay (Backdrop) */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/10 md:hidden animate-overlay-fade-in z-50"
+                    className="fixed inset-0 bg-black/10 md:hidden animate-overlay-fade-in 
+                                z-(--global-sidebar-overlay-z-index)"
                     onClick={closeSidebar}
                 />
             )}
 
             {/* Unified Aside Component */}
             <aside
-                className={`md:block md:left-auto md:bg-transparent md:translate-x-0 md:border-none
-            fixed top-header h-full w-sidebar shrink-0 bg-background z-100 border-r border-border left-0 transition-transform duration-300 ease 
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-            `}
+                className={cn(
+                    `fixed rounded-tr-2xl rounded-br-2xl top-0 h-full w-sidebar shrink-0 bg-background \
+                    md:block md:left-auto md:bg-transparent md:translate-x-0 md:border-none md:top-header \ 
+                    z-(--global-sidebar-z-index) border-r border-border left-0 transition-transform duration-300 ease \
+                    md:z-0
+
+            `,
+                    isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+                )}
             >
                 <div className="flex h-full flex-col">
                     {/* Mobile Close Button */}
-                    <div className="md:hidden flex justify-end p-2 absolute right-2 top-2 z-10">
-                        <Button onClick={toggleSidebar} variant="ghost" size="icon">
-                            <X className="h-5 w-5" />
-                        </Button>
+                    <div className="md:hidden flex justify-between items-center right-2 top-2 z-10 my-2 mx-3 mt-4">
+                        <div className="w-8 h-8 bg-primary rounded-xl"></div>
+                        <CloseButton onClick={toggleSidebar} />
                     </div>
 
                     {/* Scrollable Content */}
 
                     <ScrollableView vertical horizontal={false} className="flex-1">
-                        <nav className="flex flex-col gap-2 px-4 pb-20 pt-12 md:pt-6" aria-label="Sidebar">
+                        <nav className="flex flex-col gap-2 px-4 pb-20 pt-4 md:pt-6" aria-label="Sidebar">
                             <RovingList>
                                 <RovingItem>
                                     <Link

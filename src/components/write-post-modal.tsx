@@ -3,6 +3,8 @@ import { Car, Home, MessageSquare, Package, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
+import CloseButton from './ui/close-button';
+
 const postTypes = [
     {
         id: 'taxi-share',
@@ -41,9 +43,7 @@ const WritePostDialogContent = ({ onSelect }: { onSelect: (id: string) => void }
                 <Dialog.Title className="text-2xl font-semibold text-gray-900">Create a Post</Dialog.Title>
 
                 <Dialog.Close asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <X className="h-5 w-5" />
-                    </Button>
+                    <CloseButton />
                 </Dialog.Close>
             </div>
 

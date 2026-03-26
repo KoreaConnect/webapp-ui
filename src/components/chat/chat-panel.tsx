@@ -9,6 +9,7 @@ import { Bell, FileText, Image, Info, LogOut, Users, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 import Avatar from '../ui/avatar';
+import CloseButton from '../ui/close-button';
 import { ScrollableView } from '../ui/scrollable-view';
 import { MemberList } from './member-list';
 
@@ -21,7 +22,7 @@ export default function ChatPanel() {
     return (
         <aside
             className={cn(
-                'absolute h-full inset-y-0 right-0 z-50 w-full lg:w-80 bg-sky-100 transition-all duration-300 transform ',
+                'absolute h-full inset-y-0 right-0 z-(--chat-panel-z-index) w-full lg:w-80 bg-background transition-all duration-300 transform ',
                 'lg:relative lg:inset-y-auto lg:z-0 lg:translate-x-0',
                 isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 lg:opacity-0 pointer-events-none',
             )}
@@ -34,12 +35,7 @@ export default function ChatPanel() {
                     !isOpen && 'lg:w-0',
                 )}
             >
-                <button
-                    onClick={close}
-                    className="p-2 absolute top-4 right-4 rounded-md hover:bg-accent transition lg:hidden z-10 cursor-pointer"
-                >
-                    <X className="h-5 w-5" />
-                </button>
+                <CloseButton onClick={close} className="absolute top-4 right-4 z-1" />
 
                 <ScrollableView className="flex-1">
                     <div className="px-4 mt-12 lg:mt-6 space-y-6">

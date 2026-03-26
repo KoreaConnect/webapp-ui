@@ -11,6 +11,10 @@
     --header-height: 64px;
     --sidebar-width: 280px;
     --chat-header-height: 74px;
+    --global-sidebar-z-index: 201;
+    --global-sidebar-overlay-z-index: 200;
+    --chat-panel-z-index: 100;
+    --dropdown-z-index: 101;
 }
 
 .dark {
