@@ -1,5 +1,5 @@
 import instance from '@/config/axios';
-import type { Attachment, PaginatedResponse, RawMessage } from '@/types/chat.type';
+import type { Attachment, PaginatedResponse, RawConversationMember, RawMessage } from '@/types/chat.type';
 
 export const getConversationBySlug = async (slug: string) => {
     try {
@@ -121,6 +121,22 @@ export const sendMessage = async (
             content,
             reply_to_message_id: replyToMessageId,
             mentions,
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const searchMessages = async (
+    conversationId: string,
+    query: string,
+    limit: number = 20,
+    offset: number = 0,
+): Promise<PaginatedResponse<RawMessage[]>> => {
+    try {
+        const response = await instance.get(`/conversations/${conversationId}/messages/search`, {
+            params: { query, limit, offset },
         });
         return response.data;
     } catch (error) {

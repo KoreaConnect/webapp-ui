@@ -1,11 +1,20 @@
+export type HateoasLink = {
+    href: string;
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+};
+
 export type Pagination = {
     has_more_before: boolean;
     has_more_after: boolean;
+    total?: number;
+    limit?: number;
+    offset?: number;
 };
 
 export type PaginatedResponse<T> = {
     data: T;
     pagination: Pagination;
+    links?: Record<string, HateoasLink>;
 };
 
 export type MessageReactions = Record<string, BasicUserInfo[]>;

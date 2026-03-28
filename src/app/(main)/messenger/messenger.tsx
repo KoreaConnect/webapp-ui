@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
@@ -9,24 +9,23 @@ import { useCommunityConversationStore } from '@/store/use-community-conversatio
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { useToastStore } from '@/store/use-toast-store';
-import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
-import { Search, X } from 'lucide-react';
+import { BasicUserInfo, MESSAGE_ROLE, type Message, type RawMessage } from '@/types/chat.type';
+import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
 import ChatMessage from '@/components/chat/chat-message';
 import ChatPanel from '@/components/chat/chat-panel';
 import { JoinChatOverlay } from '@/components/chat/join-chat-overlay';
-// Import JoinChatOverlay
 import { ReplyBox } from '@/components/chat/reply-box';
 import { Loader } from '@/components/ui/loader';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
 import { useSocketListener } from '@/hooks/use-socket-listener';
 
-import { cn } from '@/utils';
+import { conversationService } from '@/services';
 
-// Function to generate a random avatar URL from DiceBear
+import { applyMessageHighlight, cn } from '@/utils';
 
 export default function Messenger() {
     const {
@@ -44,6 +43,7 @@ export default function Messenger() {
         fetchMessages,
         fetchMoreMessages,
         fetchNewerMessages,
+        fetchMessageContext,
         sendMessage,
         markAsRead,
         updateReadStatus,
@@ -56,7 +56,102 @@ export default function Messenger() {
         hasMoreAfter,
     } = useCurrentMessages();
 
-    console.log({ messages });
+    // Search state
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<Message[]>([]);
+    const [searchTotal, setSearchTotal] = useState(0);
+    const [currentResultOffset, setCurrentResultOffset] = useState(-1);
+    const [isSearching, setIsSearching] = useState(false);
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const jumpToMessage = useCallback(
+        async (messageId: string) => {
+            if (!conversation?.id) return;
+
+            // Check if message already exists in current list
+            const messageExists = messages.some((m) => m.id.toString() === messageId.toString());
+
+            if (!messageExists) {
+                await fetchMessageContext(conversation.id, messageId);
+            }
+
+            // Scroll to the message and highlight after a short delay
+            setTimeout(() => {
+                applyMessageHighlight(messageId);
+            }, 500);
+        },
+        [conversation?.id, fetchMessageContext, messages],
+    );
+
+    const fetchSearchResult = useCallback(
+        async (query: string, offset: number) => {
+            if (!conversation?.id || !query.trim()) return;
+
+            setIsSearching(true);
+            try {
+                const response = await conversationService.searchMessages(conversation.id, query, 1, offset);
+                const currentUserId = useAuthStore.getState().user?.id;
+                const mappedResults = response.data.map((msg) => mapRawMessageToMessage(msg, currentUserId));
+
+                setSearchResults(mappedResults);
+                setSearchTotal(response.pagination.total || 0);
+                setCurrentResultOffset(response.pagination.offset ?? offset);
+
+                if (mappedResults.length > 0) {
+                    jumpToMessage(mappedResults[0].id);
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+                show({ title: 'Search Error', message: 'Failed to search messages', type: 'error' });
+            } finally {
+                setIsSearching(false);
+            }
+        },
+        [conversation?.id, jumpToMessage, show],
+    );
+
+    const handleSearch = useCallback(
+        async (query: string) => {
+            if (!query.trim()) {
+                setSearchResults([]);
+                setSearchTotal(0);
+                setCurrentResultOffset(-1);
+                return;
+            }
+            await fetchSearchResult(query, 0);
+        },
+        [fetchSearchResult],
+    );
+
+    useEffect(() => {
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+        if (searchQuery.trim()) {
+            searchTimeoutRef.current = setTimeout(() => {
+                handleSearch(searchQuery);
+            }, 500);
+        } else {
+            setSearchResults([]);
+            setSearchTotal(0);
+            setCurrentResultOffset(-1);
+        }
+
+        return () => {
+            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        };
+    }, [searchQuery, handleSearch]);
+
+    const handleNextResult = () => {
+        if (currentResultOffset + 1 < searchTotal) {
+            fetchSearchResult(searchQuery, currentResultOffset + 1);
+        }
+    };
+
+    const handlePrevResult = () => {
+        if (currentResultOffset > 0) {
+            fetchSearchResult(searchQuery, currentResultOffset - 1);
+        }
+    };
 
     // Track the last seen message ID to avoid redundant markAsRead calls
     const lastReadMessageIdRef = useRef<string | null>(null);
@@ -259,18 +354,67 @@ export default function Messenger() {
                     onlineUserCount={conversation.onlineCount || 0}
                 />
                 {isSearchOpen && (
-                    <div className="px-4 py-3 bg-background border-b border-border ">
-                        <div className="relative flex items-center">
-                            <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                            <input
-                                type="text"
-                                placeholder="Search in conversation..."
-                                className="w-full bg-accent/50 rounded-lg py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                                autoFocus
-                            />
+                    <div className="px-4 py-3 bg-background border-b border-border relative z-20">
+                        <div className="relative flex items-center gap-2">
+                            <div className="relative flex-1 flex items-center">
+                                <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                                <input
+                                    type="text"
+                                    placeholder="Search in conversation..."
+                                    className="w-full bg-accent/50 rounded-lg py-2 pl-10 pr-24 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    autoFocus
+                                />
+                                <div className="absolute right-2 flex items-center gap-1">
+                                    {isSearching ? (
+                                        <Loader size={12} />
+                                    ) : searchTotal > 0 ? (
+                                        <>
+                                            <span className="text-[10px] font-medium text-muted-foreground px-1">
+                                                {currentResultOffset + 1}/{searchTotal}
+                                            </span>
+                                            <div className="flex items-center bg-background/50 rounded-md border border-border/50">
+                                                <button
+                                                    onClick={handleNextResult}
+                                                    className="p-1 hover:bg-accent rounded-l-md transition cursor-pointer"
+                                                    title="Older result"
+                                                >
+                                                    <ChevronUp className="h-3 w-3 text-muted-foreground" />
+                                                </button>
+                                                <div className="w-[1px] h-3 bg-border/50" />
+                                                <button
+                                                    onClick={handlePrevResult}
+                                                    className="p-1 hover:bg-accent rounded-r-md transition cursor-pointer"
+                                                    title="Newer result"
+                                                >
+                                                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : searchQuery && !isSearching ? (
+                                        <span className="text-[10px] font-medium text-destructive px-2">
+                                            No results
+                                        </span>
+                                    ) : null}
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => {
+                                                setSearchQuery('');
+                                                setSearchResults([]);
+                                                setSearchTotal(0);
+                                                setCurrentResultOffset(-1);
+                                            }}
+                                            className="p-1 rounded-md hover:bg-accent transition cursor-pointer"
+                                        >
+                                            <X className="h-3 w-3 text-muted-foreground" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                             <button
                                 onClick={closeSearch}
-                                className="absolute right-3 p-1 rounded-md hover:bg-accent transition cursor-pointer"
+                                className="p-1.5 rounded-md hover:bg-accent transition cursor-pointer shrink-0"
                             >
                                 <X className="h-4 w-4 text-muted-foreground" />
                             </button>
@@ -286,24 +430,25 @@ export default function Messenger() {
                         )}
                         {isFetchingMore && <Loader size={16} className="py-2" />}
                         {messages.map((msg) => (
-                            <ChatMessage
-                                key={msg.id}
-                                id={msg.id}
-                                text={msg.text}
-                                role={msg.role}
-                                time={msg.time || ''}
-                                name={msg.sender.name}
-                                avatar={
-                                    (msg.role === MESSAGE_ROLE.ME ? currentUser?.picture : msg.sender.picture) || ''
-                                }
-                                readBy={msg.readBy}
-                                type={msg.type}
-                                metadata={msg.metadata}
-                                content={msg.content}
-                                reply_to_message={msg.reply_to_message}
-                                attachments={msg.attachments}
-                                mentions={msg.mentions}
-                            />
+                            <div key={msg.id} id={`message-item-${msg.id}`}>
+                                <ChatMessage
+                                    id={msg.id}
+                                    text={msg.text}
+                                    role={msg.role}
+                                    time={msg.time || ''}
+                                    name={msg.sender.name}
+                                    avatar={
+                                        (msg.role === MESSAGE_ROLE.ME ? currentUser?.picture : msg.sender.picture) || ''
+                                    }
+                                    readBy={msg.readBy}
+                                    type={msg.type}
+                                    metadata={msg.metadata}
+                                    content={msg.content}
+                                    reply_to_message={msg.reply_to_message}
+                                    attachments={msg.attachments}
+                                    mentions={msg.mentions}
+                                />
+                            </div>
                         ))}
                         {isFetchingNewer && <Loader size={16} className="py-2" />}
                         <div ref={messagesEndRef} className="h-px w-full" />
