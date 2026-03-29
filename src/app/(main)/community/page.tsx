@@ -1,11 +1,11 @@
 import { ReplyProvider } from '@/context/reply-context';
 
-import Messenger from './messenger';
+import CommunityChat from './community-chat';
 
 function Page() {
     return (
         <ReplyProvider>
-            <Messenger />
+            <CommunityChat />
         </ReplyProvider>
     );
 }

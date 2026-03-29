@@ -49,6 +49,13 @@ export default function ChatPanel() {
         }
     };
 
+    const handleSearchClick = () => {
+        toggleSearch();
+        if (window.innerWidth < 1024) {
+            close();
+        }
+    };
+
     return (
         <aside
             className={cn(
@@ -90,7 +97,12 @@ export default function ChatPanel() {
 
                         <div className="flex justify-center gap-8">
                             <div className="flex flex-col items-center gap-2">
-                                <Button variant="secondary" size="icon" className="shadow-sm" onClick={toggleSearch}>
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="shadow-sm"
+                                    onClick={handleSearchClick}
+                                >
                                     <Search className="h-4 w-4" />
                                 </Button>
                                 <span className="text-xs font-medium text-muted-foreground">Search</span>
