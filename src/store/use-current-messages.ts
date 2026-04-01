@@ -79,6 +79,7 @@ type CurrentMessagesState = {
     addMessage: (message: Message) => void;
     updateMessage: (id: string, updates: Partial<Message>) => void;
     removeMessage: (messageId: string) => void;
+    deleteMessage: (messageId: string) => Promise<void>;
     reportMessage: (messageId: string) => void;
     clearMessages: () => void;
     fetchMessages: (conversationId: string) => Promise<void>;
@@ -192,6 +193,15 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         set((state) => ({
             messages: state.messages.filter((m) => m.id.toString() !== id.toString()),
         })),
+    deleteMessage: async (messageId) => {
+        try {
+            await conversationService.deleteMessage(messageId);
+            get().removeMessage(messageId);
+        } catch (error) {
+            console.error('Failed to delete message:', error);
+            throw error;
+        }
+    },
     clearMessages: () => set({ messages: [], hasMoreBefore: true, hasMoreAfter: false }),
     markAsRead: async (conversationId, lastMessageId) => {
         try {

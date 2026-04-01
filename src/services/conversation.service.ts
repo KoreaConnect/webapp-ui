@@ -176,3 +176,12 @@ export const removeReaction = async (messageId: string | number, reaction: strin
         throw error;
     }
 };
+
+export const deleteMessage = async (messageId: string | number) => {
+    try {
+        const response = await instance.delete(`/messages/${messageId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

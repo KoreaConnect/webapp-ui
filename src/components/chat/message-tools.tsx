@@ -18,7 +18,7 @@ type MessageToolsProps = {
 
 function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
     const { messageReactions, toggleReaction } = useMessageReactionStore();
-    const { removeMessage, reportMessage } = useCurrentMessages();
+    const { deleteMessage, reportMessage } = useCurrentMessages();
     const { openReplyBox } = useReply();
     const currentUserId = useAuthStore((state) => state.user?.id);
     const { messages } = useCurrentMessages();
@@ -61,7 +61,7 @@ function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
 
             <MessageActions
                 sender={position === 'right' ? 'me' : 'other'}
-                onRemove={() => removeMessage(messageId)}
+                onRemove={() => deleteMessage(messageId)}
                 onReport={() => reportMessage(messageId)}
                 align={position === 'right' ? 'end' : 'start'}
                 onOpenChange={setActionMenuOpen}
