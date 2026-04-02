@@ -6,11 +6,13 @@ import { conversationService } from '@/services';
 type CommunityConversationState = {
     hasJoined: boolean;
     isJoining: boolean;
+    isLeaving: boolean;
     isLoading: boolean;
     isMembersLoading: boolean;
     isMediaLoading: boolean;
     isFilesLoading: boolean;
     joinChat: (conversationId: string) => Promise<void>;
+    leaveGroup: (conversationId: string) => Promise<void>;
     conversation: Conversation | null;
     members: User[];
     media: Attachment[];
@@ -43,14 +45,38 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
     isFilesLoading: false,
     hasJoined: false, // Initial state: user has not joined
     isJoining: false,
+    isLeaving: false,
     joinChat: async (conversationId: string) => {
         set({ isJoining: true });
         try {
             await conversationService.joinConversation(conversationId);
             set({ hasJoined: true, isJoining: false });
+
+            // Update local conversation state if it matches
+            const currentConv = get().conversation;
+            if (currentConv && currentConv.id === conversationId) {
+                set({ conversation: { ...currentConv, is_joined: true } });
+            }
         } catch (error) {
             console.error('Failed to join conversation:', error);
             set({ isJoining: false });
+        }
+    },
+    leaveGroup: async (conversationId: string) => {
+        set({ isLeaving: true });
+        try {
+            await conversationService.leaveConversation(conversationId);
+            set({ hasJoined: false, isLeaving: false });
+
+            // Update local conversation state if it matches
+            const currentConv = get().conversation;
+            if (currentConv && currentConv.id === conversationId) {
+                set({ conversation: { ...currentConv, is_joined: false } });
+            }
+        } catch (error) {
+            console.error('Failed to leave conversation:', error);
+            set({ isLeaving: false });
+            throw error;
         }
     },
     setConversation: (conversation) => set({ conversation }),
@@ -84,13 +110,14 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
                 onlineCount: data.online_count || 0,
             };
 
-            set({ conversation: conversation, isLoading: false });
+            set({ conversation: conversation, isLoading: false, hasJoined: conversation.is_joined });
         } catch (error) {
             console.error('Failed to fetch conversation:', error);
             set({ isLoading: false });
         }
     },
     fetchMembers: async (conversationId: string, loadMore = false) => {
+        if (get().hasJoined === false) return;
         set({ isMembersLoading: true });
         try {
             const currentMembers = get().members;

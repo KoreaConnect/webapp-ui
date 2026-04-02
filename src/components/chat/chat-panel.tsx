@@ -2,9 +2,12 @@
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useToastStore } from '@/store/use-toast-store';
 import { BellRing, FileText, Image, Info, LogOut, Search, Users } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
+
+import { getErrorMessage } from '@/utils';
 
 import Avatar from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -27,7 +30,10 @@ export default function ChatPanel() {
         isMediaLoading,
         isFilesLoading,
         isMembersLoading,
+        leaveGroup,
+        isLeaving,
     } = useCommunityConversationStore();
+    const { show } = useToastStore();
 
     if (!conversation) return null;
 
@@ -53,6 +59,28 @@ export default function ChatPanel() {
         toggleSearch();
         if (window.innerWidth < 1024) {
             close();
+        }
+    };
+
+    const handleLeaveGroup = async () => {
+        if (!conversation?.id) return;
+
+        try {
+            if (window.confirm('Are you sure you want to leave this group?')) {
+                await leaveGroup(conversation.id);
+                show({
+                    title: 'Left Group',
+                    message: `You have successfully left ${conversation.title}`,
+                    type: 'success',
+                });
+                close(); // Close the panel after leaving
+            }
+        } catch (error) {
+            show({
+                title: 'Error',
+                message: getErrorMessage(error) || 'Failed to leave the group',
+                type: 'error',
+            });
         }
     };
 
@@ -153,12 +181,18 @@ export default function ChatPanel() {
                             </Collapsible>
 
                             {/* Leave Group Button */}
-                            <div className="pt-6">
-                                <button className="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all font-semibold text-sm group cursor-pointer shadow-sm">
-                                    <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                                    <span>Leave Group</span>
-                                </button>
-                            </div>
+                            {conversation.is_joined && (
+                                <div className="pt-6">
+                                    <button
+                                        onClick={handleLeaveGroup}
+                                        disabled={isLeaving}
+                                        className="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded-xl transition-all font-semibold text-sm group cursor-pointer shadow-sm"
+                                    >
+                                        <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                                        <span>{isLeaving ? 'Leaving...' : 'Leave Group'}</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </ScrollableView>

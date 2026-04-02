@@ -19,6 +19,15 @@ export const joinConversation = async (conversationId: string) => {
     }
 };
 
+export const leaveConversation = async (conversationId: string) => {
+    try {
+        const response = await instance.post(`/conversations/${conversationId}/leave`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getMessages = async (
     conversationId: string,
     limit?: number,

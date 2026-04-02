@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 export function JoinChatOverlay() {
-    const { conversation, hasJoined, joinChat, isJoining } = useCommunityConversationStore();
+    const { conversation, joinChat, isJoining } = useCommunityConversationStore();
     const { isAuthenticated } = useAuthStore();
     const router = useRouter();
 
@@ -21,7 +21,7 @@ export function JoinChatOverlay() {
         }
     };
 
-    if (hasJoined) {
+    if (conversation?.is_joined) {
         return null;
     }
 

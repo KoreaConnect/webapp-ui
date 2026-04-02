@@ -26,7 +26,7 @@ export function ReplyBox() {
     return (
         <div
             className={cn(
-                'overflow-hidden transition-all duration-300 ease-in-out border-border',
+                'overflow-hidden transition-all duration-200 ease-in-out border-border',
                 isOpenReplyBox ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0 border-none',
             )}
         >
