@@ -1,5 +1,7 @@
 'use client';
 
+import { memo } from 'react';
+
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import {
     type Attachment,
@@ -97,4 +99,20 @@ function ChatMessage({
     );
 }
 
-export default ChatMessage;
+function areEqual(prev: ChatMessageProps, next: ChatMessageProps) {
+    return (
+        prev.id === next.id &&
+        prev.text === next.text &&
+        prev.role === next.role &&
+        prev.time === next.time &&
+        prev.avatar === next.avatar &&
+        prev.name === next.name &&
+        prev.is_deleted === next.is_deleted &&
+        prev.reply_to_message?.id === next.reply_to_message?.id &&
+        prev.attachments === next.attachments &&
+        prev.mentions === next.mentions &&
+        prev.readBy === next.readBy
+    );
+}
+
+export default memo(ChatMessage, areEqual);

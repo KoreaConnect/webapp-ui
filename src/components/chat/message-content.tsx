@@ -57,7 +57,6 @@ export function MessageContent({
     };
 
     const getReplyText = (msg: Message) => {
-        console.log('Replying to message:', msg);
         const content = msg.content;
         if (msg.is_deleted) return 'This message was deleted';
         if (!content) return '';
@@ -70,6 +69,7 @@ export function MessageContent({
             }
         } catch (_e) {
             // Not JSON
+            return 'Error loading message preview';
         }
         return content;
     };
