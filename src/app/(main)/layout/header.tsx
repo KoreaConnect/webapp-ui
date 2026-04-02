@@ -93,7 +93,7 @@ export default function Header() {
             <div className="mx-auto flex h-header items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Left side: Menu, Logo, Search bar */}
                 <div className="flex items-center gap-4">
-                    <Button className="block md:hidden" variant="ghost" size="icon" onClick={toggleSidebar}>
+                    <Button className="block sm:hidden" variant="ghost" size="icon" onClick={toggleSidebar}>
                         <TextAlignJustify className="h-6 w-6" />
                     </Button>
                     <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
