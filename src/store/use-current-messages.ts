@@ -62,6 +62,7 @@ export const mapRawMessageToMessage = (msg: RawMessage, currentUserId?: string |
         reply_to_message: msg.reply_to_message ? mapRawMessageToMessage(msg.reply_to_message, currentUserId) : null,
         attachments: msg.attachments,
         mentions: msg.mentions,
+        is_deleted: msg.is_deleted,
     };
 };
 
@@ -196,7 +197,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
     deleteMessage: async (messageId) => {
         try {
             await conversationService.deleteMessage(messageId);
-            get().removeMessage(messageId);
+            get().updateMessage(messageId, { is_deleted: true });
         } catch (error) {
             console.error('Failed to delete message:', error);
             throw error;

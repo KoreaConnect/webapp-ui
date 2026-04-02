@@ -14,9 +14,10 @@ import { ReactionPicker } from './reaction-picker';
 type MessageToolsProps = {
     messageId: string;
     position?: 'left' | 'right';
+    is_deleted?: boolean;
 };
 
-function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
+function MessageTools({ messageId, position = 'right', is_deleted }: MessageToolsProps) {
     const { messageReactions, toggleReaction } = useMessageReactionStore();
     const { deleteMessage, reportMessage } = useCurrentMessages();
     const { openReplyBox } = useReply();
@@ -33,6 +34,8 @@ function MessageTools({ messageId, position = 'right' }: MessageToolsProps) {
             openReplyBox(messageToReply);
         }
     };
+
+    if (is_deleted) return null;
 
     return (
         <div

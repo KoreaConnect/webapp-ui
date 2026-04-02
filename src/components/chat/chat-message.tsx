@@ -34,6 +34,7 @@ type ChatMessageProps = {
     reply_to_message?: Message | null;
     attachments?: Attachment[];
     mentions?: BasicUserInfo[];
+    is_deleted?: boolean;
 };
 
 function ChatMessage({
@@ -50,12 +51,13 @@ function ChatMessage({
     reply_to_message,
     attachments,
     mentions,
+    is_deleted,
 }: ChatMessageProps) {
     const messageReactions = useMessageReactionStore((state) => state.messageReactions[id]);
     const reactions = messageReactions ?? {};
 
     if (type === 'system' || role === 'system') {
-        return <SystemMessage message={{ id, text, role, type, metadata, content, mentions } as Message} />;
+        return <SystemMessage message={{ id, text, role, type, metadata, content, mentions, is_deleted } as Message} />;
     }
 
     return (
@@ -80,8 +82,13 @@ function ChatMessage({
                             reply_to_message={reply_to_message}
                             attachments={attachments}
                             mentions={mentions}
+                            is_deleted={is_deleted}
                         />
-                        <MessageTools messageId={id} position={role === MESSAGE_ROLE.ME ? 'right' : 'left'} />
+                        <MessageTools
+                            messageId={id}
+                            position={role === MESSAGE_ROLE.ME ? 'right' : 'left'}
+                            is_deleted={is_deleted}
+                        />
                     </div>
                 </div>
             </div>

@@ -83,6 +83,7 @@ export type Message = {
     reply_to_message?: Message | null;
     attachments?: Attachment[];
     mentions?: BasicUserInfo[];
+    is_deleted?: boolean;
 };
 
 export type RawMessage = {
@@ -106,6 +107,7 @@ export type RawMessage = {
     reply_to_message?: RawMessage | null;
     attachments?: Attachment[];
     mentions?: BasicUserInfo[];
+    is_deleted?: boolean;
 };
 
 export type RawConversationMember = {

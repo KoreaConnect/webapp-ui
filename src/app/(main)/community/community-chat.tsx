@@ -53,6 +53,8 @@ export default function CommunityChat() {
         hasMoreAfter,
     } = useCurrentMessages();
 
+    console.log(messages);
+
     // Track the last seen message ID to avoid redundant markAsRead calls
     const lastReadMessageIdRef = useRef<string | null>(null);
 
@@ -280,6 +282,7 @@ export default function CommunityChat() {
                                     reply_to_message={msg.reply_to_message}
                                     attachments={msg.attachments}
                                     mentions={msg.mentions}
+                                    is_deleted={msg.is_deleted}
                                 />
                             </div>
                         ))}
