@@ -11,6 +11,7 @@ interface AuthMethodsProps {
 export function AuthMethods({ type, onEmailClick }: AuthMethodsProps) {
     const handleGoogleLogin = async () => {
         try {
+            console.log('Google login clicked', API_BASE_URL);
             window.location.href = `${API_BASE_URL}/auth/google`;
         } catch (error) {
             console.error('Error logging in with Google:', error);

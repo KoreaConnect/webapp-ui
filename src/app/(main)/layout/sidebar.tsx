@@ -1,6 +1,5 @@
 'use client';
 import { useSidebar } from '@/context/sidebar-context';
-import * as RovingFocus from '@radix-ui/react-roving-focus';
 import {
     Briefcase,
     Calendar,
@@ -9,6 +8,7 @@ import {
     Home,
     MapPin,
     Megaphone,
+    MessageSquare,
     Package,
     Rss,
     ShoppingCart,
@@ -21,9 +21,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
+import CloseButton from '@/components/ui/close-button';
 import { RovingItem } from '@/components/ui/roving-item';
 import { RovingList } from '@/components/ui/roving-list';
 import { ScrollableView } from '@/components/ui/scrollable-view';
+
+import { cn } from '@/utils';
 
 const categories = [
     {
@@ -105,47 +108,73 @@ export default function Sidebar() {
             {/* Mobile Overlay (Backdrop) */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/10 md:hidden animate-overlay-fade-in z-50"
+                    className="fixed inset-0 bg-black/10 sm:hidden animate-overlay-fade-in 
+                                z-(--global-sidebar-overlay-z-index)"
                     onClick={closeSidebar}
                 />
             )}
 
             {/* Unified Aside Component */}
             <aside
-                className={`md:block md:left-auto md:bg-transparent md:translate-x-0 md:border-none
-            fixed top-header h-full w-sidebar shrink-0 bg-background z-100 border-r border-border left-0 transition-transform duration-300 ease 
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-            `}
+                className={cn(
+                    `fixed rounded-tr-2xl rounded-br-2xl top-0 h-full w-sidebar sm:w-(--small-sidebar-width) md:w-sidebar shrink-0 bg-background \
+                    sm:block sm:left-auto sm:bg-white sm:translate-x-0  sm:top-header md:border-none sm:rounded-none md:bg-transparent\
+                    z-(--global-sidebar-z-index) border-r border-border left-0 transition-transform duration-300 ease \
+                    sm:z-0
+
+            `,
+                    isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+                )}
             >
                 <div className="flex h-full flex-col">
                     {/* Mobile Close Button */}
-                    <div className="md:hidden flex justify-end p-2 absolute right-2 top-2 z-10">
-                        <Button onClick={toggleSidebar} variant="ghost" size="icon">
-                            <X className="h-5 w-5" />
-                        </Button>
+                    <div className="sm:hidden flex justify-between items-center right-2 top-2 z-10 my-2 mx-3 mt-4">
+                        <div className="w-8 h-8 bg-primary rounded-xl"></div>
+                        <CloseButton onClick={toggleSidebar} />
                     </div>
 
                     {/* Scrollable Content */}
 
                     <ScrollableView vertical horizontal={false} className="flex-1">
-                        <nav className="flex flex-col gap-2 px-4 pb-20 pt-12 md:pt-6" aria-label="Sidebar">
+                        <nav
+                            className="flex flex-col gap-2 px-4 pb-20 pt-4 sm:px-2 md:px-4 sm:pt-6"
+                            aria-label="Sidebar"
+                        >
                             <RovingList>
                                 <RovingItem>
                                     <Link
                                         href="/feed"
                                         onClick={handleClickSidebarTab}
                                         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
-                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary
+                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
                                                     ${pathname === '/feed' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
                                                 `}
                                     >
                                         <Rss className="h-6 w-6" />
-                                        <span className="text-xl font-bold tracking-tight">Feed</span>
+                                        <span className="text-xl font-bold tracking-tight sm:hidden md:block">
+                                            Feed
+                                        </span>
+                                    </Link>
+                                </RovingItem>
+
+                                <RovingItem>
+                                    <Link
+                                        href="/community"
+                                        onClick={handleClickSidebarTab}
+                                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
+                                                    ${pathname === '/community' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                `}
+                                    >
+                                        <MessageSquare className="h-6 w-6" />
+                                        <span className="text-xl font-bold tracking-tight sm:hidden md:block">
+                                            Community
+                                        </span>
                                     </Link>
                                 </RovingItem>
 
                                 <div className="flex items-center gap-2 my-4 px-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                                    Categories
+                                    <span className="px-2 py-1 sm:hidden md:block">Categories</span>
                                     <span className="h-0.5 w-full bg-zinc-200 dark:bg-zinc-700"></span>
                                 </div>
                                 {categories.map((category) => {
@@ -156,12 +185,14 @@ export default function Sidebar() {
                                                 href={category.href}
                                                 onClick={handleClickSidebarTab}
                                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
-                                                        transition-colors focus:outline-none focus:ring-1 focus:ring-primary
+                                                        transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
                                                         ${isActive ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
                                                         `}
                                             >
                                                 <category.icon className="h-4 w-4" />
-                                                {category.name}
+                                                <span className="text-sm font-medium tracking-tight sm:hidden md:block">
+                                                    {category.name}
+                                                </span>
                                             </Link>
                                         </RovingItem>
                                     );

@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { Loader2 } from 'lucide-react';
-
 interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
     size?: number;
     className?: string;
@@ -10,7 +8,10 @@ interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
 const Loader = ({ size = 24, className = '', ...props }: LoaderProps) => {
     return (
         <div className={`flex items-center justify-center ${className}`} {...props}>
-            <Loader2 size={size} className="animate-spin text-primary" />
+            <div
+                className={`animate-spin rounded-full h-8 w-8 border-b-2 border-primary`}
+                style={{ width: `${size}px`, height: `${size}px` }}
+            ></div>
         </div>
     );
 };

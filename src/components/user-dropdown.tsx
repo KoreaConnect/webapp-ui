@@ -1,13 +1,16 @@
+'use client';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { LogOut, Settings, UserCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { authService } from '@/services';
 
 function UserDropdown() {
+    const router = useRouter();
     const handleLogout = async () => {
-        const response = await authService.logout();
-        console.log('Logout response:', response.data);
+        await authService.logout();
+        router.push('/');
     };
     return (
         <>

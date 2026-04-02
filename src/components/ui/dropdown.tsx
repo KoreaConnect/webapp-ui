@@ -21,7 +21,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ trigger, children, align = '
                     align={align}
                     sideOffset={12}
                     className="
-                        min-w-64 z-60 max-w-120 rounded-lg border
+                        min-w-64 z-(--dropdown-z-index) max-w-120 rounded-lg border
                         border-zinc-200 bg-white shadow-lg
                         dark:border-zinc-800 dark:bg-zinc-900
                         outline-none

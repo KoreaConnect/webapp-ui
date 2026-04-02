@@ -9,26 +9,33 @@ interface ScrollableViewProps {
     vertical?: boolean;
     horizontal?: boolean;
     className?: string;
+    onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
 }
 
-export function ScrollableView({ children, vertical = true, horizontal = true, className = '' }: ScrollableViewProps) {
-    return (
-        <ScrollArea.Root className={`relative overflow-hidden ${className}`}>
-            <ScrollArea.Viewport className="h-full w-full">{children}</ScrollArea.Viewport>
+export const ScrollableView = React.forwardRef<HTMLDivElement, ScrollableViewProps>(
+    ({ children, vertical = true, horizontal = false, className = '', onScroll }, ref) => {
+        return (
+            <ScrollArea.Root className={`relative overflow-hidden ${className}`}>
+                <ScrollArea.Viewport ref={ref} className="h-full w-full" onScroll={onScroll}>
+                    {children}
+                </ScrollArea.Viewport>
 
-            {vertical && (
-                <ScrollArea.Scrollbar orientation="vertical" className="flex touch-none select-none p-[2px] w-2">
-                    <ScrollArea.Thumb className="flex-1 rounded-full bg-black/30 hover:bg-black/40" />
-                </ScrollArea.Scrollbar>
-            )}
+                {vertical && (
+                    <ScrollArea.Scrollbar orientation="vertical" className="flex touch-none select-none p-[2px] w-2">
+                        <ScrollArea.Thumb className="flex-1 rounded-full bg-black/30 hover:bg-black/40" />
+                    </ScrollArea.Scrollbar>
+                )}
 
-            {horizontal && (
-                <ScrollArea.Scrollbar orientation="horizontal" className="flex touch-none select-none p-[2px] h-2">
-                    <ScrollArea.Thumb className="flex-1 rounded-full bg-black/30 hover:bg-black/40" />
-                </ScrollArea.Scrollbar>
-            )}
+                {horizontal && (
+                    <ScrollArea.Scrollbar orientation="horizontal" className="flex touch-none select-none p-[2px] h-2">
+                        <ScrollArea.Thumb className="flex-1 rounded-full bg-black/30 hover:bg-black/40" />
+                    </ScrollArea.Scrollbar>
+                )}
 
-            {vertical && horizontal && <ScrollArea.Corner className="bg-black/10" />}
-        </ScrollArea.Root>
-    );
-}
+                {vertical && horizontal && <ScrollArea.Corner className="bg-black/10" />}
+            </ScrollArea.Root>
+        );
+    },
+);
+
+ScrollableView.displayName = 'ScrollableView';

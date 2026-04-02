@@ -1,4 +1,5 @@
-import * as authService from './auth';
-import * as kakaoService from './kakao';
+import * as authService from './auth.service';
+import * as conversationService from './conversation.service';
+import * as kakaoService from './kakao.service';
 
-export { authService, kakaoService };
+export { authService, conversationService, kakaoService };

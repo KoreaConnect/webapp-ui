@@ -1,0 +1,143 @@
+import { useAuthStore } from '@/store/use-auth-store';
+import { BasicUserInfo, MessageReactions, ReactionMap } from '@/types/chat.type';
+import { create } from 'zustand';
+
+import { conversationService } from '@/services';
+
+type MessageReactionState = {
+    messageReactions: ReactionMap;
+    toggleReaction: (messageId: string, emoji: string) => Promise<void>;
+    setReaction: (messageId: string, emoji: string, userInfos: BasicUserInfo[]) => void;
+    addReactionToState: (messageId: string, emoji: string, userInfo: BasicUserInfo) => void;
+    removeReactionFromState: (messageId: string, emoji: string, userId: string) => void;
+    setMessageReactions: (reactions: ReactionMap) => void;
+};
+
+export const useMessageReactionStore = create<MessageReactionState>((set, get) => ({
+    messageReactions: {},
+
+    setMessageReactions: (reactions) => {
+        set((state) => ({
+            messageReactions: {
+                ...state.messageReactions,
+                ...reactions,
+            },
+        }));
+    },
+    addReactionToState: (messageId, emoji, userInfo) => {
+        set((state) => {
+            const nextReactions = { ...state.messageReactions };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
+
+            // 1. Remove this user from ANY existing reaction on this message first
+            Object.keys(nextMessageReactions).forEach((key) => {
+                nextMessageReactions[key] = nextMessageReactions[key].filter(
+                    (u) => u.id.toString() !== userInfo.id.toString(),
+                );
+                if (nextMessageReactions[key].length === 0) {
+                    delete nextMessageReactions[key];
+                }
+            });
+
+            // 2. Add the new reaction
+            const users = nextMessageReactions[emoji] ?? [];
+            nextMessageReactions[emoji] = [...users, userInfo];
+
+            nextReactions[messageId] = nextMessageReactions;
+            return { messageReactions: nextReactions };
+        });
+    },
+    removeReactionFromState: (messageId, emoji, userId) => {
+        set((state) => {
+            const nextReactions = { ...state.messageReactions };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
+            const users = nextMessageReactions[emoji] ?? [];
+
+            nextMessageReactions[emoji] = users.filter((u) => u.id.toString() !== userId.toString());
+            if (nextMessageReactions[emoji].length === 0) {
+                delete nextMessageReactions[emoji];
+            }
+
+            nextReactions[messageId] = nextMessageReactions;
+            return { messageReactions: nextReactions };
+        });
+    },
+    setReaction: (messageId, emoji, userInfos) => {
+        set((state) => {
+            const nextReactions = { ...state.messageReactions };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
+
+            if (userInfos.length > 0) {
+                nextMessageReactions[emoji] = userInfos;
+            } else {
+                delete nextMessageReactions[emoji];
+            }
+
+            nextReactions[messageId] = nextMessageReactions;
+            return { messageReactions: nextReactions };
+        });
+    },
+    toggleReaction: async (messageId, emoji) => {
+        const currentUser = useAuthStore.getState().user;
+        if (!currentUser) return;
+
+        const userIdStr = currentUser.id.toString();
+        const currentMessageReactions = get().messageReactions[messageId] ?? {};
+
+        // Find if user already has ANY reaction on this message
+        let existingEmoji: string | null = null;
+        for (const [key, users] of Object.entries(currentMessageReactions)) {
+            if (users.some((u) => u.id.toString() === userIdStr)) {
+                existingEmoji = key;
+                break;
+            }
+        }
+
+        const isSameEmoji = existingEmoji === emoji;
+
+        // Optimistic update
+        set((state) => {
+            const nextReactions = { ...state.messageReactions };
+            const nextMessageReactions: MessageReactions = { ...(nextReactions[messageId] ?? {}) };
+
+            // 1. Remove previous reaction if it exists
+            if (existingEmoji) {
+                nextMessageReactions[existingEmoji] = (nextMessageReactions[existingEmoji] ?? []).filter(
+                    (u) => u.id.toString() !== userIdStr,
+                );
+                if (nextMessageReactions[existingEmoji].length === 0) {
+                    delete nextMessageReactions[existingEmoji];
+                }
+            }
+
+            // 2. Add new reaction if it's different from the old one
+            if (!isSameEmoji) {
+                const userInfo: BasicUserInfo = {
+                    id: currentUser.id,
+                    name: currentUser.name,
+                    username: currentUser.email || '',
+                    picture: currentUser.picture || null,
+                };
+                nextMessageReactions[emoji] = [...(nextMessageReactions[emoji] ?? []), userInfo];
+            }
+
+            nextReactions[messageId] = nextMessageReactions;
+            return { messageReactions: nextReactions };
+        });
+
+        try {
+            if (isSameEmoji) {
+                // If clicking the same one, just remove it
+                await conversationService.removeReaction(messageId, emoji);
+            } else {
+                // If clicking a different one (or first one), the backend should handle replacing
+                // but we call addReaction which should be idempotent or handle the swap
+                await conversationService.addReaction(messageId, emoji);
+            }
+        } catch (error) {
+            console.error('Failed to toggle reaction on server:', error);
+            // Revert to original state on error
+            set({ messageReactions: { ...get().messageReactions, [messageId]: currentMessageReactions } });
+        }
+    },
+}));
