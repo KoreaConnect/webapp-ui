@@ -194,3 +194,14 @@ export const deleteMessage = async (messageId: string | number) => {
         throw error;
     }
 };
+
+export const getMyConversations = async (limit?: number, offset?: number) => {
+    try {
+        const response = await instance.get('/conversations', {
+            params: { limit, offset },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

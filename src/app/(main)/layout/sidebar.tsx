@@ -15,12 +15,10 @@ import {
     Ticket,
     Truck,
     Users,
-    X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Button } from '@/components/ui/button';
 import CloseButton from '@/components/ui/close-button';
 import { RovingItem } from '@/components/ui/roving-item';
 import { RovingList } from '@/components/ui/roving-list';
@@ -118,7 +116,7 @@ export default function Sidebar() {
             <aside
                 className={cn(
                     `fixed rounded-tr-2xl rounded-br-2xl top-0 h-full w-sidebar sm:w-(--small-sidebar-width) md:w-sidebar shrink-0 bg-background \
-                    sm:block sm:left-auto sm:bg-white sm:translate-x-0  sm:top-header md:border-none sm:rounded-none md:bg-transparent\
+                    sm:block sm:left-auto sm:bg-white sm:translate-x-0  sm:top-header sm:rounded-none md:bg-transparent\
                     z-(--global-sidebar-z-index) border-r border-border left-0 transition-transform duration-300 ease \
                     sm:z-0
 
@@ -147,11 +145,11 @@ export default function Sidebar() {
                                         onClick={handleClickSidebarTab}
                                         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                                     transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
-                                                    ${pathname === '/feed' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                    ${pathname === '/feed' ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
                                                 `}
                                     >
-                                        <Rss className="h-6 w-6" />
-                                        <span className="text-xl font-bold tracking-tight sm:hidden md:block">
+                                        <Rss className="h-4 w-4" />
+                                        <span className="text-sm font-medium tracking-tight sm:hidden md:block">
                                             Feed
                                         </span>
                                     </Link>
@@ -163,11 +161,11 @@ export default function Sidebar() {
                                         onClick={handleClickSidebarTab}
                                         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                                     transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
-                                                    ${pathname === '/community' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                    ${pathname === '/community' ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
                                                 `}
                                     >
-                                        <MessageSquare className="h-6 w-6" />
-                                        <span className="text-xl font-bold tracking-tight sm:hidden md:block">
+                                        <MessageSquare className="h-4 w-4" />
+                                        <span className="text-sm font-medium tracking-tight sm:hidden md:block">
                                             Community
                                         </span>
                                     </Link>
@@ -186,7 +184,7 @@ export default function Sidebar() {
                                                 onClick={handleClickSidebarTab}
                                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                                         transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
-                                                        ${isActive ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                        ${isActive ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
                                                         `}
                                             >
                                                 <category.icon className="h-4 w-4" />

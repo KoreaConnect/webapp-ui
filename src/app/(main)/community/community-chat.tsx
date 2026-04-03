@@ -246,7 +246,7 @@ export default function CommunityChat() {
     }
 
     return (
-        <div className={cn('relative flex h-full bg-background overflow-hidden border-x border-border')}>
+        <div className={cn('relative flex h-full bg-background overflow-hidden border-r border-border')}>
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader
                     title={conversation.title}
