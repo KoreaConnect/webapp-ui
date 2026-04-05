@@ -3,9 +3,9 @@
 import { useEffect, useRef } from 'react';
 
 import { useReply } from '@/context/reply-context';
-import { useActiveConversationStore } from '@/store/use-active-conversation-store';
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
@@ -34,7 +34,7 @@ export default function ChatInterface({ conversationId }: ChatInterfaceProps) {
         conversation,
         fetchMembers,
         isLoading: isConvLoading,
-    } = useActiveConversationStore();
+    } = useCurrentConversationStore();
 
     const { replyingTo, closeReplyBox } = useReply();
     const { isSearchOpen, isSearching } = useChatPanelStore();

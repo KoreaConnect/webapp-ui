@@ -1,12 +1,12 @@
 'use client';
 
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { Loader2 } from 'lucide-react';
 
 import Avatar from '../ui/avatar';
 
 export function MemberList() {
-    const { conversation, members, isMembersLoading, hasMoreMembers, fetchMembers } = useCommunityConversationStore();
+    const { conversation, members, isMembersLoading, hasMoreMembers, fetchMembers } = useCurrentConversationStore();
 
     if (!conversation) return null;
 

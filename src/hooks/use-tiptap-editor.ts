@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthStore } from '@/store/use-auth-store';
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
 import Mention from '@tiptap/extension-mention';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -51,7 +51,7 @@ export const CustomMention = Mention.extend({
     },
     suggestion: {
         items: ({ query, editor }: { query: string; editor: Editor }): MentionItem[] => {
-            const { members, conversation } = useCommunityConversationStore.getState();
+            const { members, conversation } = useCurrentConversationStore.getState();
 
             const currentUser = useAuthStore.getState().user;
 

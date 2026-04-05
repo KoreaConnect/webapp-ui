@@ -1,12 +1,12 @@
 'use client';
 
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { FileText, Loader2 } from 'lucide-react';
 
 import { formatDate, formatFileSize } from '@/utils';
 
 export function FileList() {
-    const { conversation, files, isFilesLoading, hasMoreFiles, fetchAttachments } = useCommunityConversationStore();
+    const { conversation, files, isFilesLoading, hasMoreFiles, fetchAttachments } = useCurrentConversationStore();
 
     if (!conversation) return null;
 

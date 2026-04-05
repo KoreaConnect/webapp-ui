@@ -1,4 +1,4 @@
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
 import {
     type Attachment,
@@ -69,7 +69,7 @@ export function MessageContent({
     is_deleted,
 }: MessageContentProps) {
     const { fetchMessageContext, setIsWaitContextMessageScrolling } = useCurrentMessages();
-    const { conversation } = useCommunityConversationStore();
+    const { conversation } = useCurrentConversationStore();
 
     const scrollToMessage = async (msgId: string) => {
         // 1. Try to find and scroll immediately (if in current messages)

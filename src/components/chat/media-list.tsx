@@ -1,10 +1,10 @@
 'use client';
 
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { Loader2 } from 'lucide-react';
 
 export function MediaList() {
-    const { conversation, media, isMediaLoading, hasMoreMedia, fetchAttachments } = useCommunityConversationStore();
+    const { conversation, media, isMediaLoading, hasMoreMedia, fetchAttachments } = useCurrentConversationStore();
 
     if (!conversation) return null;
 

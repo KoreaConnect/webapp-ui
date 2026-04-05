@@ -1,7 +1,7 @@
 'use client';
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { useToastStore } from '@/store/use-toast-store';
 import { BellRing, FileText, Image, Info, LogOut, Search, Users } from 'lucide-react';
 
@@ -32,8 +32,10 @@ export default function ChatPanel() {
         isMembersLoading,
         leaveGroup,
         isLeaving,
-    } = useCommunityConversationStore();
+    } = useCurrentConversationStore();
     const { show } = useToastStore();
+
+    console.log({ isOpen, conversation });
 
     if (!conversation) return null;
 
@@ -91,7 +93,6 @@ export default function ChatPanel() {
                 'lg:relative lg:inset-y-auto lg:z-0 lg:translate-x-0',
                 isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 lg:opacity-0 pointer-events-none',
             )}
-            aria-hidden={!isOpen}
             inert={!isOpen}
         >
             <div

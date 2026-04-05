@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { useToastStore } from '@/store/use-toast-store';
@@ -31,7 +31,7 @@ export default function CommunityChat() {
         conversation,
         fetchMembers,
         isLoading: isConvLoading,
-    } = useCommunityConversationStore();
+    } = useCurrentConversationStore();
     const { replyingTo, closeReplyBox } = useReply();
     const { show } = useToastStore();
     const { isSearchOpen, isSearching } = useChatPanelStore();
