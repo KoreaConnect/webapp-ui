@@ -10,6 +10,15 @@ export const getConversationBySlug = async (slug: string) => {
     }
 };
 
+export const getConversationById = async (id: string) => {
+    try {
+        const response = await instance.get(`/conversations/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const joinConversation = async (conversationId: string) => {
     try {
         const response = await instance.post(`/conversations/${conversationId}/join`);

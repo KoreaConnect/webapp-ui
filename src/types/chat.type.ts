@@ -139,4 +139,11 @@ export type Conversation = {
     post_id: string | null;
     last_message_id: string | null;
     last_message_at: string | null;
+    unread_count?: number;
+    last_message?: {
+        content: string;
+        sender_name: string;
+        sender_id: string | number;
+        type: string;
+    } | null;
 };

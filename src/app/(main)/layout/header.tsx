@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { useSidebar } from '@/context/sidebar-context';
 import { useAuthStore } from '@/store/use-auth-store';
-import { Bell, Pen, Search, TextAlignJustify, User } from 'lucide-react';
+import { Bell, MessageCircle, Pen, Search, TextAlignJustify, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -35,6 +35,13 @@ const LoggedInHeader = () => {
             >
                 <WritePostDialogContent onSelect={() => {}} />
             </DialogWrapper>
+
+            <Link href="/messenger">
+                <Button variant="ghost" size="icon" className="relative">
+                    <MessageCircle className="h-5 w-5" />
+                </Button>
+            </Link>
+
             <Dropdown
                 trigger={
                     <Button variant="ghost" size="icon">
