@@ -15,7 +15,7 @@ function ChatHeader({ title, thumbnailUrl, onlineUserCount }: ChatHeaderProps) {
     const { toggle, isOpen } = useChatPanelStore();
 
     return (
-        <div className="p-4 h-[74px] border-b border-border gap-3 flex justify-between items-center bg-background">
+        <div className="p-4 h-chat-header border-b border-border gap-3 flex justify-between items-center bg-background">
             <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10" src={thumbnailUrl} backgroundColor="cyan" />
                 <div>

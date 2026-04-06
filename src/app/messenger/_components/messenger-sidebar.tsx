@@ -22,7 +22,7 @@ export default function MessengerSidebar() {
 
     return (
         <aside className="w-80 border-r border-border bg-background flex flex-col h-full overflow-hidden shrink-0">
-            <div className="p-4 border-b border-border">
+            <div className="p-4 border-b h-chat-header border-border">
                 <h1 className="text-xl font-bold">Messages</h1>
             </div>
             <ScrollableView vertical className="flex-1">
