@@ -6,6 +6,7 @@ import { useToastStore } from '@/store/use-toast-store';
 import { Calendar, Clock, Filter, MapPin, Plus, Search, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const MOCK_POSTS = [
     {
@@ -15,7 +16,7 @@ const MOCK_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=alex',
         },
         from: 'Downtown',
-        to: 'Airport',
+        to: 'Incheon (ICN)',
         date: '2026-01-21',
         time: '14:30',
         seats: 3,
@@ -30,7 +31,7 @@ const MOCK_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=sarah',
         },
         from: 'Tech Hub',
-        to: 'West Side',
+        to: 'Gimpo (GMP)',
         date: '2026-01-21',
         time: '16:00',
         seats: 4,
@@ -45,7 +46,7 @@ const MOCK_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=michael',
         },
         from: 'Grand Central',
-        to: 'Brooklyn Heights',
+        to: 'Incheon (ICN)',
         date: '2026-01-22',
         time: '09:00',
         seats: 3,
@@ -60,7 +61,7 @@ const MOCK_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=alex',
         },
         from: 'Downtown',
-        to: 'Airport',
+        to: 'Incheon (ICN)',
         date: '2026-01-21',
         time: '14:30',
         seats: 3,
@@ -75,7 +76,7 @@ const MOCK_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=sarah',
         },
         from: 'Tech Hub',
-        to: 'West Side',
+        to: 'Gimpo (GMP)',
         date: '2026-01-21',
         time: '16:00',
         seats: 4,
@@ -90,7 +91,7 @@ const MOCK_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=michael',
         },
         from: 'Grand Central',
-        to: 'Brooklyn Heights',
+        to: 'Incheon (ICN)',
         date: '2026-01-22',
         time: '09:00',
         seats: 3,
@@ -104,6 +105,7 @@ export default function TaxiSharePage() {
     const [searchTerm, setSearchTerm] = useState('');
     const { show, toasts } = useToastStore();
     const [a, setA] = useState(1);
+    const [airport, setAirport] = useState('');
 
     return (
         <div className="p-8">
@@ -133,27 +135,40 @@ export default function TaxiSharePage() {
 
                 {/* Filters */}
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-border">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div className="relative group">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
                             <input
                                 type="text"
-                                placeholder="From"
+                                placeholder="Current Address"
                                 className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
                             />
                         </div>
-                        <div className="relative group">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="To"
-                                className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
-                            />
+                        <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
+                            <Select onValueChange={setAirport}>
+                                <SelectTrigger className="pl-10">
+                                    <SelectValue placeholder="Airport Name" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="icn">Incheon (ICN)</SelectItem>
+                                    <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
+                                    <SelectItem value="nrt">Narita (NRT)</SelectItem>
+                                    <SelectItem value="hnd">Haneda (HND)</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="relative group">
                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="date"
+                                className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
+                            />
+                        </div>
+                        <div className="relative group">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                            <input
+                                type="time"
                                 className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
                             />
                         </div>

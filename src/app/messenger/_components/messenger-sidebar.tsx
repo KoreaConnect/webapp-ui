@@ -2,7 +2,9 @@
 
 import { useEffect } from 'react';
 
+import { useMessengerSidebar } from '@/context/messenger-sidebar-context';
 import { useConversationsStore } from '@/store/use-conversations-store';
+import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -15,15 +17,30 @@ import { cn } from '@/utils';
 export default function MessengerSidebar() {
     const pathname = usePathname();
     const { conversations, isLoading, fetchConversations } = useConversationsStore();
+    const { isMessengerSidebarOpen, closeMessengerSidebar } = useMessengerSidebar();
+    const isShowCloseButton = pathname.startsWith('/messenger/');
 
     useEffect(() => {
         fetchConversations();
     }, [fetchConversations]);
 
     return (
-        <aside className="w-80 border-r border-border bg-background flex flex-col h-full overflow-hidden shrink-0">
-            <div className="p-4 border-b h-chat-header border-border">
+        <aside
+            className={cn(
+                'md:w-80 border-r border-border bg-background  md:flex md:flex-col h-full overflow-hidden shrink-0 md:static md:mt-0',
+                'absolute z-20 mt-header inset-y-0 left-0 w-full',
+                !isMessengerSidebarOpen && 'hidden',
+            )}
+        >
+            <div className="p-4 border-b h-chat-header border-border flex items-center justify-between gap-4">
                 <h1 className="text-xl font-bold">Messages</h1>
+                {isShowCloseButton && (
+                    <ChevronLeft
+                        className="h-6 w-6 cursor-pointer md:hidden"
+                        onClick={closeMessengerSidebar}
+                        aria-label="Close Messenger Sidebar"
+                    />
+                )}
             </div>
             <ScrollableView vertical className="flex-1">
                 {isLoading && conversations.length === 0 ? (

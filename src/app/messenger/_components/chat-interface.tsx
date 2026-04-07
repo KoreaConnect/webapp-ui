@@ -25,12 +25,14 @@ import { useSocketListener } from '@/hooks/use-socket-listener';
 import { cn } from '@/utils';
 
 interface ChatInterfaceProps {
-    conversationId: string;
+    conversationId?: string;
+    conversationSlug?: string;
 }
 
-export default function ChatInterface({ conversationId }: ChatInterfaceProps) {
+export default function ChatInterface({ conversationId, conversationSlug }: ChatInterfaceProps) {
     const {
         fetchConversationById,
+        fetchConversationBySlug,
         conversation,
         fetchMembers,
         isLoading: isConvLoading,
@@ -82,16 +84,16 @@ export default function ChatInterface({ conversationId }: ChatInterfaceProps) {
             isFetchingNewer ||
             isFetchingContext ||
             isWaitContextMessageScrolling ||
-            !conversationId
+            !conversation?.id
         )
             return;
 
         const { scrollTop, scrollHeight } = scrollRef.current;
         if (scrollTop === 0 && hasMoreBefore) {
             lastScrollHeightRef.current = scrollHeight;
-            fetchMoreMessages(conversationId);
+            fetchMoreMessages(conversation.id);
         } else if (scrollTop + scrollRef.current.clientHeight >= scrollHeight - 10 && hasMoreAfter) {
-            fetchNewerMessages(conversationId);
+            fetchNewerMessages(conversation.id);
         }
     };
 
@@ -105,7 +107,7 @@ export default function ChatInterface({ conversationId }: ChatInterfaceProps) {
 
     // Socket listeners
     useSocketListener<RawMessage>('chat:new_message', (data) => {
-        if (data.conversation_id.toString() !== conversationId.toString()) return;
+        if (data.conversation_id.toString() !== conversation?.id.toString()) return;
         if (hasMoreAfter) return;
         if (useCurrentMessages.getState().messages.some((m) => m.id.toString() === data.id.toString())) return;
 
@@ -121,7 +123,7 @@ export default function ChatInterface({ conversationId }: ChatInterfaceProps) {
         reaction: string;
         user?: BasicUserInfo;
     }>('chat:reaction_added', (data) => {
-        if (data.conversation_id.toString() !== conversationId.toString()) return;
+        if (data.conversation_id.toString() !== conversation?.id.toString()) return;
         if (data.user_id.toString() === currentUser?.id.toString()) return;
 
         const { addReactionToState } = useMessageReactionStore.getState();
@@ -146,22 +148,40 @@ export default function ChatInterface({ conversationId }: ChatInterfaceProps) {
         }
     }, [conversation?.id, conversation?.is_joined, messages, isMessagesLoading, markAsRead]);
 
+    // Fetch conversation
     useEffect(() => {
-        if (conversationId) {
+        if (conversationId || conversationSlug) {
             clearMessages();
-            closeReplyBox(); // Clear reply box when switching conversations
-            fetchConversationById(conversationId);
-            fetchMessages(conversationId).then(() => {
+            closeReplyBox();
+            if (conversationSlug) {
+                fetchConversationBySlug(conversationSlug);
+            } else if (conversationId) {
+                fetchConversationById(conversationId);
+            }
+        }
+    }, [
+        conversationId,
+        conversationSlug,
+        fetchConversationById,
+        fetchConversationBySlug,
+        clearMessages,
+        closeReplyBox,
+    ]);
+
+    // Fetch messages and members once conversation is loaded
+    useEffect(() => {
+        if (conversation?.id) {
+            fetchMessages(conversation.id).then(() => {
                 setTimeout(() => scrollToBottom('auto'), 100);
             });
-            fetchMembers(conversationId);
+            fetchMembers(conversation.id);
         }
-    }, [conversationId, fetchConversationById, fetchMessages, fetchMembers, clearMessages, closeReplyBox]);
+    }, [conversation?.id, fetchMessages, fetchMembers]);
 
     const handleSendMessage = async (text: string, files: File[], mentions?: (string | number)[]) => {
-        if (!conversationId) return;
+        if (!conversation?.id) return;
         try {
-            await sendMessage(conversationId, text, files, replyingTo?.id, mentions);
+            await sendMessage(conversation.id, text, files, replyingTo?.id, mentions);
             closeReplyBox();
             setTimeout(() => scrollToBottom('smooth'), 50);
         } catch (error) {
