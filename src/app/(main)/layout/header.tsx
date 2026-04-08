@@ -104,7 +104,7 @@ export default function Header() {
                     <Button className="block sm:hidden" variant="ghost" size="icon" onClick={toggleSidebar}>
                         <TextAlignJustify className="h-6 w-6" />
                     </Button>
-                    <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+                    <Link href="/feed" className="flex items-center gap-2 transition-opacity hover:opacity-80">
                         <div className="h-8 w-8 rounded-lg bg-primary dark:bg-white" />
                         <span className="text-xl font-bold tracking-tight text-primary dark:text-white">KOCO</span>
                     </Link>
