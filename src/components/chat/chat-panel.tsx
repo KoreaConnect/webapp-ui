@@ -35,8 +35,6 @@ export default function ChatPanel() {
     } = useCurrentConversationStore();
     const { show } = useToastStore();
 
-    console.log({ isOpen, conversation });
-
     if (!conversation) return null;
 
     const handleOpenMembers = () => {

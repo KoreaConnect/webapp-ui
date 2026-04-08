@@ -2,12 +2,12 @@
 
 import { useEffect, useRef } from 'react';
 
-import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
 import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
+import { useReplyStore } from '@/store/use-reply-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
 
 import ChatHeader from '@/components/chat/chat-header';
@@ -35,10 +35,10 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         fetchConversationBySlug,
         conversation,
         fetchMembers,
-        isLoading: isConvLoading,
+        isLoading: isConversationLoading,
     } = useCurrentConversationStore();
 
-    const { replyingTo, closeReplyBox } = useReply();
+    const { replyingTo, closeReplyBox } = useReplyStore();
     const { isSearchOpen, isSearching } = useChatPanelStore();
 
     const {
@@ -138,6 +138,12 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         addReactionToState(data.message_id, data.reaction, userInfo);
     });
 
+    useEffect(() => {
+        if (replyingTo && chatInputRef.current) {
+            chatInputRef.current.focusEditor();
+        }
+    }, [replyingTo]);
+
     // Mark as read logic
     useEffect(() => {
         if (!conversation?.id || !conversation.is_joined || messages.length === 0 || isMessagesLoading) return;
@@ -182,6 +188,7 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         if (!conversation?.id) return;
         try {
             await sendMessage(conversation.id, text, files, replyingTo?.id, mentions);
+            console.log('Message sent successfully');
             closeReplyBox();
             setTimeout(() => scrollToBottom('smooth'), 50);
         } catch (error) {
@@ -189,7 +196,7 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         }
     };
 
-    if (isConvLoading || (isMessagesLoading && messages.length === 0)) {
+    if (isConversationLoading || (isMessagesLoading && messages.length === 0)) {
         return (
             <div className="flex h-full items-center justify-center">
                 <Loader size={32} />

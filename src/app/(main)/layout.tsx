@@ -1,7 +1,5 @@
 import Header from '@/app/(main)/layout/header';
 import Sidebar from '@/app/(main)/layout/sidebar';
-import { ThemeProvider } from '@/app/(main)/layout/theme-provider';
-import { SidebarProvider } from '@/context/sidebar-context';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -15,20 +13,16 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <SidebarProvider>
-                <div className="flex h-screen flex-col pb-4 overflow-hidden">
-                    <Header />
-                    <div className="min-h-full w-full flex flex-1 justify-center overflow-auto pb-4">
-                        <div className="relative flex w-full max-w-370">
-                            <Sidebar />
-                            <main className="w-full max-w-full sm:max-w-[calc(100%-var(--small-sidebar-width))] md:max-w-[calc(100%-var(--sidebar-width))]] h-full ml-0 flex-1 pb-6 sm:ml-(--small-sidebar-width) md:ml-(--sidebar-width)">
-                                <div className="h-full">{children}</div>
-                            </main>
-                        </div>
-                    </div>
+        <div className="flex h-screen flex-col pb-4 overflow-hidden">
+            <Header />
+            <div className="min-h-full w-full flex flex-1 justify-center overflow-auto pb-4">
+                <div className="relative flex w-full max-w-370">
+                    <Sidebar />
+                    <main className="w-full max-w-full sm:max-w-[calc(100%-var(--small-sidebar-width))] md:max-w-[calc(100%-var(--sidebar-width))]] h-full ml-0 flex-1 pb-6 sm:ml-(--small-sidebar-width) md:ml-(--sidebar-width)">
+                        <div className="h-full">{children}</div>
+                    </main>
                 </div>
-            </SidebarProvider>
-        </ThemeProvider>
+            </div>
+        </div>
     );
 }

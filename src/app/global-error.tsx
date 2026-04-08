@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 
-import { ThemeProvider } from '@/app/(main)/layout/theme-provider';
 import { Geist, Geist_Mono } from 'next/font/google';
 
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Button } from '@/components/ui/button';
 
 import './styles/globals.css';
