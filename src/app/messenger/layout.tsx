@@ -14,7 +14,9 @@ export default function MessengerLayout({ children }: { children: React.ReactNod
                     <MessengerSidebarProvider>
                         <div className="flex flex-1 overflow-hidden">
                             <MessengerSidebar />
-                            <main className="flex-1 min-w-0 flex flex-col h-full relative">{children}</main>
+                            <main className="flex-1 min-w-0 flex flex-col h-full relative">
+                                <div className="h-full">{children}</div>
+                            </main>
                         </div>
                     </MessengerSidebarProvider>
                 </div>

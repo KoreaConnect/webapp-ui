@@ -19,6 +19,7 @@ export default function MessengerSidebar() {
     const { conversations, isLoading, fetchConversations } = useConversationsStore();
     const { isMessengerSidebarOpen, closeMessengerSidebar } = useMessengerSidebar();
     const isShowCloseButton = pathname.startsWith('/messenger/');
+    const isWaitingForConversation = pathname === '/messenger';
 
     useEffect(() => {
         fetchConversations();
@@ -27,9 +28,10 @@ export default function MessengerSidebar() {
     return (
         <aside
             className={cn(
-                'md:w-80 border-r border-border bg-background  md:flex md:flex-col h-full overflow-hidden shrink-0 md:static md:mt-0',
-                'absolute z-20 mt-header inset-y-0 left-0 w-full',
-                !isMessengerSidebarOpen && 'hidden',
+                'md:w-80 border-r border-border bg-background  md:flex md:flex-col h-full overflow-hidden shrink-0 md:static md:pt-0',
+                'absolute z-20 pt-header inset-y-0 left-0 w-full',
+                !isMessengerSidebarOpen && !isWaitingForConversation && 'hidden',
+                isWaitingForConversation && 'absolute',
             )}
         >
             <div className="p-4 border-b h-chat-header border-border flex items-center justify-between gap-4">

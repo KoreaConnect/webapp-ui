@@ -206,7 +206,7 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
     }
 
     return (
-        <div className={cn('relative flex h-full bg-background overflow-hidden')}>
+        <div className={cn('relative flex h-full bg-background overflow-hidden border-r border-border')}>
             <div className="flex flex-1 flex-col min-w-0">
                 <ChatHeader
                     title={conversation.title}
