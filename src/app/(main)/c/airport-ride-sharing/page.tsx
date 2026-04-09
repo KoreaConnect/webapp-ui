@@ -1,12 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useToastStore } from '@/store/use-toast-store';
-import { Calendar, Clock, Filter, MapPin, Plus, Search, Users } from 'lucide-react';
+import {
+    ArrowRightLeft,
+    Calendar,
+    Clock,
+    Filter,
+    MapPin,
+    Navigation,
+    Plus,
+    RotateCcw,
+    Search,
+    Users,
+    X,
+} from 'lucide-react';
 
+import { KakaoAddressSearch } from '@/components/kakao-address-search';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import { cn } from '@/utils/cn';
 
 const MOCK_POSTS = [
     {
@@ -54,58 +69,25 @@ const MOCK_POSTS = [
         price: '200,000₫',
         status: 'open',
     },
-    {
-        id: 4,
-        user: {
-            name: 'Alex Johnson',
-            avatar: 'https://i.pravatar.cc/150?u=alex',
-        },
-        from: 'Downtown',
-        to: 'Incheon (ICN)',
-        date: '2026-01-21',
-        time: '14:30',
-        seats: 3,
-        seatsFilled: 1,
-        price: '150,000₫',
-        status: 'open',
-    },
-    {
-        id: 5,
-        user: {
-            name: 'Sarah Smith',
-            avatar: 'https://i.pravatar.cc/150?u=sarah',
-        },
-        from: 'Tech Hub',
-        to: 'Gimpo (GMP)',
-        date: '2026-01-21',
-        time: '16:00',
-        seats: 4,
-        seatsFilled: 2,
-        price: '100,000₫',
-        status: 'open',
-    },
-    {
-        id: 6,
-        user: {
-            name: 'Michael Chen',
-            avatar: 'https://i.pravatar.cc/150?u=michael',
-        },
-        from: 'Grand Central',
-        to: 'Incheon (ICN)',
-        date: '2026-01-22',
-        time: '09:00',
-        seats: 3,
-        seatsFilled: 0,
-        price: '200,000₫',
-        status: 'open',
-    },
 ];
 
 export default function TaxiSharePage() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const { show, toasts } = useToastStore();
-    const [a, setA] = useState(1);
+    const { show } = useToastStore();
+    const [tripDirection, setTripDirection] = useState<'to-airport' | 'from-airport'>('to-airport');
     const [airport, setAirport] = useState('');
+    const [currentAddress, setCurrentAddress] = useState('');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+    const [seats, setSeats] = useState('1');
+
+    const handleReset = useCallback(() => {
+        setTripDirection('to-airport');
+        setCurrentAddress('');
+        setAirport('');
+        setDate('');
+        setTime('');
+        setSeats('1');
+    }, []);
 
     return (
         <div className="p-8">
@@ -120,12 +102,11 @@ export default function TaxiSharePage() {
                         className="w-full md:w-auto shadow-lg shadow-primary/20"
                         onClick={() => {
                             show({
-                                title: 'Feature Coming Soon! ' + a,
+                                title: 'Feature Coming Soon!',
                                 message: 'The "New Ride" feature is under development.',
                                 type: 'success',
                                 duration: 5000,
                             });
-                            setA(a + 1);
                         }}
                     >
                         <Plus className="h-4 w-4 mr-2" />
@@ -135,47 +116,114 @@ export default function TaxiSharePage() {
 
                 {/* Filters */}
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-border">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div className="relative group">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
-                            <input
-                                type="text"
-                                placeholder="Current Address"
-                                className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+                        {/* Address Search */}
+                        <div className="space-y-1.5 lg:col-span-2">
+                            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                {tripDirection === 'to-airport' ? 'Departure Address' : 'Destination Address'}
+                            </label>
+                            <KakaoAddressSearch
+                                onComplete={(data) => {
+                                    setCurrentAddress(data.fullAddress);
+                                }}
+                                trigger={
+                                    <div className="relative group cursor-pointer">
+                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors z-10" />
+                                        <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium">
+                                            {currentAddress || (
+                                                <span className="text-zinc-400">Search address or use GPS...</span>
+                                            )}
+                                        </div>
+                                        {currentAddress && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setCurrentAddress('');
+                                                }}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 z-20"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                }
                             />
                         </div>
-                        <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
-                            <Select onValueChange={setAirport}>
-                                <SelectTrigger className="pl-10">
-                                    <SelectValue placeholder="Airport Name" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="icn">Incheon (ICN)</SelectItem>
-                                    <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
-                                    <SelectItem value="nrt">Narita (NRT)</SelectItem>
-                                    <SelectItem value="hnd">Haneda (HND)</SelectItem>
-                                </SelectContent>
-                            </Select>
+
+                        {/* Airport Select */}
+                        <div className="space-y-1.5 lg:col-span-1">
+                            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                Airport
+                            </label>
+                            <div className="relative">
+                                <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
+                                <Select value={airport} onValueChange={setAirport}>
+                                    <SelectTrigger className="pl-10 h-11">
+                                        <SelectValue placeholder="Which airport?" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="icn">Incheon (ICN)</SelectItem>
+                                        <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
+                                        <SelectItem value="nrt">Narita (NRT)</SelectItem>
+                                        <SelectItem value="hnd">Haneda (HND)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
-                        <div className="relative group">
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="date"
-                                className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
-                            />
+
+                        {/* Date & Time */}
+                        <div className="space-y-1.5 lg:col-span-2">
+                            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                Schedule
+                            </label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="relative group">
+                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
+                                    <input
+                                        type="date"
+                                        value={date}
+                                        onChange={(e) => setDate(e.target.value)}
+                                        className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all font-medium"
+                                    />
+                                </div>
+                                <div className="relative group">
+                                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
+                                    <input
+                                        type="time"
+                                        value={time}
+                                        onChange={(e) => setTime(e.target.value)}
+                                        className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all font-medium"
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="relative group">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="time"
-                                className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
-                            />
+
+                        {/* Passengers & Search Button */}
+                        <div className="flex items-end gap-2 lg:col-span-1">
+                            <div className="space-y-1.5 flex-1">
+                                <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                    Seats
+                                </label>
+                                <div className="relative">
+                                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
+                                    <Select value={seats} onValueChange={setSeats}>
+                                        <SelectTrigger className="pl-10 h-11">
+                                            <SelectValue placeholder="Seats" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="1">1 Person</SelectItem>
+                                            <SelectItem value="2">2 Persons</SelectItem>
+                                            <SelectItem value="3">3 Persons</SelectItem>
+                                            <SelectItem value="4">4+ Persons</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <Button variant="default" className="h-11 px-6 shadow-lg shadow-primary/20 shrink-0">
+                                <Search className="h-4 w-4" />
+                                <span className="hidden sm:inline ml-2">Search</span>
+                            </Button>
                         </div>
-                        <Button variant="default" className="w-full h-11">
-                            <Search className="h-4 w-4 mr-2" />
-                            Search
-                        </Button>
                     </div>
                 </div>
 
