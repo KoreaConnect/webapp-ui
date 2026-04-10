@@ -121,66 +121,168 @@ export default function TaxiSharePage() {
 
                 {/* Filters */}
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 shadow-sm border border-border space-y-8">
+                    {/* Direction Toggle */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-6">
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">Trip Direction</h3>
+                            <p className="text-xs text-zinc-500">Are you going to or coming from the airport?</p>
+                        </div>
+                        <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl w-full sm:w-auto">
+                            <button
+                                onClick={() => setTripDirection('to-airport')}
+                                className={cn(
+                                    'flex-1 sm:flex-none flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all',
+                                    tripDirection === 'to-airport'
+                                        ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
+                                        : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
+                                )}
+                            >
+                                <Navigation className="h-3.5 w-3.5 mr-2" />
+                                To Airport
+                            </button>
+                            <button
+                                onClick={() => setTripDirection('from-airport')}
+                                className={cn(
+                                    'flex-1 sm:flex-none flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all',
+                                    tripDirection === 'from-airport'
+                                        ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
+                                        : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
+                                )}
+                            >
+                                <RotateCcw className="h-3.5 w-3.5 mr-2" />
+                                From Airport
+                            </button>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                        {/* Address Search */}
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
-                                Your Location
-                            </label>
-                            <KakaoAddressSearch
-                                onComplete={(data) => {
-                                    setCurrentAddress(data.fullAddress);
-                                }}
-                                trigger={
-                                    <div className="relative group cursor-pointer">
-                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors z-10" />
-                                        <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium overflow-hidden">
-                                            <div className="w-full min-w-0">
-                                                {currentAddress ? (
-                                                    <p className="truncate w-full">{currentAddress}</p>
-                                                ) : (
-                                                    <p className="text-zinc-400 truncate w-full">
-                                                        Search address or use GPS...
-                                                    </p>
+                        {tripDirection === 'to-airport' ? (
+                            <>
+                                {/* Address Search (Departure) */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                        Departure Address
+                                    </label>
+                                    <KakaoAddressSearch
+                                        onComplete={(data) => {
+                                            console.log('Selected Address:', data);
+                                            setCurrentAddress(data.fullAddress);
+                                        }}
+                                        trigger={
+                                            <div className="relative group cursor-pointer">
+                                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors z-10" />
+                                                <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium overflow-hidden">
+                                                    <div className="w-full min-w-0">
+                                                        {currentAddress ? (
+                                                            <p className="truncate w-full">{currentAddress}</p>
+                                                        ) : (
+                                                            <p className="text-zinc-400 truncate w-full">
+                                                                Search address or use GPS...
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {currentAddress && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setCurrentAddress('');
+                                                        }}
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 z-20"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </button>
                                                 )}
                                             </div>
-                                        </div>
-                                        {currentAddress && (
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setCurrentAddress('');
-                                                }}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 z-20"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
-                                        )}
-                                    </div>
-                                }
-                            />
-                        </div>
+                                        }
+                                    />
+                                </div>
 
-                        {/* Airport Select */}
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
-                                Airport
-                            </label>
-                            <div className="relative">
-                                <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
-                                <Select value={airport} onValueChange={setAirport}>
-                                    <SelectTrigger className="pl-10 h-11">
-                                        <SelectValue placeholder="Which airport?" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="icn">Incheon (ICN)</SelectItem>
-                                        <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
-                                        <SelectItem value="nrt">Narita (NRT)</SelectItem>
-                                        <SelectItem value="hnd">Haneda (HND)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
+                                {/* Airport Select (Arrival) */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                        Arrival Airport
+                                    </label>
+                                    <div className="relative">
+                                        <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
+                                        <Select value={airport} onValueChange={setAirport}>
+                                            <SelectTrigger className="pl-10 h-11">
+                                                <SelectValue placeholder="Which airport?" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="icn">Incheon (ICN)</SelectItem>
+                                                <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
+                                                <SelectItem value="nrt">Narita (NRT)</SelectItem>
+                                                <SelectItem value="hnd">Haneda (HND)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* Airport Select (Departure) */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                        Departure Airport
+                                    </label>
+                                    <div className="relative">
+                                        <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
+                                        <Select value={airport} onValueChange={setAirport}>
+                                            <SelectTrigger className="pl-10 h-11">
+                                                <SelectValue placeholder="Which airport?" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="icn">Incheon (ICN)</SelectItem>
+                                                <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
+                                                <SelectItem value="nrt">Narita (NRT)</SelectItem>
+                                                <SelectItem value="hnd">Haneda (HND)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
+                                {/* Address Search (Destination) */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                        Destination Address
+                                    </label>
+                                    <KakaoAddressSearch
+                                        onComplete={(data) => {
+                                            console.log('Selected Address:', data);
+                                            setCurrentAddress(data.fullAddress);
+                                        }}
+                                        trigger={
+                                            <div className="relative group cursor-pointer">
+                                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors z-10" />
+                                                <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium overflow-hidden">
+                                                    <div className="w-full min-w-0">
+                                                        {currentAddress ? (
+                                                            <p className="truncate w-full">{currentAddress}</p>
+                                                        ) : (
+                                                            <p className="text-zinc-400 truncate w-full">
+                                                                Search address or use GPS...
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {currentAddress && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setCurrentAddress('');
+                                                        }}
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 z-20"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        }
+                                    />
+                                </div>
+                            </>
+                        )}
 
                         {/* Date */}
                         <div className="space-y-1.5">

@@ -29,4 +29,7 @@ const DialogWrapper = ({ open, onOpenChange, trigger, children }: DialogWrapperP
     );
 };
 
-export { DialogWrapper };
+const DialogTitle = Dialog.Title;
+const DialogDescription = Dialog.Description;
+
+export { DialogWrapper, DialogTitle, DialogDescription };

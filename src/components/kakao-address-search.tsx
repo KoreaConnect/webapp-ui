@@ -7,7 +7,7 @@ import { Loader2, Locate, MapPin, X } from 'lucide-react';
 import DaumPostcodeEmbed, { Address } from 'react-daum-postcode';
 
 import { Button } from '@/components/ui/button';
-import { DialogWrapper } from '@/components/ui/dialog';
+import { DialogDescription, DialogTitle, DialogWrapper } from '@/components/ui/dialog';
 
 import { getAddressFromCoords } from '@/services/kakao.service';
 
@@ -78,6 +78,9 @@ export function KakaoAddressSearch({ onComplete, trigger }: KakaoAddressSearchPr
                             bname: address.address?.region_3depth_name || '',
                             buildingName: address.road_address?.building_name || '',
                             fullAddress: addressName,
+                            ...address,
+                            x: longitude,
+                            y: latitude,
                         } as DaumAddressData);
 
                         show({
@@ -133,6 +136,9 @@ export function KakaoAddressSearch({ onComplete, trigger }: KakaoAddressSearchPr
             trigger={trigger || <Button variant="outline">Search Address</Button>}
         >
             <div className="bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                <DialogTitle className="sr-only">Search Address</DialogTitle>
+                <DialogDescription className="sr-only">Find your location via address or GPS</DialogDescription>
+
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
                     <div className="flex items-center gap-2">
