@@ -20,6 +20,7 @@ import {
 import { KakaoAddressSearch } from '@/components/kakao-address-search';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 
 import { cn } from '@/utils/cn';
 
@@ -78,7 +79,8 @@ export default function TaxiSharePage() {
     const [currentAddress, setCurrentAddress] = useState('');
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
-    const [seats, setSeats] = useState('1');
+    const [maxDistance, setMaxDistance] = useState(5);
+    const [timeTolerance, setTimeTolerance] = useState(30);
 
     const handleReset = useCallback(() => {
         setTripDirection('to-airport');
@@ -86,17 +88,20 @@ export default function TaxiSharePage() {
         setAirport('');
         setDate('');
         setTime('');
-        setSeats('1');
+        setMaxDistance(5);
+        setTimeTolerance(30);
     }, []);
 
     return (
-        <div className="p-8">
+        <div className="p-4 md:p-8">
             <div className="mx-auto w-full space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Airport Ride Sharing</h1>
-                        <p className="text-zinc-500 mt-1">Find people to share a ride with and save costs.</p>
+                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                            Airport Ride Sharing
+                        </h1>
+                        <p className="text-sm text-zinc-500 mt-1">Find people to share a ride with and save costs.</p>
                     </div>
                     <Button
                         className="w-full md:w-auto shadow-lg shadow-primary/20"
@@ -115,12 +120,12 @@ export default function TaxiSharePage() {
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-border">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 shadow-sm border border-border space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                         {/* Address Search */}
-                        <div className="space-y-1.5 lg:col-span-2">
+                        <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
-                                {tripDirection === 'to-airport' ? 'Departure Address' : 'Destination Address'}
+                                Your Location
                             </label>
                             <KakaoAddressSearch
                                 onComplete={(data) => {
@@ -129,10 +134,16 @@ export default function TaxiSharePage() {
                                 trigger={
                                     <div className="relative group cursor-pointer">
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors z-10" />
-                                        <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium">
-                                            {currentAddress || (
-                                                <span className="text-zinc-400">Search address or use GPS...</span>
-                                            )}
+                                        <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium overflow-hidden">
+                                            <div className="w-full min-w-0">
+                                                {currentAddress ? (
+                                                    <p className="truncate w-full">{currentAddress}</p>
+                                                ) : (
+                                                    <p className="text-zinc-400 truncate w-full">
+                                                        Search address or use GPS...
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
                                         {currentAddress && (
                                             <button
@@ -151,7 +162,7 @@ export default function TaxiSharePage() {
                         </div>
 
                         {/* Airport Select */}
-                        <div className="space-y-1.5 lg:col-span-1">
+                        <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
                                 Airport
                             </label>
@@ -171,57 +182,68 @@ export default function TaxiSharePage() {
                             </div>
                         </div>
 
-                        {/* Date & Time */}
-                        <div className="space-y-1.5 lg:col-span-2">
+                        {/* Date */}
+                        <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
-                                Schedule
+                                Date
                             </label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="relative group">
-                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
-                                    <input
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) => setDate(e.target.value)}
-                                        className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all font-medium"
-                                    />
-                                </div>
-                                <div className="relative group">
-                                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
-                                    <input
-                                        type="time"
-                                        value={time}
-                                        onChange={(e) => setTime(e.target.value)}
-                                        className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all font-medium"
-                                    />
-                                </div>
+                            <div className="relative group">
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
+                                <input
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all font-medium"
+                                />
                             </div>
                         </div>
 
-                        {/* Passengers & Search Button */}
-                        <div className="flex items-end gap-2 lg:col-span-1">
-                            <div className="space-y-1.5 flex-1">
-                                <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
-                                    Seats
-                                </label>
-                                <div className="relative">
-                                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 z-10 pointer-events-none" />
-                                    <Select value={seats} onValueChange={setSeats}>
-                                        <SelectTrigger className="pl-10 h-11">
-                                            <SelectValue placeholder="Seats" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="1">1 Person</SelectItem>
-                                            <SelectItem value="2">2 Persons</SelectItem>
-                                            <SelectItem value="3">3 Persons</SelectItem>
-                                            <SelectItem value="4">4+ Persons</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                        {/* Time */}
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+                                Time
+                            </label>
+                            <div className="relative group">
+                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors z-10" />
+                                <input
+                                    type="time"
+                                    value={time}
+                                    onChange={(e) => setTime(e.target.value)}
+                                    className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all font-medium"
+                                />
                             </div>
-                            <Button variant="default" className="h-11 px-6 shadow-lg shadow-primary/20 shrink-0">
-                                <Search className="h-4 w-4" />
-                                <span className="hidden sm:inline ml-2">Search</span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1 w-full">
+                            <Slider
+                                label="Radius (Distance)"
+                                min={1}
+                                max={20}
+                                step={1}
+                                value={maxDistance}
+                                onValueChange={setMaxDistance}
+                                valueLabel={`${maxDistance} km`}
+                            />
+                            <Slider
+                                label="Time Tolerance"
+                                min={5}
+                                max={120}
+                                step={5}
+                                value={timeTolerance}
+                                onValueChange={setTimeTolerance}
+                                valueLabel={`± ${timeTolerance} min`}
+                            />
+                        </div>
+
+                        <div className="shrink-0 w-full lg:w-auto">
+                            <Button
+                                variant="default"
+                                className="h-12 px-10 shadow-lg shadow-primary/20 w-full lg:w-auto text-base font-bold rounded-2xl"
+                            >
+                                <Search className="h-5 w-5 mr-2" />
+                                Search Ride
                             </Button>
                         </div>
                     </div>
