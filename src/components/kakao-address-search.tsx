@@ -11,12 +11,14 @@ import { DialogDescription, DialogTitle, DialogWrapper } from '@/components/ui/d
 
 import { getAddressFromCoords } from '@/services/kakao.service';
 
-interface DaumAddressData {
+export interface DaumAddressData {
     address: string;
     addressType: string;
     bname: string;
     buildingName: string;
     fullAddress: string;
+    x?: string | number;
+    y?: string | number;
     [key: string]: unknown;
 }
 
