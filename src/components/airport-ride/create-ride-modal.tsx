@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { AIRPORTS } from '@/constants/airport';
 import { useToastStore } from '@/store/use-toast-store';
 import { AirportRideDirection } from '@/types/airport-ride.type';
 import { Calendar, Clock, Loader2, MapPin, Navigation, Phone, X } from 'lucide-react';
@@ -202,10 +203,11 @@ export function CreateRideModal({ trigger, onSuccess }: CreateRideModalProps) {
                                         </div>
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="icn">Incheon (ICN)</SelectItem>
-                                        <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
-                                        <SelectItem value="nrt">Narita (NRT)</SelectItem>
-                                        <SelectItem value="hnd">Haneda (HND)</SelectItem>
+                                        {AIRPORTS.map((ap) => (
+                                            <SelectItem key={ap.value} value={ap.value}>
+                                                {ap.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -225,10 +227,11 @@ export function CreateRideModal({ trigger, onSuccess }: CreateRideModalProps) {
                                         </div>
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="icn">Incheon (ICN)</SelectItem>
-                                        <SelectItem value="gmp">Gimpo (GMP)</SelectItem>
-                                        <SelectItem value="nrt">Narita (NRT)</SelectItem>
-                                        <SelectItem value="hnd">Haneda (HND)</SelectItem>
+                                        {AIRPORTS.map((ap) => (
+                                            <SelectItem key={ap.value} value={ap.value}>
+                                                {ap.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
