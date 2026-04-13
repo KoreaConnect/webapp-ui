@@ -7,6 +7,8 @@ import { AirportRide, AirportRideDirection, SearchAirportRideParams } from '@/ty
 
 import { DaumAddressData } from '@/components/kakao-address-search';
 
+import { useDebounce } from '@/hooks/use-debounce';
+
 import { airportRideService } from '@/services/airport-ride.service';
 import { searchLocation } from '@/services/kakao.service';
 
@@ -20,6 +22,9 @@ export function useAirportRides() {
     const [time, setTime] = useState('');
     const [maxDistance, setMaxDistance] = useState(5);
     const [timeTolerance, setTimeTolerance] = useState(30);
+
+    const debouncedMaxDistance = useDebounce(maxDistance, 500);
+    const debouncedTimeTolerance = useDebounce(timeTolerance, 500);
 
     const [rides, setRides] = useState<AirportRide[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +40,7 @@ export function useAirportRides() {
             if (coords) {
                 params.latitude = coords.lat;
                 params.longitude = coords.lng;
-                params.radius_meters = maxDistance * 1000;
+                params.radius_meters = debouncedMaxDistance * 1000;
             }
 
             const response = await airportRideService.searchRides(params);
@@ -52,7 +57,7 @@ export function useAirportRides() {
         } finally {
             setIsLoading(false);
         }
-    }, [airport, tripDirection, coords, maxDistance, show]);
+    }, [airport, tripDirection, coords, debouncedMaxDistance, debouncedTimeTolerance, show]);
 
     useEffect(() => {
         fetchRides();
