@@ -17,7 +17,6 @@ interface RideFilterProps {
     airport: string;
     setAirport: (val: string) => void;
     currentAddress: string;
-    setCurrentAddress: (val: string) => void;
     onAddressComplete: (data: DaumAddressData) => void;
     clearAddress: () => void;
     date: string;
@@ -38,7 +37,6 @@ export function RideFilter({
     airport,
     setAirport,
     currentAddress,
-    setCurrentAddress,
     onAddressComplete,
     clearAddress,
     date,

@@ -61,7 +61,6 @@ export default function TaxiSharePage() {
                     airport={airport}
                     setAirport={setAirport}
                     currentAddress={currentAddress}
-                    setCurrentAddress={setCurrentAddress}
                     onAddressComplete={handleAddressComplete}
                     clearAddress={clearAddress}
                     date={date}

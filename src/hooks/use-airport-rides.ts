@@ -35,12 +35,32 @@ export function useAirportRides() {
             const params: SearchAirportRideParams = {
                 airport: airport.toUpperCase(),
                 direction: tripDirection,
+                status: 'open',
             };
 
             if (coords) {
                 params.latitude = coords.lat;
                 params.longitude = coords.lng;
                 params.radius_meters = debouncedMaxDistance * 1000;
+            }
+
+            if (date && time) {
+                const [year, month, day] = date.split('-').map(Number);
+                const [hours, minutes] = time.split(':').map(Number);
+                const departureDate = new Date(year, month - 1, day, hours, minutes);
+
+                if (!isNaN(departureDate.getTime())) {
+                    const startTime = new Date(departureDate.getTime() - debouncedTimeTolerance * 60000);
+                    const endTime = new Date(departureDate.getTime() + debouncedTimeTolerance * 60000);
+                    params.start_time = startTime.toISOString();
+                    params.end_time = endTime.toISOString();
+                }
+            } else if (date) {
+                const [year, month, day] = date.split('-').map(Number);
+                const startTime = new Date(year, month - 1, day, 0, 0, 0);
+                const endTime = new Date(year, month - 1, day, 23, 59, 59);
+                params.start_time = startTime.toISOString();
+                params.end_time = endTime.toISOString();
             }
 
             const response = await airportRideService.searchRides(params);
@@ -57,7 +77,7 @@ export function useAirportRides() {
         } finally {
             setIsLoading(false);
         }
-    }, [airport, tripDirection, coords, debouncedMaxDistance, debouncedTimeTolerance, show]);
+    }, [airport, tripDirection, coords, debouncedMaxDistance, debouncedTimeTolerance, date, time, show]);
 
     useEffect(() => {
         fetchRides();
