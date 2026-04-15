@@ -46,6 +46,11 @@ export interface SearchAirportRideParams {
     latitude?: number | string;
     longitude?: number | string;
     radius_meters?: number | string;
+    radius?: number | string;
+    address?: string;
+    date?: string;
+    time?: string;
+    time_tolerance?: number | string;
     start_time?: string;
     end_time?: string;
     status?: AirportRideStatus;

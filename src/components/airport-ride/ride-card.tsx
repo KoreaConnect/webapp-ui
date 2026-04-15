@@ -1,9 +1,7 @@
 'use client';
 
-import { useToastStore } from '@/store/use-toast-store';
 import { AirportRide } from '@/types/airport-ride.type';
-import { Calendar, Clock, Users } from 'lucide-react';
-import Image from 'next/image';
+import { Calendar, Clock, MessageSquare, Phone, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -12,16 +10,6 @@ interface RideCardProps {
 }
 
 export function RideCard({ ride }: RideCardProps) {
-    const { show } = useToastStore();
-
-    const handleContactClick = () => {
-        show({
-            title: 'Contact Details',
-            message: ride.description || 'No additional details provided.',
-            type: 'success',
-        });
-    };
-
     const departureDate = new Date(ride.departure_time);
 
     return (
@@ -75,7 +63,7 @@ export function RideCard({ ride }: RideCardProps) {
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-6 text-sm">
+                    <div className="flex flex-wrap gap-4 text-sm">
                         <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 rounded-xl">
                             <Calendar className="h-4 w-4 text-primary" />
                             <span className="font-medium">{departureDate.toLocaleDateString()}</span>
@@ -91,24 +79,40 @@ export function RideCard({ ride }: RideCardProps) {
                         </div>
                         <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800 px-3 py-1.5 rounded-xl">
                             <Users className="h-4 w-4 text-primary" />
-                            <span className="font-medium">{ride.status.toUpperCase()}</span>
+                            <span className="font-medium uppercase">{ride.status}</span>
                         </div>
                     </div>
+
+                    {ride.description && (
+                        <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4 border border-transparent group-hover:border-zinc-100 dark:group-hover:border-zinc-800 transition-all">
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 italic leading-relaxed">
+                                {ride.description}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Action */}
-                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-6 shrink-0 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
-                    <div className="text-left md:text-right">
-                        <div className="text-3xl font-black text-primary tracking-tight">OPEN</div>
-                        <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Status</span>
+                <div className="flex items-center justify-center shrink-0 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
+                    <div className="flex flex-row md:flex-col gap-3">
+                        {ride.phone_number && (
+                            <a href={`tel:${ride.phone_number}`} aria-label="Call provider">
+                                <Button
+                                    variant="outline"
+                                    className="h-10 w-10 p-2! rounded-xl border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600 dark:hover:bg-green-500/20 transition-all"
+                                >
+                                    <Phone className="h-5 w-5" />
+                                </Button>
+                            </a>
+                        )}
+                        <Button
+                            variant="default"
+                            aria-label="Send message"
+                            className="h-10 w-10 p-2! rounded-xl shadow-lg shadow-primary/20 transition-all"
+                        >
+                            <MessageSquare className="h-5 w-5" />
+                        </Button>
                     </div>
-                    <Button
-                        variant="default"
-                        className="rounded-2xl px-6 group-hover:scale-105 transition-transform"
-                        onClick={handleContactClick}
-                    >
-                        Contact
-                    </Button>
                 </div>
             </div>
         </div>

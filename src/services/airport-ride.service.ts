@@ -20,6 +20,11 @@ export const airportRideService = {
         return data;
     },
 
+    async getRide(id: string | number): Promise<AirportRideResponse<AirportRide>> {
+        const { data } = await axios.get<AirportRideResponse<AirportRide>>(`/airport-rides/${id}`);
+        return data;
+    },
+
     async updateStatus(id: number, status: AirportRideStatus): Promise<AirportRideResponse<AirportRide>> {
         const { data } = await axios.patch<AirportRideResponse<AirportRide>>(`/airport-rides/${id}/status`, {
             status,
