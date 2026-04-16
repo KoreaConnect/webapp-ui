@@ -204,6 +204,20 @@ export const deleteMessage = async (messageId: string | number) => {
     }
 };
 
+export const createDirectConversation = async (payload: {
+    type: string;
+    direct_user: string | number;
+    message: string;
+    postId: string | number;
+}) => {
+    try {
+        const response = await instance.post('/conversations', payload);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getMyConversations = async (limit?: number, offset?: number) => {
     try {
         const response = await instance.get('/conversations', {
