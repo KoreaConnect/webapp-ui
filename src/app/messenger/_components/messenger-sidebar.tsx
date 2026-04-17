@@ -66,8 +66,8 @@ export default function MessengerSidebar() {
                                 >
                                     <Avatar
                                         src={conv.thumbnail_url || ''}
-                                        alt={conv.title}
-                                        fallback={conv.title.charAt(0).toUpperCase()}
+                                        alt={conv?.title}
+                                        fallback={conv.title?.charAt(0).toUpperCase()}
                                         size={48}
                                     />
                                     <div className="flex-1 min-w-0">

@@ -3,16 +3,22 @@
 import { useState } from 'react';
 
 import { useToastStore } from '@/store/use-toast-store';
-import { AirportRide } from '@/types/airport-ride.type';
+import { AxiosError } from 'axios';
 import { MessageSquare, Send, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { DialogTitle, DialogWrapper } from '@/components/ui/dialog';
 
+import { createPostConversation } from '@/services/conversation.service';
+
 import { cn } from '@/utils';
 
-interface SendMessageModalProps {
-    ride: AirportRide;
+interface SendPostMessageModalProps {
+    postId: string | number;
+    postType: 'airport_ride' | string;
+    ownerId: number;
+    ownerName: string;
     trigger?: React.ReactNode;
 }
 
@@ -24,23 +30,53 @@ const RECOMMENDED_MESSAGES = [
     "Hi! I'm going to the same airport, can I join?",
 ];
 
-export function SendMessageModal({ ride, trigger }: SendMessageModalProps) {
+export function SendPostMessageModal({ postId, postType, ownerId, ownerName, trigger }: SendPostMessageModalProps) {
     const [message, setMessage] = useState('');
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { show } = useToastStore();
+    const router = useRouter();
 
-    const handleSend = () => {
-        // TODO: Implement actual sending logic when API is available
-        console.log(`Sending message to ${ride.user.name}: ${message}`);
+    const handleSend = async () => {
+        if (!message.trim()) return;
 
-        show({
-            type: 'success',
-            title: 'Message Sent',
-            message: `Your message has been sent to ${ride.user.name}.`,
-        });
+        setIsLoading(true);
+        try {
+            const response = await createPostConversation({
+                post_id: postId,
+                post_type: postType,
+                owner_id: ownerId,
+                message: message.trim(),
+            });
 
-        setIsOpen(false);
-        setMessage('');
+            if (response.success) {
+                const conversation = response.data;
+                show({
+                    type: 'success',
+                    title: 'Message Sent',
+                    message: `Your message has been sent to ${ownerName}.`,
+                });
+                setIsOpen(false);
+                setMessage('');
+                router.push(`/messenger/${conversation.id}`);
+            }
+        } catch (error: unknown) {
+            let errorMessage = 'Something went wrong. Please try again.';
+
+            if (error instanceof AxiosError) {
+                errorMessage = error.response?.data?.error || error.message;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            show({
+                type: 'error',
+                title: 'Failed to send message',
+                message: errorMessage,
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSelectRecommended = (msg: string) => {
@@ -60,9 +96,9 @@ export function SendMessageModal({ ride, trigger }: SendMessageModalProps) {
                 <div className="flex flex-col gap-1">
                     <DialogTitle className="text-xl font-bold flex items-center gap-2">
                         <MessageSquare className="h-5 w-5 text-primary" />
-                        Message {ride.user.name}
+                        Message {ownerName}
                     </DialogTitle>
-                    <p className="text-sm text-zinc-500">Send a message to coordinate your ride sharing.</p>
+                    <p className="text-sm text-zinc-500">Send a message to coordinate.</p>
                 </div>
 
                 <div className="space-y-3">
@@ -91,7 +127,8 @@ export function SendMessageModal({ ride, trigger }: SendMessageModalProps) {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Type your message here..."
-                        className="w-full h-32 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none text-sm"
+                        disabled={isLoading}
+                        className="w-full h-32 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none text-sm disabled:opacity-50"
                     />
                 </div>
 
@@ -99,17 +136,24 @@ export function SendMessageModal({ ride, trigger }: SendMessageModalProps) {
                     <Button
                         variant="ghost"
                         onClick={() => setIsOpen(false)}
+                        disabled={isLoading}
                         className="flex-1 rounded-xl h-12 font-semibold"
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSend}
-                        disabled={!message.trim()}
+                        disabled={!message.trim() || isLoading}
                         className="flex-1 rounded-xl h-12 font-bold gap-2 shadow-lg shadow-primary/20"
                     >
-                        <Send className="h-4 w-4" />
-                        Send Message
+                        {isLoading ? (
+                            'Sending...'
+                        ) : (
+                            <>
+                                <Send className="h-4 w-4" />
+                                Send Message
+                            </>
+                        )}
                     </Button>
                 </div>
             </div>

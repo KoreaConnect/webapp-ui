@@ -204,6 +204,22 @@ export const deleteMessage = async (messageId: string | number) => {
     }
 };
 
+export interface CreatePostConversationRequest {
+    post_id: string | number;
+    post_type: 'airport_ride' | string;
+    owner_id: number;
+    message: string;
+}
+
+export const createPostConversation = async (payload: CreatePostConversationRequest) => {
+    try {
+        const response = await instance.post('/conversations/post', payload);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const createDirectConversation = async (payload: {
     type: string;
     direct_user: string | number;

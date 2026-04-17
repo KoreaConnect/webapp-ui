@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 
-import { SendMessageModal } from './send-message-modal';
+import { SendPostMessageModal } from '../chat/send-post-message-modal';
 
 interface RideCardProps {
     ride: AirportRide;
@@ -119,8 +119,11 @@ export function RideCard({ ride }: RideCardProps) {
                                 </Button>
                             </a>
                         )}
-                        <SendMessageModal
-                            ride={ride}
+                        <SendPostMessageModal
+                            postId={ride.id}
+                            postType="airport_ride"
+                            ownerId={ride.user_id}
+                            ownerName={ride.user.name}
                             trigger={
                                 <Button
                                     variant="default"

@@ -6,7 +6,7 @@ import { Calendar, Clock, MapPin, MessageSquare, Phone, Share2, Shield, Users } 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
-import { SendMessageModal } from './send-message-modal';
+import { SendPostMessageModal } from '../chat/send-post-message-modal';
 
 interface RideDetailProps {
     ride: AirportRide;
@@ -45,8 +45,11 @@ export function RideDetail({ ride }: RideDetailProps) {
                             <Share2 className="h-4 w-4" />
                             Share
                         </Button>
-                        <SendMessageModal
-                            ride={ride}
+                        <SendPostMessageModal
+                            postId={ride.id}
+                            postType="airport_ride"
+                            ownerId={ride.user_id}
+                            ownerName={ride.user.name}
                             trigger={
                                 <Button className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20">
                                     <MessageSquare className="h-4 w-4 fill-white" />
@@ -211,8 +214,11 @@ export function RideDetail({ ride }: RideDetailProps) {
                                 </Button>
                             </a>
                         )}
-                        <SendMessageModal
-                            ride={ride}
+                        <SendPostMessageModal
+                            postId={ride.id}
+                            postType="airport_ride"
+                            ownerId={ride.user_id}
+                            ownerName={ride.user.name}
                             trigger={
                                 <Button className="flex-1 md:flex-initial h-14 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-200 gap-3 font-black px-8 transition-all">
                                     <MessageSquare className="h-5 w-5" />
