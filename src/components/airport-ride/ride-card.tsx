@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuthStore } from '@/store/use-auth-store';
 import { AirportRide } from '@/types/airport-ride.type';
 import { Calendar, Clock, MessageSquare, Phone, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +15,10 @@ interface RideCardProps {
 
 export function RideCard({ ride }: RideCardProps) {
     const router = useRouter();
+    const user = useAuthStore((state) => state.user);
     const departureDate = new Date(ride.departure_time);
+
+    const isOwner = user?.id && Number(user.id) === ride.user_id;
 
     const handleCardClick = () => {
         router.push(`/c/airport-ride-sharing/${ride.id}`);
@@ -104,38 +108,40 @@ export function RideCard({ ride }: RideCardProps) {
                 </div>
 
                 {/* Action */}
-                <div
-                    className="flex items-center justify-center shrink-0 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="flex flex-row md:flex-col gap-3">
-                        {ride.phone_number && (
-                            <a href={`tel:${ride.phone_number}`} aria-label="Call provider">
-                                <Button
-                                    variant="outline"
-                                    className="h-10 w-10 p-2! rounded-xl border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600 dark:hover:bg-green-500/20 transition-all"
-                                >
-                                    <Phone className="h-5 w-5" />
-                                </Button>
-                            </a>
-                        )}
-                        <SendPostMessageModal
-                            postId={ride.id}
-                            postType="airport_ride"
-                            ownerId={ride.user_id}
-                            ownerName={ride.user.name}
-                            trigger={
-                                <Button
-                                    variant="default"
-                                    aria-label="Send message"
-                                    className="h-10 w-10 p-2! rounded-xl shadow-lg shadow-primary/20 transition-all"
-                                >
-                                    <MessageSquare className="h-5 w-5" />
-                                </Button>
-                            }
-                        />
+                {!isOwner && (
+                    <div
+                        className="flex items-center justify-center shrink-0 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex flex-row md:flex-col gap-3">
+                            {ride.phone_number && (
+                                <a href={`tel:${ride.phone_number}`} aria-label="Call provider">
+                                    <Button
+                                        variant="outline"
+                                        className="h-10 w-10 p-2! rounded-xl border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600 dark:hover:bg-green-500/20 transition-all"
+                                    >
+                                        <Phone className="h-5 w-5" />
+                                    </Button>
+                                </a>
+                            )}
+                            <SendPostMessageModal
+                                postId={ride.id}
+                                postType="airport_ride"
+                                ownerId={ride.user_id}
+                                ownerName={ride.user.name}
+                                trigger={
+                                    <Button
+                                        variant="default"
+                                        aria-label="Send message"
+                                        className="h-10 w-10 p-2! rounded-xl shadow-lg shadow-primary/20 transition-all"
+                                    >
+                                        <MessageSquare className="h-5 w-5" />
+                                    </Button>
+                                }
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

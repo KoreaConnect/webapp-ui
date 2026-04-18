@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuthStore } from '@/store/use-auth-store';
 import { AirportRide } from '@/types/airport-ride.type';
 import { Calendar, Clock, MapPin, MessageSquare, Phone, Share2, Shield, Users } from 'lucide-react';
 
@@ -13,7 +14,10 @@ interface RideDetailProps {
 }
 
 export function RideDetail({ ride }: RideDetailProps) {
+    const user = useAuthStore((state) => state.user);
     const departureDate = new Date(ride.departure_time);
+
+    const isOwner = user?.id && Number(user.id) === ride.user_id;
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 shadow-sm border border-border">
@@ -45,18 +49,20 @@ export function RideDetail({ ride }: RideDetailProps) {
                             <Share2 className="h-4 w-4" />
                             Share
                         </Button>
-                        <SendPostMessageModal
-                            postId={ride.id}
-                            postType="airport_ride"
-                            ownerId={ride.user_id}
-                            ownerName={ride.user.name}
-                            trigger={
-                                <Button className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20">
-                                    <MessageSquare className="h-4 w-4 fill-white" />
-                                    Message
-                                </Button>
-                            }
-                        />
+                        {!isOwner && (
+                            <SendPostMessageModal
+                                postId={ride.id}
+                                postType="airport_ride"
+                                ownerId={ride.user_id}
+                                ownerName={ride.user.name}
+                                trigger={
+                                    <Button className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20">
+                                        <MessageSquare className="h-4 w-4 fill-white" />
+                                        Message
+                                    </Button>
+                                }
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -195,39 +201,41 @@ export function RideDetail({ ride }: RideDetailProps) {
                 </div>
 
                 {/* Contact Footer Section */}
-                <div className="bg-zinc-900 dark:bg-zinc-800 rounded-[2rem] p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-2xl">
-                    <div className="flex flex-col">
-                        <h4 className="text-white font-bold text-lg">Interested in this ride?</h4>
-                        <p className="text-zinc-400 text-sm mt-1 font-medium">
-                            Get in touch with the provider to book your spot.
-                        </p>
+                {!isOwner && (
+                    <div className="bg-zinc-900 dark:bg-zinc-800 rounded-[2rem] p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-2xl">
+                        <div className="flex flex-col">
+                            <h4 className="text-white font-bold text-lg">Interested in this ride?</h4>
+                            <p className="text-zinc-400 text-sm mt-1 font-medium">
+                                Get in touch with the provider to book your spot.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {ride.phone_number && (
+                                <a href={`tel:${ride.phone_number}`} className="flex-1 md:flex-initial">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full h-14 rounded-2xl border-white/20 text-white hover:bg-white/10 hover:text-white gap-3 font-bold px-8 transition-all"
+                                    >
+                                        <Phone className="h-5 w-5" />
+                                        Call Provider
+                                    </Button>
+                                </a>
+                            )}
+                            <SendPostMessageModal
+                                postId={ride.id}
+                                postType="airport_ride"
+                                ownerId={ride.user_id}
+                                ownerName={ride.user.name}
+                                trigger={
+                                    <Button className="flex-1 md:flex-initial h-14 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-200 gap-3 font-black px-8 transition-all">
+                                        <MessageSquare className="h-5 w-5" />
+                                        Message Now
+                                    </Button>
+                                }
+                            />
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        {ride.phone_number && (
-                            <a href={`tel:${ride.phone_number}`} className="flex-1 md:flex-initial">
-                                <Button
-                                    variant="outline"
-                                    className="w-full h-14 rounded-2xl border-white/20 text-white hover:bg-white/10 hover:text-white gap-3 font-bold px-8 transition-all"
-                                >
-                                    <Phone className="h-5 w-5" />
-                                    Call Provider
-                                </Button>
-                            </a>
-                        )}
-                        <SendPostMessageModal
-                            postId={ride.id}
-                            postType="airport_ride"
-                            ownerId={ride.user_id}
-                            ownerName={ride.user.name}
-                            trigger={
-                                <Button className="flex-1 md:flex-initial h-14 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-200 gap-3 font-black px-8 transition-all">
-                                    <MessageSquare className="h-5 w-5" />
-                                    Message Now
-                                </Button>
-                            }
-                        />
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
