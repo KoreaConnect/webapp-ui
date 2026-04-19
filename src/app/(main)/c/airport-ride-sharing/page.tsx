@@ -30,6 +30,7 @@ export default function TaxiSharePage() {
         fetchRides,
         handleAddressComplete,
         clearAddress,
+        resetFilters,
     } = useAirportRides();
 
     return (
@@ -72,6 +73,7 @@ export default function TaxiSharePage() {
                     timeTolerance={timeTolerance}
                     setTimeTolerance={setTimeTolerance}
                     onSearch={fetchRides}
+                    onReset={resetFilters}
                     isLoading={isLoading}
                 />
 

@@ -28,6 +28,7 @@ interface RideFilterProps {
     timeTolerance: number;
     setTimeTolerance: (val: number) => void;
     onSearch: () => void;
+    onReset: () => void;
     isLoading: boolean;
 }
 
@@ -48,6 +49,7 @@ export function RideFilter({
     timeTolerance,
     setTimeTolerance,
     onSearch,
+    onReset,
     isLoading,
 }: RideFilterProps) {
     return (
@@ -148,7 +150,7 @@ export function RideFilter({
                     />
                 </div>
 
-                <div className="shrink-0 w-full lg:w-auto">
+                <div className="shrink-0 w-full lg:w-auto flex flex-col flex-row gap-3">
                     <Button
                         variant="default"
                         className="h-12 px-10 shadow-lg shadow-primary/20 w-full lg:w-auto text-base font-bold rounded-2xl"
@@ -161,6 +163,15 @@ export function RideFilter({
                             <Search className="h-5 w-5 mr-2" />
                         )}
                         Search Ride
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="h-12 px-6 font-bold rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        onClick={onReset}
+                        disabled={isLoading}
+                    >
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Reset
                     </Button>
                 </div>
             </div>

@@ -7,8 +7,6 @@ import { AirportRide, AirportRideDirection, SearchAirportRideParams } from '@/ty
 
 import { DaumAddressData } from '@/components/kakao-address-search';
 
-import { useDebounce } from '@/hooks/use-debounce';
-
 import { airportRideService } from '@/services/airport-ride.service';
 import { searchLocation } from '@/services/kakao.service';
 
@@ -22,9 +20,6 @@ export function useAirportRides() {
     const [time, setTime] = useState('');
     const [maxDistance, setMaxDistance] = useState(5);
     const [timeTolerance, setTimeTolerance] = useState(30);
-
-    const debouncedMaxDistance = useDebounce(maxDistance, 500);
-    const debouncedTimeTolerance = useDebounce(timeTolerance, 500);
 
     const [rides, setRides] = useState<AirportRide[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -45,8 +40,8 @@ export function useAirportRides() {
             if (coords) {
                 params.latitude = coords.lat;
                 params.longitude = coords.lng;
-                params.radius = debouncedMaxDistance * 1000;
-                params.radius_meters = debouncedMaxDistance * 1000;
+                params.radius = maxDistance * 1000;
+                params.radius_meters = maxDistance * 1000;
             }
 
             if (date) {
@@ -55,7 +50,7 @@ export function useAirportRides() {
 
             if (time) {
                 params.time = time;
-                params.time_tolerance = debouncedTimeTolerance;
+                params.time_tolerance = timeTolerance;
             }
 
             const response = await airportRideService.searchRides(params);
@@ -72,21 +67,12 @@ export function useAirportRides() {
         } finally {
             setIsLoading(false);
         }
-    }, [
-        airport,
-        tripDirection,
-        coords,
-        debouncedMaxDistance,
-        debouncedTimeTolerance,
-        date,
-        time,
-        currentAddress,
-        show,
-    ]);
+    }, [airport, tripDirection, coords, maxDistance, timeTolerance, date, time, currentAddress, show]);
 
     useEffect(() => {
         fetchRides();
-    }, [fetchRides]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleAddressComplete = async (data: DaumAddressData) => {
         setCurrentAddress(data.fullAddress);
@@ -111,6 +97,17 @@ export function useAirportRides() {
         setCoords(null);
     };
 
+    const resetFilters = useCallback(() => {
+        setTripDirection('to_airport');
+        setAirport('icn');
+        setCurrentAddress('');
+        setCoords(null);
+        setDate('');
+        setTime('');
+        setMaxDistance(5);
+        setTimeTolerance(30);
+    }, []);
+
     return {
         tripDirection,
         setTripDirection,
@@ -131,5 +128,6 @@ export function useAirportRides() {
         fetchRides,
         handleAddressComplete,
         clearAddress,
+        resetFilters,
     };
 }

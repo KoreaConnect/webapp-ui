@@ -68,7 +68,15 @@ export function CreateRideModal({ trigger, onSuccess }: CreateRideModalProps) {
         setIsLoading(true);
         try {
             const departureTime = new Date(`${date}T${time}`).toISOString();
+            const airportLabel = AIRPORTS.find((ap) => ap.value === airport)?.label || airport.toUpperCase();
+            const directionLabel = direction === 'to_airport' ? 'To Airport' : 'From Airport';
+            const rideName =
+                direction === 'to_airport'
+                    ? `[${directionLabel}] ${address} → ${airportLabel}`
+                    : `[${directionLabel}] ${airportLabel} → ${address}`;
+
             const response = await airportRideService.createRide({
+                name: rideName,
                 airport: airport.toUpperCase(),
                 direction,
                 from_address: address,

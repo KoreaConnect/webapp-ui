@@ -4,10 +4,10 @@ import { useAuthStore } from '@/store/use-auth-store';
 import { AirportRide } from '@/types/airport-ride.type';
 import { Calendar, Clock, MapPin, MessageSquare, Phone, Share2, Shield, Users } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 import { SendPostMessageModal } from '../chat/send-post-message-modal';
+import Avatar from '../ui/avatar';
 
 interface RideDetailProps {
     ride: AirportRide;
@@ -25,14 +25,11 @@ export function RideDetail({ ride }: RideDetailProps) {
                 {/* User Info Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border pb-8">
                     <div className="flex items-center gap-5">
-                        <Avatar className="h-16 w-16 border-2 border-white dark:border-zinc-800 shadow-sm rounded-2xl">
-                            <AvatarImage
-                                src={ride.user.picture || `https://i.pravatar.cc/150?u=${ride.user.username}`}
-                            />
-                            <AvatarFallback className="rounded-2xl">
-                                {ride.user.name.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
+                        <Avatar
+                            className="h-16 w-16 border-2 border-white dark:border-zinc-800 shadow-sm rounded-2xl"
+                            src={ride.user.picture || `https://i.pravatar.cc/150?u=${ride.user.username}`}
+                            fallback={ride.user.name.slice(0, 2).toUpperCase()}
+                        ></Avatar>
                         <div className="flex flex-col">
                             <h2 className="text-xl font-bold text-foreground">{ride.user.name}</h2>
                             <p className="text-sm text-zinc-500 font-medium">@{ride.user.username}</p>

@@ -12,6 +12,7 @@ export interface AirportRideUser {
 export interface AirportRide {
     id: number;
     user_id: number;
+    name: string;
     airport: string;
     direction: AirportRideDirection;
     from_address: string;
@@ -28,6 +29,7 @@ export interface AirportRide {
 }
 
 export interface CreateAirportRideDto {
+    name: string;
     airport: string;
     direction: AirportRideDirection;
     from_address: string;
