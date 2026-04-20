@@ -75,6 +75,15 @@ button {
     cursor: pointer;
 }
 
+/* Scrollbar utilities */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 /* Tippy Mention Theme */
 .tippy-box[data-theme~='mention'] {
     @apply bg-white dark:bg-zinc-800   rounded-md shadow-lg;

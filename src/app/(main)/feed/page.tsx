@@ -1,22 +1,212 @@
-import { KakaoTest } from '@/components/kakao-test';
+'use client';
+
+import React, { useState } from 'react';
+
+import { Flame, Heart, MessageCircle, MoreHorizontal, Plus, Share2, Star, Zap } from 'lucide-react';
+import Image from 'next/image';
+
+import Avatar from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { DialogWrapper } from '@/components/ui/dialog';
 import { ScrollableView } from '@/components/ui/scrollable-view';
+import WritePostDialogContent from '@/components/write-post-modal';
 
-const img =
-    'data:image/jpeg;base64,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';
-export default function FeedPage() {
-    return (
-        <ScrollableView className="px-4 pb-12">
-            <h1 className="text-2xl font-bold mb-4">Feed Page</h1>
-            <p>Welcome to the feed page!</p>
-            <KakaoTest />
+// --- Mock Data ---
 
-            {[1, 2, 3, 4, 5].map((item) => (
-                <div key={item} className="mb-4 p-4 border rounded">
-                    <h2 className="text-xl font-semibold mb-2">Feed Item {item}</h2>
-                    <p>This is the content of feed item {item}.</p>
-                    <img src={img} alt={`Feed Item ${item}`} className="mt-2 max-w-full h-auto" />
+const USEFUL_THREADS = [
+    {
+        id: 1,
+        title: 'How to find cheap flights to Korea',
+        author: { name: 'TravelPro', avatar: 'https://i.pravatar.cc/150?u=1', username: 'travelpro' },
+        category: 'Travel',
+        likes: 120,
+        icon: <Flame className="w-4 h-4 text-orange-500" />,
+    },
+    {
+        id: 2,
+        title: 'Top 10 restaurants in Seoul',
+        author: { name: 'Foodie', avatar: 'https://i.pravatar.cc/150?u=2', username: 'foodie' },
+        category: 'Food',
+        likes: 85,
+        icon: <Star className="w-4 h-4 text-yellow-500" />,
+    },
+    {
+        id: 3,
+        title: 'Visa application guide 2024',
+        author: { name: 'GlobalNomad', avatar: 'https://i.pravatar.cc/150?u=3', username: 'nomad' },
+        category: 'Guide',
+        likes: 240,
+        icon: <Zap className="w-4 h-4 text-blue-500" />,
+    },
+    {
+        id: 4,
+        title: 'Best co-working spaces in Gangnam',
+        author: { name: 'WorkAnywhere', avatar: 'https://i.pravatar.cc/150?u=4', username: 'work' },
+        category: 'Lifestyle',
+        likes: 67,
+        icon: <Flame className="w-4 h-4 text-orange-500" />,
+    },
+];
+
+const NORMAL_THREADS = [
+    {
+        id: 1,
+        author: { name: 'Kim Min-su', avatar: 'https://i.pravatar.cc/150?u=10', username: 'minsu_k' },
+        content:
+            'Just arrived in Incheon! The weather is amazing today. Anyone up for a coffee in Hongdae later? ☕️ #Seoul #Travel',
+        image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=1000&auto=format&fit=crop',
+        likes: 24,
+        comments: 5,
+        time: '2h ago',
+    },
+    {
+        id: 2,
+        author: { name: 'Sarah Wilson', avatar: 'https://i.pravatar.cc/150?u=11', username: 'sarah_w' },
+        content: 'Does anyone know the best way to get to Busan from Seoul? Should I take the KTX or a bus?',
+        likes: 12,
+        comments: 18,
+        time: '4h ago',
+    },
+    {
+        id: 3,
+        author: { name: 'Park Ji-won', avatar: 'https://i.pravatar.cc/150?u=12', username: 'jiwon_p' },
+        content: 'Finally tried the famous Gwangjang Market street food. The bindaetteok was 10/10! 🥞',
+        image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=1000&auto=format&fit=crop',
+        likes: 56,
+        comments: 12,
+        time: '6h ago',
+    },
+];
+
+// --- Sub-components ---
+
+const UsefulThreadCard = ({ thread }: { thread: (typeof USEFUL_THREADS)[0] }) => (
+    <div className="flex-shrink-0 w-64 p-4 mr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+        <div className="flex items-center gap-2 mb-3">
+            <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">{thread.icon}</div>
+            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{thread.category}</span>
+        </div>
+        <h3 className="font-bold text-zinc-900 dark:text-zinc-100 mb-4 line-clamp-2 h-12 leading-tight">
+            {thread.title}
+        </h3>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <Avatar src={thread.author.avatar} size="xs" />
+                <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">@{thread.author.username}</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-zinc-500">
+                <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                <span>{thread.likes}</span>
+            </div>
+        </div>
+    </div>
+);
+
+const ThreadCard = ({ thread }: { thread: (typeof NORMAL_THREADS)[0] }) => (
+    <div className="p-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors cursor-pointer group">
+        <div className="flex gap-3">
+            <Avatar src={thread.author.avatar} size="md" />
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                            {thread.author.name}
+                        </span>
+                        <span className="text-sm text-zinc-500 truncate">@{thread.author.username}</span>
+                        <span className="text-xs text-zinc-400">• {thread.time}</span>
+                    </div>
+                    <button className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                        <MoreHorizontal className="w-5 h-5 text-zinc-400" />
+                    </button>
                 </div>
-            ))}
+
+                <p className="text-zinc-800 dark:text-zinc-200 text-[15px] leading-normal mb-3 whitespace-pre-wrap">
+                    {thread.content}
+                </p>
+
+                {thread.image && (
+                    <div className="mb-3 rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 relative aspect-video">
+                        <Image src={thread.image} alt="Thread image" fill className="object-cover" unoptimized />
+                    </div>
+                )}
+
+                <div className="flex items-center gap-6 text-zinc-500">
+                    <button className="flex items-center gap-1.5 hover:text-rose-500 transition-colors group/btn">
+                        <div className="p-2 group-hover/btn:bg-rose-50 dark:group-hover/btn:bg-rose-500/10 rounded-full">
+                            <Heart className="w-5 h-5" />
+                        </div>
+                        <span className="text-sm">{thread.likes}</span>
+                    </button>
+                    <button className="flex items-center gap-1.5 hover:text-blue-500 transition-colors group/btn">
+                        <div className="p-2 group-hover/btn:bg-blue-50 dark:group-hover/btn:bg-blue-500/10 rounded-full">
+                            <MessageCircle className="w-5 h-5" />
+                        </div>
+                        <span className="text-sm">{thread.comments}</span>
+                    </button>
+                    <button className="flex items-center gap-1.5 hover:text-green-500 transition-colors group/btn">
+                        <div className="p-2 group-hover/btn:bg-green-50 dark:group-hover/btn:bg-green-500/10 rounded-full">
+                            <Share2 className="w-5 h-5" />
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// --- Main Page Component ---
+
+export default function FeedPage() {
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+    const handlePostTypeSelect = (id: string) => {
+        console.log('Selected post type:', id);
+        setIsPostModalOpen(false);
+        // Navigate to create post page or open another modal based on type
+    };
+
+    return (
+        <ScrollableView className="bg-white dark:bg-zinc-950">
+            {/* Header */}
+            <div className="sticky top-0 z-10 w-full bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800">
+                <div className="max-w-2xl mx-auto flex items-center justify-between p-4">
+                    <h1 className="text-xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">Feed</h1>
+                    <DialogWrapper
+                        open={isPostModalOpen}
+                        onOpenChange={setIsPostModalOpen}
+                        trigger={
+                            <Button className="rounded-full shadow-lg shadow-primary/20 flex items-center gap-2">
+                                <Plus className="w-4 h-4" />
+                                <span className="font-bold">Post</span>
+                            </Button>
+                        }
+                    >
+                        <WritePostDialogContent onSelect={handlePostTypeSelect} />
+                    </DialogWrapper>
+                </div>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+                {/* Useful Threads Section */}
+                <div className="py-6 border-b border-zinc-100 dark:border-zinc-800">
+                    <div className="px-4 mb-4 flex items-center justify-between">
+                        <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400">Useful Threads</h2>
+                        <button className="text-xs font-bold text-primary hover:underline">View All</button>
+                    </div>
+                    <div className="flex overflow-x-auto px-4 no-scrollbar pb-2">
+                        {USEFUL_THREADS.map((thread) => (
+                            <UsefulThreadCard key={thread.id} thread={thread} />
+                        ))}
+                    </div>
+                </div>
+
+                {/* Normal Threads Section */}
+                <div className="pb-20">
+                    {NORMAL_THREADS.map((thread) => (
+                        <ThreadCard key={thread.id} thread={thread} />
+                    ))}
+                </div>
+            </div>
         </ScrollableView>
     );
 }
