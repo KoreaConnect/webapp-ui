@@ -105,26 +105,6 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         }
     }, [isFetchingMore]);
 
-    // Socket listeners
-    useSocketListener<{ user_id: string | number }>('user:online', (data) => {
-        const { updateMemberStatus } = useCurrentConversationStore.getState();
-        updateMemberStatus(data.user_id, true);
-    });
-
-    useSocketListener<{ user_id: string | number }>('user:offline', (data) => {
-        const { updateMemberStatus } = useCurrentConversationStore.getState();
-        updateMemberStatus(data.user_id, false);
-    });
-
-    useSocketListener<{ conversation_id: string | number; online_count: number }>(
-        'conversation:online_count_update',
-        (data) => {
-            if (data.conversation_id.toString() !== conversation?.id.toString()) return;
-            const { setOnlineCount } = useCurrentConversationStore.getState();
-            setOnlineCount(data.online_count);
-        },
-    );
-
     useSocketListener<RawMessage>('chat:new_message', (data) => {
         if (data.conversation_id.toString() !== conversation?.id.toString()) return;
         if (hasMoreAfter) return;
@@ -175,6 +155,7 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
 
     // Fetch conversation
     useEffect(() => {
+        console.log({ conversationId, conversationSlug });
         if (conversationId || conversationSlug) {
             clearMessages();
             closeReplyBox();

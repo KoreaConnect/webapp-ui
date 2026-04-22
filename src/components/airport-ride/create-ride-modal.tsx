@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AIRPORTS } from '@/constants/airport';
 import { useToastStore } from '@/store/use-toast-store';
 import { AirportRideDirection } from '@/types/airport-ride.type';
+import { Close } from '@radix-ui/react-dialog';
 import { Calendar, Clock, Loader2, MapPin, Navigation, Phone, X } from 'lucide-react';
 
 import { DaumAddressData, KakaoAddressSearch } from '@/components/kakao-address-search';
@@ -16,6 +17,8 @@ import { airportRideService } from '@/services/airport-ride.service';
 import { searchLocation } from '@/services/kakao.service';
 
 import { cn } from '@/utils/cn';
+
+import CloseButton from '../ui/close-button';
 
 interface CreateRideModalProps {
     trigger: React.ReactNode;
@@ -127,12 +130,7 @@ export function CreateRideModal({ trigger, onSuccess }: CreateRideModalProps) {
                             <p className="text-xs text-zinc-500 font-medium">Share your journey with others</p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setOpen(false)}
-                        className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl text-zinc-400 hover:text-zinc-600 transition-colors"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
+                    <CloseButton onClick={() => setOpen(false)} />
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">

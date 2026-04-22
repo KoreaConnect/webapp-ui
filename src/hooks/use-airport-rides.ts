@@ -72,7 +72,7 @@ export function useAirportRides() {
     useEffect(() => {
         fetchRides();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [tripDirection, airport]);
 
     const handleAddressComplete = async (data: DaumAddressData) => {
         setCurrentAddress(data.fullAddress);
