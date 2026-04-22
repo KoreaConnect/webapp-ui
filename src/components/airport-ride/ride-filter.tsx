@@ -1,6 +1,7 @@
 'use client';
 
 import { AIRPORTS } from '@/constants/airport';
+import { useToastStore } from '@/store/use-toast-store';
 import { AirportRideDirection } from '@/types/airport-ride.type';
 import { Calendar, Clock, Loader2, MapPin, Navigation, RotateCcw, Search, X } from 'lucide-react';
 
@@ -52,6 +53,42 @@ export function RideFilter({
     onReset,
     isLoading,
 }: RideFilterProps) {
+    const { show } = useToastStore();
+
+    const handleSearch = () => {
+        if (!date) {
+            show({
+                title: 'Validation Error',
+                message: 'Please select a date for your trip.',
+                type: 'error',
+            });
+            return;
+        }
+
+        if (!currentAddress) {
+            show({
+                title: 'Validation Error',
+                message:
+                    tripDirection === 'to_airport'
+                        ? 'Please enter a departure address.'
+                        : 'Please enter a destination address.',
+                type: 'error',
+            });
+            return;
+        }
+
+        if (!airport) {
+            show({
+                title: 'Validation Error',
+                message: 'Please select an airport.',
+                type: 'error',
+            });
+            return;
+        }
+
+        onSearch();
+    };
+
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 shadow-sm border border-border space-y-8">
             {/* Direction Toggle */}
@@ -60,11 +97,11 @@ export function RideFilter({
                     <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">Trip Direction</h3>
                     <p className="text-xs text-zinc-500">Are you going to or coming from the airport?</p>
                 </div>
-                <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl w-full sm:w-auto">
+                <div className="flex flex-wrap p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl w-full sm:w-auto">
                     <button
                         onClick={() => setTripDirection('to_airport')}
                         className={cn(
-                            'flex-1 sm:flex-none flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all',
+                            'flex-1 min-w-40 flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-normal wrap-break-word',
                             tripDirection === 'to_airport'
                                 ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
                                 : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
@@ -76,7 +113,7 @@ export function RideFilter({
                     <button
                         onClick={() => setTripDirection('from_airport')}
                         className={cn(
-                            'flex-1 sm:flex-none flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all',
+                            'flex-1 min-w-40 flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-normal wrap-break-word',
                             tripDirection === 'from_airport'
                                 ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
                                 : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
@@ -154,7 +191,7 @@ export function RideFilter({
                     <Button
                         variant="default"
                         className="h-12 px-10 shadow-lg shadow-primary/20 w-full lg:w-auto text-base font-bold rounded-2xl"
-                        onClick={onSearch}
+                        onClick={handleSearch}
                         disabled={isLoading}
                     >
                         {isLoading ? (
@@ -198,7 +235,7 @@ function LocationInputs({
 
     const addressSearch = (
         <div className="space-y-1.5">
-            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1 whitespace-nowrap">
                 {isToAirport ? 'Departure Address' : 'Destination Address'}
             </label>
             <KakaoAddressSearch
@@ -234,7 +271,7 @@ function LocationInputs({
 
     const airportSelect = (
         <div className="space-y-1.5">
-            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1">
+            <label className="text-[11px] font-black text-zinc-400 uppercase tracking-widest px-1 whitespace-nowrap">
                 {isToAirport ? 'Arrival Airport' : 'Departure Airport'}
             </label>
             <div className="relative">

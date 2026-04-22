@@ -43,7 +43,7 @@ export function Slider({
                         <span className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">{label}</span>
                     )}
                     {valueLabel && (
-                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg">
+                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg whitespace-nowrap">
                             {valueLabel}
                         </span>
                     )}
