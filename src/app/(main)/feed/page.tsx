@@ -193,11 +193,13 @@ export default function FeedPage() {
                         <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400">Useful Threads</h2>
                         <button className="text-xs font-bold text-primary hover:underline">View All</button>
                     </div>
-                    <div className="flex overflow-x-auto px-4 no-scrollbar pb-2">
-                        {USEFUL_THREADS.map((thread) => (
-                            <UsefulThreadCard key={thread.id} thread={thread} />
-                        ))}
-                    </div>
+                    <ScrollableView horizontal vertical={false}>
+                        <div className="flex px-4 pb-2">
+                            {USEFUL_THREADS.map((thread) => (
+                                <UsefulThreadCard key={thread.id} thread={thread} />
+                            ))}
+                        </div>
+                    </ScrollableView>
                 </div>
 
                 {/* Normal Threads Section */}
