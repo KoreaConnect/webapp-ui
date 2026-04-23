@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { FileText, Loader2 } from 'lucide-react';
 
@@ -7,6 +9,12 @@ import { formatDate, formatFileSize } from '@/utils';
 
 export function FileList() {
     const { conversation, files, isFilesLoading, hasMoreFiles, fetchAttachments } = useCurrentConversationStore();
+
+    useEffect(() => {
+        if (conversation?.id && files.length === 0 && !isFilesLoading) {
+            fetchAttachments(conversation.id, 'file');
+        }
+    }, [conversation?.id, files.length, isFilesLoading, fetchAttachments]);
 
     if (!conversation) return null;
 

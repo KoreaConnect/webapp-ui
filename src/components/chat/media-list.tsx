@@ -1,10 +1,18 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { Loader2 } from 'lucide-react';
 
 export function MediaList() {
     const { conversation, media, isMediaLoading, hasMoreMedia, fetchAttachments } = useCurrentConversationStore();
+
+    useEffect(() => {
+        if (conversation?.id && media.length === 0 && !isMediaLoading) {
+            fetchAttachments(conversation.id, 'image');
+        }
+    }, [conversation?.id, media.length, isMediaLoading, fetchAttachments]);
 
     if (!conversation) return null;
 

@@ -86,7 +86,15 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
             conversation: state.conversation?.id === id ? { ...state.conversation, ...updates } : state.conversation,
         })),
     fetchConversationBySlug: async (slug) => {
-        set({ isLoading: true });
+        set({
+            isLoading: true,
+            members: [],
+            media: [],
+            files: [],
+            hasMoreMembers: false,
+            hasMoreMedia: false,
+            hasMoreFiles: false,
+        });
         try {
             const response = await conversationService.getConversationBySlug(slug);
             const data = response.data;
@@ -118,7 +126,15 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
         }
     },
     fetchConversationById: async (id) => {
-        set({ isLoading: true });
+        set({
+            isLoading: true,
+            members: [],
+            media: [],
+            files: [],
+            hasMoreMembers: false,
+            hasMoreMedia: false,
+            hasMoreFiles: false,
+        });
         try {
             const response = await conversationService.getConversationById(id);
             const data = response.data;
@@ -143,7 +159,7 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
                 onlineCount: data.online_count || 0,
             };
 
-            set({ conversation, isLoading: false });
+            set({ conversation, isLoading: false, hasJoined: conversation.is_joined });
         } catch (error) {
             console.error('Failed to fetch conversation:', error);
             set({ isLoading: false });

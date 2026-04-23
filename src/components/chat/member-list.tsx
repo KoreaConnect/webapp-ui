@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { Loader2 } from 'lucide-react';
 
@@ -7,6 +9,12 @@ import Avatar from '../ui/avatar';
 
 export function MemberList() {
     const { conversation, members, isMembersLoading, hasMoreMembers, fetchMembers } = useCurrentConversationStore();
+
+    useEffect(() => {
+        if (conversation?.id && members.length === 0 && !isMembersLoading) {
+            fetchMembers(conversation.id);
+        }
+    }, [conversation?.id, members.length, isMembersLoading, fetchMembers]);
 
     if (!conversation) return null;
 

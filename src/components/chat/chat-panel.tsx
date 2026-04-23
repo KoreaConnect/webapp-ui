@@ -20,40 +20,10 @@ import { MemberList } from './member-list';
 
 export default function ChatPanel() {
     const { isOpen, close, toggleSearch } = useChatPanelStore();
-    const {
-        conversation,
-        members,
-        fetchMembers,
-        media,
-        files,
-        fetchAttachments,
-        isMediaLoading,
-        isFilesLoading,
-        isMembersLoading,
-        leaveGroup,
-        isLeaving,
-    } = useCurrentConversationStore();
+    const { conversation, members, leaveGroup, isLeaving } = useCurrentConversationStore();
     const { show } = useToastStore();
 
     if (!conversation) return null;
-
-    const handleOpenMembers = () => {
-        if (members.length === 0 && !isMembersLoading) {
-            fetchMembers(conversation.id);
-        }
-    };
-
-    const handleOpenMedia = () => {
-        if (media.length === 0 && !isMediaLoading) {
-            fetchAttachments(conversation.id, 'image');
-        }
-    };
-
-    const handleOpenFiles = () => {
-        if (files.length === 0 && !isFilesLoading) {
-            fetchAttachments(conversation.id, 'file');
-        }
-    };
 
     const handleSearchClick = () => {
         toggleSearch();
@@ -156,26 +126,15 @@ export default function ChatPanel() {
                                 title="Members"
                                 icon={<Users className="h-4 w-4" />}
                                 badge={members.length || conversation.members_count}
-                                onOpen={handleOpenMembers}
                             >
                                 <MemberList />
                             </Collapsible>
 
-                            <Collapsible
-                                title="Media"
-                                icon={<Image className="h-4 w-4" />}
-                                onOpen={handleOpenMedia}
-                                badge={media.length > 0 ? media.length : undefined}
-                            >
+                            <Collapsible title="Media" icon={<Image className="h-4 w-4" />}>
                                 <MediaList />
                             </Collapsible>
 
-                            <Collapsible
-                                title="Files"
-                                icon={<FileText className="h-4 w-4" />}
-                                onOpen={handleOpenFiles}
-                                badge={files.length > 0 ? files.length : undefined}
-                            >
+                            <Collapsible title="Files" icon={<FileText className="h-4 w-4" />}>
                                 <FileList />
                             </Collapsible>
 
