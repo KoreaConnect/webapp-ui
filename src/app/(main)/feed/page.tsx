@@ -2,14 +2,16 @@
 
 import React, { useState } from 'react';
 
-import { Flame, Heart, MessageCircle, MoreHorizontal, Plus, Scroll, Share2, Star, Zap } from 'lucide-react';
+import { Flame, Heart, MessageCircle, MoreHorizontal, Plus, Share2, Star, Zap } from 'lucide-react';
 import Image from 'next/image';
 
+import CreateThreadModal from '@/components/create-thread-modal';
 import Avatar from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
 import { ScrollableView } from '@/components/ui/scrollable-view';
-import WritePostDialogContent from '@/components/write-post-modal';
+
+import { useDragScroll } from '@/hooks/use-drag-scroll';
 
 // --- Mock Data ---
 
@@ -46,22 +48,6 @@ const USEFUL_THREADS = [
         likes: 67,
         icon: <Flame className="w-4 h-4 text-orange-500" />,
     },
-    // {
-    //     id: 5,
-    //     title: 'Visa application guide 2024',
-    //     author: { name: 'GlobalNomad', avatar: 'https://i.pravatar.cc/150?u=3', username: 'nomad' },
-    //     category: 'Guide',
-    //     likes: 240,
-    //     icon: <Zap className="w-4 h-4 text-blue-500" />,
-    // },
-    // {
-    //     id: 6,
-    //     title: 'Best co-working spaces in Gangnam',
-    //     author: { name: 'WorkAnywhere', avatar: 'https://i.pravatar.cc/150?u=4', username: 'work' },
-    //     category: 'Lifestyle',
-    //     likes: 67,
-    //     icon: <Flame className="w-4 h-4 text-orange-500" />,
-    // },
 ];
 
 const NORMAL_THREADS = [
@@ -127,8 +113,8 @@ const ThreadCard = ({ thread }: { thread: (typeof NORMAL_THREADS)[0] }) => (
                 <p className="mb-3">{thread.content}</p>
 
                 {thread.image && (
-                    <div className="rounded-xl overflow-hidden mb-3">
-                        <img src={thread.image} alt="" width={500} height={300} />
+                    <div className="rounded-xl overflow-hidden mb-3 relative aspect-video">
+                        <Image src={thread.image} alt="" fill className="object-cover" />
                     </div>
                 )}
 
@@ -152,13 +138,21 @@ const ThreadCard = ({ thread }: { thread: (typeof NORMAL_THREADS)[0] }) => (
 
 export default function FeedPage() {
     const [open, setOpen] = useState(false);
+    const {
+        scrollRef: usefulThreadsRef,
+        onMouseDown,
+        onMouseMove,
+        onMouseUp,
+        onMouseLeave,
+        style: dragStyle,
+    } = useDragScroll();
 
     return (
-        <div className="max-w-full h-full bg-red-500 overflow-hidden">
-            <ScrollableView className="bg-white dark:bg-zinc-950">
+        <div className="max-w-full h-full overflow-hidden p-4">
+            <ScrollableView>
                 {/* Header */}
-                <div className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b p-4 flex justify-between">
-                    <h1 className="font-bold text-xl">Feed</h1>
+                <div className="sticky top-0 z-10  p-4 flex justify-between">
+                    <h1 className="font-bold text-2xl">Feed</h1>
 
                     <DialogWrapper
                         open={open}
@@ -170,20 +164,29 @@ export default function FeedPage() {
                             </Button>
                         }
                     >
-                        <WritePostDialogContent onSelect={() => setOpen(false)} />
+                        <CreateThreadModal onClose={() => setOpen(false)} />
                     </DialogWrapper>
                 </div>
 
                 {/* Useful Threads */}
-                <div className="py-6 border-b">
+                <div className="py-6">
                     <div className="px-4 mb-4 flex justify-between">
                         <h2 className="text-sm font-bold text-zinc-400">Useful Threads</h2>
                         <button className="text-xs text-primary">View All</button>
                     </div>
 
                     <div className="w-full ">
-                        <ScrollableView vertical={false} horizontal className="w-full px-4">
-                            <div className="flex flex-row gap-4 pb-4 max-w-0">
+                        <ScrollableView
+                            vertical={false}
+                            horizontal
+                            className="w-full px-4 select-none"
+                            ref={usefulThreadsRef}
+                            onMouseDown={onMouseDown}
+                            onMouseMove={onMouseMove}
+                            onMouseUp={onMouseUp}
+                            onMouseLeave={onMouseLeave}
+                        >
+                            <div className="flex flex-row gap-4 pb-4 max-w-0" style={dragStyle}>
                                 {USEFUL_THREADS.map((thread) => (
                                     <UsefulThreadCard key={thread.id} thread={thread} />
                                 ))}

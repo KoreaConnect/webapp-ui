@@ -9,13 +9,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import CreateThreadModal from '@/components/create-thread-modal';
 import NotificationDropdown from '@/components/notification-dropdown';
 import Avatar from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
 import { Dropdown } from '@/components/ui/dropdown';
 import UserDropdown from '@/components/user-dropdown';
-import WritePostDialogContent from '@/components/write-post-modal';
 
 const LoggedInHeader = () => {
     const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
@@ -33,7 +33,7 @@ const LoggedInHeader = () => {
                 open={isWriteModalOpen}
                 onOpenChange={setIsWriteModalOpen}
             >
-                <WritePostDialogContent onSelect={() => {}} />
+                <CreateThreadModal onClose={() => setIsWriteModalOpen(false)} />
             </DialogWrapper>
 
             <Link href="/messenger">

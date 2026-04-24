@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 
-interface ScrollableViewProps {
+interface ScrollableViewProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
     vertical?: boolean;
     horizontal?: boolean;
@@ -13,10 +13,10 @@ interface ScrollableViewProps {
 }
 
 export const ScrollableView = React.forwardRef<HTMLDivElement, ScrollableViewProps>(
-    ({ children, vertical = true, horizontal = false, className = '', onScroll }, ref) => {
+    ({ children, vertical = true, horizontal = false, className = '', onScroll, ...props }, ref) => {
         return (
             <ScrollArea.Root className={`relative overflow-hidden ${className}`}>
-                <ScrollArea.Viewport ref={ref} className="h-full w-full" onScroll={onScroll}>
+                <ScrollArea.Viewport ref={ref} className="h-full w-full" onScroll={onScroll} {...props}>
                     {children}
                 </ScrollArea.Viewport>
 
