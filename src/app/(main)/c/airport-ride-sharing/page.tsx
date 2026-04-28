@@ -16,7 +16,6 @@ export default function TaxiSharePage() {
         airport,
         setAirport,
         currentAddress,
-        setCurrentAddress,
         date,
         setDate,
         time,

@@ -1,17 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { Flame, Heart, MessageCircle, MoreHorizontal, Plus, Share2, Star, Zap } from 'lucide-react';
-import Image from 'next/image';
+import { useToastStore } from '@/store/use-toast-store';
+import { Post } from '@/types/post.type';
+import { Flame, Heart, Plus, Star, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import CreateThreadModal from '@/components/create-thread-modal';
+import { ThreadCard } from '@/components/feed/thread-card';
+import ReplyModal from '@/components/reply-modal';
 import Avatar from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
+import { Loader } from '@/components/ui/loader';
 import { ScrollableView } from '@/components/ui/scrollable-view';
 
 import { useDragScroll } from '@/hooks/use-drag-scroll';
+
+import { postService } from '@/services';
+
+import { getErrorMessage } from '@/utils/get-error-message';
 
 // --- Mock Data ---
 
@@ -50,94 +60,46 @@ const USEFUL_THREADS = [
     },
 ];
 
-const NORMAL_THREADS = [
-    {
-        id: 1,
-        author: { name: 'Kim Min-su', avatar: 'https://i.pravatar.cc/150?u=10', username: 'minsu_k' },
-        content:
-            'Just arrived in Incheon! The weather is amazing today. Anyone up for a coffee in Hongdae later? ☕️ #Seoul #Travel',
-        image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=1000&auto=format&fit=crop',
-        likes: 24,
-        comments: 5,
-        time: '2h ago',
-    },
-    {
-        id: 2,
-        author: { name: 'Sarah Wilson', avatar: 'https://i.pravatar.cc/150?u=11', username: 'sarah_w' },
-        content: 'Does anyone know the best way to get to Busan from Seoul?',
-        likes: 12,
-        comments: 18,
-        time: '4h ago',
-    },
-];
-
 // --- Components ---
 
-const UsefulThreadCard = ({ thread }: { thread: (typeof USEFUL_THREADS)[0] }) => (
-    <div className="flex-shrink-0 w-64 snap-start p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer">
-        <div className="flex items-center gap-2 mb-3">
-            <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">{thread.icon}</div>
-            <span className="text-xs font-bold text-zinc-500 uppercase">{thread.category}</span>
-        </div>
-
-        <h3 className="font-bold text-zinc-900 dark:text-zinc-100 mb-4 line-clamp-2 h-12">{thread.title}</h3>
-
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-                <Avatar src={thread.author.avatar} size="xs" />
-                <span className="text-xs text-zinc-500">@{thread.author.username}</span>
+const UsefulThreadCard = ({ thread }: { thread: (typeof USEFUL_THREADS)[0] }) => {
+    const router = useRouter();
+    return (
+        <div
+            onClick={() => router.push(`/feed/${thread.id}`)}
+            className="flex-shrink-0 w-64 snap-start p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer"
+        >
+            <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">{thread.icon}</div>
+                <span className="text-xs font-bold text-zinc-500 uppercase">{thread.category}</span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-zinc-500">
-                <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
-                {thread.likes}
-            </div>
-        </div>
-    </div>
-);
 
-const ThreadCard = ({ thread }: { thread: (typeof NORMAL_THREADS)[0] }) => (
-    <div className="p-4 border-b border-zinc-100 dark:border-zinc-800">
-        <div className="flex gap-3">
-            <Avatar src={thread.author.avatar} size="md" />
+            <h3 className="font-bold text-zinc-900 dark:text-zinc-100 mb-4 line-clamp-2 h-12">{thread.title}</h3>
 
-            <div className="flex-1">
-                <div className="flex justify-between mb-1">
-                    <div className="flex gap-2 text-sm">
-                        <span className="font-bold">{thread.author.name}</span>
-                        <span className="text-zinc-500">@{thread.author.username}</span>
-                        <span className="text-zinc-400">{thread.time}</span>
-                    </div>
-                    <MoreHorizontal className="w-5 h-5 text-zinc-400" />
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Avatar src={thread.author.avatar} size="xs" />
+                    <span className="text-xs text-zinc-500">@{thread.author.username}</span>
                 </div>
-
-                <p className="mb-3">{thread.content}</p>
-
-                {thread.image && (
-                    <div className="rounded-xl overflow-hidden mb-3 relative aspect-video">
-                        <Image src={thread.image} alt="" fill className="object-cover" />
-                    </div>
-                )}
-
-                <div className="flex gap-6 text-sm text-zinc-500">
-                    <div className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        {thread.likes}
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <MessageCircle className="w-4 h-4" />
-                        {thread.comments}
-                    </div>
-                    <Share2 className="w-4 h-4" />
+                <div className="flex items-center gap-1 text-xs text-zinc-500">
+                    <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                    {thread.likes}
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 // --- Page ---
 
 export default function FeedPage() {
     const [open, setOpen] = useState(false);
+    const [isReplyOpen, setIsReplyOpen] = useState(false);
+    const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { show } = useToastStore();
     const {
         scrollRef: usefulThreadsRef,
         onMouseDown,
@@ -147,60 +109,165 @@ export default function FeedPage() {
         style: dragStyle,
     } = useDragScroll();
 
+    const fetchPosts = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await postService.getPosts();
+            if (response.success) {
+                setPosts(response.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch posts:', error);
+            show({
+                type: 'error',
+                message: getErrorMessage(error, 'Failed to load posts'),
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [show]);
+
+    useEffect(() => {
+        fetchPosts();
+    }, [fetchPosts]);
+
+    const handleCreateThread = async (data: { content: string; topic: string; images: File[] }) => {
+        try {
+            const payload = {
+                posts: [
+                    {
+                        content: data.content,
+                        topic: data.topic,
+                        images: data.images,
+                    },
+                ],
+            };
+
+            const response = await postService.createThread(payload);
+
+            if (response.success) {
+                show({
+                    type: 'success',
+                    message: 'Thread created successfully!',
+                });
+                fetchPosts(); // Refresh feed
+            } else {
+                throw new Error(getErrorMessage(response.error, 'Failed to create thread'));
+            }
+        } catch (error) {
+            show({
+                type: 'error',
+                message: getErrorMessage(error, 'Something went wrong'),
+            });
+            throw error;
+        }
+    };
+
+    const handleReplyPost = async (data: { content: string; images: File[]; parent_id: string }) => {
+        try {
+            const response = await postService.replyPost(data);
+
+            if (response.success) {
+                show({
+                    type: 'success',
+                    message: 'Reply posted successfully!',
+                });
+                fetchPosts(); // Refresh feed to update counts
+            } else {
+                throw new Error(getErrorMessage(response.error, 'Failed to post reply'));
+            }
+        } catch (error) {
+            show({
+                type: 'error',
+                message: getErrorMessage(error, 'Something went wrong'),
+            });
+            throw error;
+        }
+    };
+
+    const onReplyClick = (e: React.MouseEvent, post: Post) => {
+        e.preventDefault(); // Stop Link from navigating
+        e.stopPropagation(); // Stop any other click handlers
+        setSelectedPost(post);
+        setIsReplyOpen(true);
+    };
+
     return (
-        <div className="max-w-full h-full overflow-hidden p-4">
-            <ScrollableView>
-                {/* Header */}
-                <div className="sticky top-0 z-10  p-4 flex justify-between">
-                    <h1 className="font-bold text-2xl">Feed</h1>
+        <div className="max-w-full p-4">
+            {/* Header */}
+            <div className="sticky top-0 z-10 p-4 flex justify-between bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md -mx-4 mb-2">
+                <h1 className="font-bold text-2xl text-zinc-900 dark:text-zinc-50">Feed</h1>
 
-                    <DialogWrapper
-                        open={open}
-                        onOpenChange={setOpen}
-                        trigger={
-                            <Button className="rounded-full flex gap-2">
-                                <Plus className="w-4 h-4" />
-                                Post
-                            </Button>
-                        }
+                <DialogWrapper
+                    open={open}
+                    onOpenChange={setOpen}
+                    trigger={
+                        <Button className="rounded-full flex gap-2">
+                            <Plus className="w-4 h-4" />
+                            Post
+                        </Button>
+                    }
+                >
+                    <CreateThreadModal onPost={handleCreateThread} onClose={() => setOpen(false)} />
+                </DialogWrapper>
+            </div>
+
+            {/* Useful Threads */}
+            <div className="py-6">
+                <div className="px-4 mb-4 flex justify-between">
+                    <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Useful Threads</h2>
+                    <button className="text-xs text-primary font-semibold hover:underline">View All</button>
+                </div>
+
+                <div className="w-full px-4">
+                    <ScrollableView
+                        vertical={false}
+                        horizontal
+                        className="w-full  select-none"
+                        ref={usefulThreadsRef}
+                        onMouseDown={onMouseDown}
+                        onMouseMove={onMouseMove}
+                        onMouseUp={onMouseUp}
+                        onMouseLeave={onMouseLeave}
                     >
-                        <CreateThreadModal onClose={() => setOpen(false)} />
-                    </DialogWrapper>
+                        <div className="flex flex-row gap-4 pb-4 max-w-0" style={dragStyle}>
+                            {USEFUL_THREADS.map((thread) => (
+                                <UsefulThreadCard key={thread.id} thread={thread} />
+                            ))}
+                        </div>
+                    </ScrollableView>
                 </div>
+            </div>
 
-                {/* Useful Threads */}
-                <div className="py-6">
-                    <div className="px-4 mb-4 flex justify-between">
-                        <h2 className="text-sm font-bold text-zinc-400">Useful Threads</h2>
-                        <button className="text-xs text-primary">View All</button>
+            <div className="pb-20">
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                        <Loader size="lg" />
+                        <p className="text-zinc-500 text-sm animate-pulse">Loading your feed...</p>
                     </div>
-
-                    <div className="w-full ">
-                        <ScrollableView
-                            vertical={false}
-                            horizontal
-                            className="w-full px-4 select-none"
-                            ref={usefulThreadsRef}
-                            onMouseDown={onMouseDown}
-                            onMouseMove={onMouseMove}
-                            onMouseUp={onMouseUp}
-                            onMouseLeave={onMouseLeave}
-                        >
-                            <div className="flex flex-row gap-4 pb-4 max-w-0" style={dragStyle}>
-                                {USEFUL_THREADS.map((thread) => (
-                                    <UsefulThreadCard key={thread.id} thread={thread} />
-                                ))}
-                            </div>
-                        </ScrollableView>
+                ) : posts.length > 0 ? (
+                    posts.map((thread) => (
+                        <Link key={thread.id} href={`/feed/${thread.id}`} className="block">
+                            <ThreadCard post={thread} onReplyClick={onReplyClick} />
+                        </Link>
+                    ))
+                ) : (
+                    <div className="text-center py-20 text-zinc-500">
+                        <p>No posts yet. Be the first to start a thread!</p>
                     </div>
-                </div>
+                )}
+            </div>
 
-                <div className="pb-20">
-                    {NORMAL_THREADS.map((thread) => (
-                        <ThreadCard key={thread.id} thread={thread} />
-                    ))}
-                </div>
-            </ScrollableView>
+            {/* Hidden Reply Dialog */}
+            {selectedPost && (
+                <DialogWrapper open={isReplyOpen} onOpenChange={setIsReplyOpen}>
+                    <ReplyModal
+                        parentPost={selectedPost}
+                        onReply={handleReplyPost}
+                        onClose={() => setIsReplyOpen(false)}
+                    />
+                </DialogWrapper>
+            )}
         </div>
     );
 }
