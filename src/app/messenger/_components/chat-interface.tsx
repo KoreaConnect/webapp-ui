@@ -9,8 +9,8 @@ import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { useReplyStore } from '@/store/use-reply-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
+import { useRouter } from 'next/navigation';
 
-import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
 import ChatMessage from '@/components/chat/chat-message';
 import ChatPanel from '@/components/chat/chat-panel';
@@ -30,6 +30,7 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ conversationId, conversationSlug }: ChatInterfaceProps) {
+    const router = useRouter();
     const {
         fetchConversationById,
         fetchConversationBySlug,
@@ -215,11 +216,6 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
     return (
         <div className={cn('relative flex h-full bg-background overflow-hidden border-r border-border')}>
             <div className="flex flex-1 flex-col min-w-0">
-                <ChatHeader
-                    title={conversation.title}
-                    thumbnailUrl={conversation.thumbnail_url}
-                    onlineUserCount={conversation.onlineCount || 0}
-                />
                 {isSearchOpen && <ChatSearchBar conversationId={conversation.id} />}
                 <ScrollableView ref={scrollRef} className="flex-1 px-4" vertical onScroll={handleScroll}>
                     <div className="flex flex-col gap-2 py-4 pb-10 w-full min-h-full">
@@ -256,7 +252,7 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
                     </div>
                 </ScrollableView>
                 <ReplyBox />
-                <ChatInput onSend={handleSendMessage} ref={chatInputRef} />
+                <ChatInput onSend={handleSendMessage} ref={chatInputRef} onBack={() => router.back()} />
             </div>
             <ChatPanel />
             {!conversation.is_joined && <JoinChatOverlay />}

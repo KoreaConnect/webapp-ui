@@ -242,7 +242,7 @@ export default function FeedPage() {
             <div className="pb-20">
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
-                        <Loader size="lg" />
+                        <Loader size={24} />
                         <p className="text-zinc-500 text-sm animate-pulse">Loading your feed...</p>
                     </div>
                 ) : posts.length > 0 ? (

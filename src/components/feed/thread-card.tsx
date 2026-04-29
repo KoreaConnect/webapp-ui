@@ -111,10 +111,9 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                                             isReply ? 'w-[75%]' : 'w-[85%]',
                                         )}
                                     >
-                                        <Image
+                                        <img
                                             src={image}
                                             alt={`Post image ${index + 1}`}
-                                            fill
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             className="object-cover transition-transform group-hover:scale-[1.02] duration-500"
                                         />

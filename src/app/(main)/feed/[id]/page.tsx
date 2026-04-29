@@ -114,7 +114,7 @@ export default function PostDetailPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Loader size="lg" />
+                <Loader size={24} />
                 <p className="text-zinc-500 text-sm">Loading thread...</p>
             </div>
         );
@@ -136,14 +136,6 @@ export default function PostDetailPage() {
 
     return (
         <div className="max-w-full min-h-screen bg-white dark:bg-zinc-950">
-            {/* Header */}
-            <div className="sticky top-0 z-10 p-4 flex items-center gap-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800/50">
-                <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-full w-10 h-10 p-0">
-                    <ChevronLeft className="w-6 h-6" />
-                </Button>
-                <h1 className="font-bold text-xl">Thread</h1>
-            </div>
-
             <div className="pb-32">
                 {/* Parent Chain (if any) */}
                 {parentChain.map((post) => (
@@ -165,9 +157,9 @@ export default function PostDetailPage() {
             </div>
 
             {/* Quick Reply Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-t border-zinc-100 dark:border-zinc-800/50 max-w-370 mx-auto z-20">
+            <div className="sticky bottom-8 z-20 p-4 dark:bg-zinc-950/80 backdrop-blur-md border-t border-zinc-100 dark:border-zinc-800/50">
                 {selectedImages.length > 0 && (
-                    <div className="mb-3">
+                    <div className="mb-3 max-w-2xl mx-auto">
                         <ScrollableView horizontal>
                             <div className="flex gap-2 p-1">
                                 {selectedImages.map((file, idx) => (
@@ -180,40 +172,51 @@ export default function PostDetailPage() {
                     </div>
                 )}
 
-                <div className="flex items-end gap-3 bg-zinc-100 dark:bg-zinc-900 rounded-2xl p-2 px-4 border border-zinc-200 dark:border-zinc-800 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                    />
+                <div className="flex items-end  gap-3 mx-auto">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.back()}
+                        className="rounded-full w-10 h-10 p-0 shrink-0 mb-1"
+                    >
+                        <ChevronLeft className="w-6 h-6" />
+                    </Button>
 
-                    <textarea
-                        ref={textareaRef}
-                        placeholder={`Reply to ${mainPost.user?.name || 'thread'}...`}
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                        className="flex-1 bg-transparent border-none focus:ring-0 outline-none resize-none py-2 text-[15px] max-h-32"
-                        rows={1}
-                    />
-                    <div className="flex items-center gap-2 pb-1.5">
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={selectedImages.length >= MAX_IMAGES}
-                            className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors p-1 disabled:opacity-30"
-                        >
-                            <ImageIcon size={20} />
-                        </button>
-                        <Button
-                            size="sm"
-                            disabled={(!replyContent.trim() && selectedImages.length === 0) || isSubmitting}
-                            onClick={handleReply}
-                            className="rounded-full w-8 h-8 p-0 shrink-0"
-                        >
-                            <Send size={14} className={cn(isSubmitting && 'animate-pulse')} />
-                        </Button>
+                    <div className="flex-1 flex items-center gap-3 bg-zinc-100 dark:bg-zinc-900 rounded-2xl p-2 px-4 border border-zinc-200 dark:border-zinc-800 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            multiple
+                            onChange={handleFileChange}
+                        />
+
+                        <textarea
+                            ref={textareaRef}
+                            placeholder={`Reply to ${mainPost.user?.name || 'thread'}...`}
+                            value={replyContent}
+                            onChange={(e) => setReplyContent(e.target.value)}
+                            className="flex-1 bg-transparent border-none focus:ring-0 outline-none resize-none py-2 text-[15px] max-h-32"
+                            rows={1}
+                        />
+                        <div className="flex items-center gap-2 pb-1.5">
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={selectedImages.length >= MAX_IMAGES}
+                                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors p-1 disabled:opacity-30"
+                            >
+                                <ImageIcon size={20} />
+                            </button>
+                            <Button
+                                size="sm"
+                                disabled={(!replyContent.trim() && selectedImages.length === 0) || isSubmitting}
+                                onClick={handleReply}
+                                className="rounded-full w-8 h-8 p-0 shrink-0"
+                            >
+                                <Send size={14} className={cn(isSubmitting && 'animate-pulse')} />
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
