@@ -4,7 +4,7 @@ import React from 'react';
 
 import { Post } from '@/types/post.type';
 import { Heart, MessageCircle, MoreHorizontal, Share2 } from 'lucide-react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import Avatar from '@/components/ui/avatar';
 
@@ -19,6 +19,7 @@ interface ThreadCardProps {
     isReply?: boolean;
     showConnector?: boolean;
     className?: string;
+    replyToUser?: string;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -28,13 +29,26 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     isReply = false,
     showConnector = true,
     className,
+    replyToUser,
 }) => {
+    const router = useRouter();
+
+    const handleContentClick = (e: React.MouseEvent) => {
+        if (isDetail) return;
+        router.push(`/feed/${post.id}`);
+    };
+
+    const handleActionClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+    };
+
     return (
         <div
             className={cn(
                 'p-4 transition-colors group',
                 !isDetail &&
-                    'hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 cursor-pointer border-b border-zinc-100 dark:border-zinc-800/50',
+                    'hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800/50',
                 isDetail && 'border-b border-zinc-100 dark:border-zinc-800/50',
                 isReply && 'opacity-90',
                 className,
@@ -86,42 +100,53 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                                 {formatDate(post.created_at)}
                             </span>
                         </div>
-                        <button className="p-1.5 -mr-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-400">
+                        <button
+                            onClick={handleActionClick}
+                            className="p-1.5 -mr-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-400"
+                        >
                             <MoreHorizontal className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <p
-                        className={cn(
-                            'leading-[1.5] text-zinc-800 dark:text-zinc-200 mb-3 whitespace-pre-wrap break-words',
-                            isDetail && !isReply ? 'text-[17px] font-medium' : 'text-[15px]',
-                        )}
-                    >
-                        {post.content}
-                    </p>
-
-                    {post.images && post.images.length > 0 && (
-                        <div className="mb-4 -mx-1">
-                            <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
-                                {post.images.map((image, index) => (
-                                    <div
-                                        key={index}
-                                        className={cn(
-                                            'relative flex-none aspect-[16/10] rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 snap-start',
-                                            isReply ? 'w-[75%]' : 'w-[85%]',
-                                        )}
-                                    >
-                                        <img
-                                            src={image}
-                                            alt={`Post image ${index + 1}`}
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            className="object-cover transition-transform group-hover:scale-[1.02] duration-500"
-                                        />
-                                    </div>
-                                ))}
+                    <div onClick={handleContentClick} className={cn(!isDetail && 'cursor-pointer')}>
+                        {replyToUser && (
+                            <div className="flex items-center gap-1 mb-1 text-[13px] text-zinc-500">
+                                <span>Replying to</span>
+                                <span className="text-primary font-medium hover:underline">@{replyToUser}</span>
                             </div>
-                        </div>
-                    )}
+                        )}
+                        <p
+                            className={cn(
+                                'leading-[1.5] text-zinc-800 dark:text-zinc-200 mb-3 whitespace-pre-wrap break-words',
+                                isDetail && !isReply ? 'text-[17px] font-medium' : 'text-[15px]',
+                            )}
+                        >
+                            {post.content}
+                        </p>
+
+                        {post.images && post.images.length > 0 && (
+                            <div className="mb-4 -mx-1">
+                                <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
+                                    {post.images.map((image, index) => (
+                                        <div
+                                            key={index}
+                                            className={cn(
+                                                'relative flex-none aspect-[16/10] rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 snap-start',
+                                                isReply ? 'w-[75%]' : 'w-[85%]',
+                                            )}
+                                        >
+                                            <img
+                                                src={image}
+                                                alt={`Post image ${index + 1}`}
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                className="object-cover transition-transform group-hover:scale-[1.02] duration-500"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     <div
                         className={cn(
@@ -129,14 +154,20 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                             isDetail && !isReply && 'border-t border-zinc-100 dark:border-zinc-800/50 pt-3',
                         )}
                     >
-                        <button className="flex items-center gap-1.5 group/btn hover:text-rose-500 transition-colors">
+                        <button
+                            onClick={handleActionClick}
+                            className="flex items-center gap-1.5 group/btn hover:text-rose-500 transition-colors"
+                        >
                             <div className="p-1.5 rounded-full group-hover/btn:bg-rose-50 dark:group-hover/btn:bg-rose-500/10">
                                 <Heart className={isDetail ? 'w-[20px] h-[20px]' : 'w-[18px] h-[18px]'} />
                             </div>
                             <span className="text-xs font-medium">0</span>
                         </button>
                         <button
-                            onClick={(e) => onReplyClick?.(e, post)}
+                            onClick={(e) => {
+                                handleActionClick(e);
+                                onReplyClick?.(e, post);
+                            }}
                             className="flex items-center gap-1.5 group/btn hover:text-primary transition-colors"
                         >
                             <div className="p-1.5 rounded-full group-hover/btn:bg-primary/5 dark:group-hover/btn:bg-primary/10">
@@ -144,7 +175,10 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                             </div>
                             <span className="text-xs font-medium">{post.reply_count || 0}</span>
                         </button>
-                        <button className="flex items-center gap-1.5 group/btn hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+                        <button
+                            onClick={handleActionClick}
+                            className="flex items-center gap-1.5 group/btn hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                        >
                             <div className="p-1.5 rounded-full group-hover/btn:bg-zinc-100 dark:group-hover/btn:bg-zinc-800">
                                 <Share2 className={isDetail ? 'w-[20px] h-[20px]' : 'w-[18px] h-[18px]'} />
                             </div>

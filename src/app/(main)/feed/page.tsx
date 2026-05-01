@@ -244,11 +244,7 @@ export default function FeedPage() {
                         <p className="text-zinc-500 text-sm animate-pulse">Loading your feed...</p>
                     </div>
                 ) : posts.length > 0 ? (
-                    posts.map((thread) => (
-                        <Link key={thread.id} href={`/feed/${thread.id}`} className="block">
-                            <ThreadCard post={thread} onReplyClick={onReplyClick} />
-                        </Link>
-                    ))
+                    posts.map((thread) => <ThreadCard key={thread.id} post={thread} onReplyClick={onReplyClick} />)
                 ) : (
                     <div className="text-center py-20 text-zinc-500">
                         <p>No posts yet. Be the first to start a thread!</p>
