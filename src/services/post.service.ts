@@ -1,24 +1,23 @@
 import axios from '@/config/axios';
-import { CreateThreadPayload, Post, PostResponse, ReplyPostPayload } from '@/types/post.type';
+import { CreateThreadPayload, Post, PostResponse, ReplyPostPayload, ThreadResponse } from '@/types/post.type';
 
 export const postService = {
     async createThread(payload: CreateThreadPayload): Promise<PostResponse<Post>> {
         // Since we are now using multipart/form-data for images, we use FormData
         const formData = new FormData();
 
-        // The payload for createThread was { posts: [{ content, topic, images: File[] }] }
-        // Based on the new API guide: content, topic, and multiple 'images' fields
-        if (payload.posts && payload.posts.length > 0) {
-            const firstPost = payload.posts[0];
-            formData.append('content', firstPost.content);
-            if (firstPost.topic) formData.append('topic', firstPost.topic);
+        if (!payload.posts || payload.posts.length === 0) {
+            throw new Error('At least one post is required to create a thread');
+        }
 
-            if (firstPost.images && firstPost.images.length > 0) {
-                // If they are Files, append them
-                (firstPost.images as unknown as File[]).forEach((file) => {
-                    formData.append('images', file);
-                });
-            }
+        const firstPost = payload.posts[0];
+        formData.append('content', firstPost.content);
+        if (firstPost.topic) formData.append('topic', firstPost.topic);
+
+        if (firstPost.images && firstPost.images.length > 0) {
+            (firstPost.images as unknown as File[]).forEach((file) => {
+                formData.append('images', file);
+            });
         }
 
         const { data } = await axios.post<PostResponse<Post>>('/posts/threads', formData, {
@@ -26,6 +25,23 @@ export const postService = {
                 'Content-Type': 'multipart/form-data',
             },
         });
+
+        // If there are more posts, create them as replies in sequence
+        if (data.success && payload.posts.length > 1) {
+            let parentId = data.data.id;
+            for (let i = 1; i < payload.posts.length; i++) {
+                const nextPost = payload.posts[i];
+                const replyResponse = await this.replyPost({
+                    content: nextPost.content,
+                    parent_id: parentId,
+                    images: nextPost.images as File[],
+                });
+                if (replyResponse.success) {
+                    parentId = replyResponse.data.id;
+                }
+            }
+        }
+
         return data;
     },
 

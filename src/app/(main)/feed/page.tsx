@@ -131,16 +131,14 @@ export default function FeedPage() {
         fetchPosts();
     }, [fetchPosts]);
 
-    const handleCreateThread = async (data: { content: string; topic: string; images: File[] }) => {
+    const handleCreateThread = async (data: { topic: string; posts: { content: string; images: File[] }[] }) => {
         try {
             const payload = {
-                posts: [
-                    {
-                        content: data.content,
-                        topic: data.topic,
-                        images: data.images,
-                    },
-                ],
+                posts: data.posts.map((post, index) => ({
+                    content: post.content,
+                    topic: index === 0 ? data.topic : undefined,
+                    images: post.images,
+                })),
             };
 
             const response = await postService.createThread(payload);
