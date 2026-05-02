@@ -159,7 +159,6 @@ export default function PostDetailPage() {
                     <ThreadCard
                         key={post.id}
                         post={post}
-                        className="opacity-60 hover:opacity-100"
                         onReplyClick={onReplyClick}
                         showConnector={true}
                         replyToUser={index > 0 ? threadData.main_chain[index - 1].user?.name : undefined}

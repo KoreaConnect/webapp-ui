@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import Avatar from '@/components/ui/avatar';
 
+import { useDragScroll } from '@/hooks/use-drag-scroll';
+
 import { cn } from '@/utils/cn';
 
 import { formatDate } from '@/utils';
@@ -32,6 +34,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     replyToUser,
 }) => {
     const router = useRouter();
+    const { scrollRef, ...dragEvents } = useDragScroll();
 
     const handleContentClick = (e: React.MouseEvent) => {
         if (isDetail) return;
@@ -50,7 +53,6 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                 !isDetail &&
                     'hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800/50',
                 isDetail && 'border-b border-zinc-100 dark:border-zinc-800/50',
-                isReply && 'opacity-90',
                 className,
             )}
         >
@@ -126,7 +128,11 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
 
                         {post.images && post.images.length > 0 && (
                             <div className="mb-4 -mx-1">
-                                <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar">
+                                <div
+                                    ref={scrollRef}
+                                    {...dragEvents}
+                                    className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar select-none"
+                                >
                                     {post.images.map((image, index) => (
                                         <div
                                             key={index}
@@ -139,7 +145,8 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                                                 src={image}
                                                 alt={`Post image ${index + 1}`}
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                className="object-cover transition-transform group-hover:scale-[1.02] duration-500"
+                                                draggable={false}
+                                                className="object-cover transition-transform group-hover:scale-[1.02] duration-500 pointer-events-none"
                                             />
                                         </div>
                                     ))}

@@ -13,9 +13,11 @@ export const useDragScroll = () => {
         setStartX(e.pageX - scrollRef.current.offsetLeft);
         setScrollLeft(scrollRef.current.scrollLeft);
 
-        // Prevent text selection while dragging
+        // Prevent text selection and disable snap while dragging
         scrollRef.current.style.cursor = 'grabbing';
         scrollRef.current.style.userSelect = 'none';
+        scrollRef.current.style.scrollSnapType = 'none';
+        scrollRef.current.style.scrollBehavior = 'auto';
     }, []);
 
     const onMouseUp = useCallback(() => {
@@ -23,6 +25,8 @@ export const useDragScroll = () => {
         if (scrollRef.current) {
             scrollRef.current.style.cursor = 'grab';
             scrollRef.current.style.removeProperty('user-select');
+            scrollRef.current.style.removeProperty('scroll-snap-type');
+            scrollRef.current.style.removeProperty('scroll-behavior');
         }
     }, []);
 
