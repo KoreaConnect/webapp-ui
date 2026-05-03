@@ -22,6 +22,8 @@ type CurrentConversationState = {
     hasMoreMembers: boolean;
     setConversation: (conversation: Conversation | null) => void;
     updateConversation: (id: string, updates: Partial<Conversation>) => void;
+    updateMemberStatus: (userId: string | number, isOnline: boolean) => void;
+    setOnlineCount: (count: number) => void;
     fetchConversationBySlug: (slug: string) => Promise<void>;
     fetchConversationById: (id: string) => Promise<void>;
     fetchMembers: (conversationId: string, loadMore?: boolean) => Promise<void>;
@@ -84,6 +86,14 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
     updateConversation: (id, updates) =>
         set((state) => ({
             conversation: state.conversation?.id === id ? { ...state.conversation, ...updates } : state.conversation,
+        })),
+    updateMemberStatus: (userId, isOnline) =>
+        set((state) => ({
+            members: state.members.map((m) => (m.id.toString() === userId.toString() ? { ...m, isOnline } : m)),
+        })),
+    setOnlineCount: (count) =>
+        set((state) => ({
+            conversation: state.conversation ? { ...state.conversation, onlineCount: count } : null,
         })),
     fetchConversationBySlug: async (slug) => {
         set({

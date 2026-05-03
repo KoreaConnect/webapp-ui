@@ -11,6 +11,7 @@ import { useReplyStore } from '@/store/use-reply-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
 import { useRouter } from 'next/navigation';
 
+import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
 import ChatMessage from '@/components/chat/chat-message';
 import ChatPanel from '@/components/chat/chat-panel';
@@ -36,6 +37,8 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         fetchConversationBySlug,
         conversation,
         fetchMembers,
+        updateMemberStatus,
+        setOnlineCount,
         isLoading: isConversationLoading,
     } = useCurrentConversationStore();
 
@@ -105,6 +108,23 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
             lastScrollHeightRef.current = 0;
         }
     }, [isFetchingMore]);
+
+    // Socket listeners
+    useSocketListener<{ user_id: string | number }>('user:online', (data) => {
+        updateMemberStatus(data.user_id, true);
+    });
+
+    useSocketListener<{ user_id: string | number }>('user:offline', (data) => {
+        updateMemberStatus(data.user_id, false);
+    });
+
+    useSocketListener<{ conversation_id: string | number; online_count: number }>(
+        'conversation:online_count_update',
+        (data) => {
+            if (data.conversation_id.toString() !== conversation?.id.toString()) return;
+            setOnlineCount(data.online_count);
+        },
+    );
 
     useSocketListener<RawMessage>('chat:new_message', (data) => {
         if (data.conversation_id.toString() !== conversation?.id.toString()) return;
@@ -216,6 +236,11 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
     return (
         <div className={cn('relative flex h-full bg-background overflow-hidden border-r border-border')}>
             <div className="flex flex-1 flex-col min-w-0">
+                <ChatHeader
+                    title={conversation.title}
+                    thumbnailUrl={conversation.thumbnail_url}
+                    onlineUserCount={conversation.onlineCount || 0}
+                />
                 {isSearchOpen && <ChatSearchBar conversationId={conversation.id} />}
                 <ScrollableView ref={scrollRef} className="flex-1 px-4" vertical onScroll={handleScroll}>
                     <div className="flex flex-col gap-2 py-4 pb-10 w-full min-h-full">
