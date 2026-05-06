@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 
 import { Post } from '@/types/post.type';
-import * as Dialog from '@radix-ui/react-dialog';
-import { Heart, MessageCircle, MoreHorizontal, Share2, X } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import Avatar from '@/components/ui/avatar';
@@ -14,6 +13,8 @@ import { useDragScroll } from '@/hooks/use-drag-scroll';
 import { cn } from '@/utils/cn';
 
 import { formatDate } from '@/utils';
+
+import { ImagePreview } from './image-preview';
 
 interface ThreadCardProps {
     post: Post;
@@ -36,7 +37,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
 }) => {
     const router = useRouter();
     const { scrollRef, ...dragEvents } = useDragScroll();
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
     const handleContentClick = () => {
         if (isDetail) return;
@@ -48,9 +49,9 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
         e.preventDefault();
     };
 
-    const handleImageClick = (e: React.MouseEvent, image: string) => {
+    const handleImageClick = (e: React.MouseEvent, index: number) => {
         e.stopPropagation();
-        setSelectedImage(image);
+        setSelectedImageIndex(index);
     };
 
     return (
@@ -144,7 +145,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                                         {post.images.map((image, index) => (
                                             <div
                                                 key={index}
-                                                onClick={(e) => handleImageClick(e, image)}
+                                                onClick={(e) => handleImageClick(e, index)}
                                                 className={cn(
                                                     'relative flex-none aspect-[16/10] rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 snap-start',
                                                     isReply ? 'w-[75%]' : 'w-[85%]',
@@ -153,9 +154,8 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                                                 <img
                                                     src={image}
                                                     alt={`Post image ${index + 1}`}
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                     draggable={false}
-                                                    className="object-cover transition-transform hover:scale-[1.02] duration-500"
+                                                    className="w-full h-full object-cover transition-transform hover:scale-[1.02] duration-500"
                                                 />
                                             </div>
                                         ))}
@@ -204,25 +204,12 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                 </div>
             </div>
 
-            <Dialog.Root open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-                    <Dialog.Content className="fixed left-1/2 top-1/2 z-[101] w-full max-w-[95vw] max-h-[95vh] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-                        <Dialog.Title className="sr-only">Image Preview</Dialog.Title>
-                        <Dialog.Description className="sr-only">Preview of the selected image</Dialog.Description>
-                        <Dialog.Close className="absolute right-4 top-4 rounded-full p-2 bg-black/50 text-white/70 hover:text-white transition-colors z-10">
-                            <X className="w-6 h-6" />
-                        </Dialog.Close>
-                        {selectedImage && (
-                            <img
-                                src={selectedImage}
-                                alt="Preview"
-                                className="max-w-full max-h-[95vh] object-contain rounded-lg shadow-2xl"
-                            />
-                        )}
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
+            <ImagePreview
+                images={post.images || []}
+                isOpen={selectedImageIndex !== null}
+                initialIndex={selectedImageIndex ?? 0}
+                onClose={() => setSelectedImageIndex(null)}
+            />
         </>
     );
 };
