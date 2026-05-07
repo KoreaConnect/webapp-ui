@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useToastStore } from '@/store/use-toast-store';
-import { Post, ThreadResponse } from '@/types/post.type';
+import { Post, ThreadPost, ThreadResponse } from '@/types/post.type';
 import { ChevronLeft, Image as ImageIcon, Send, X } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -19,6 +19,40 @@ import { cn } from '@/utils/cn';
 import { getErrorMessage } from '@/utils/get-error-message';
 
 const MAX_IMAGES = 5;
+
+interface RecursiveRepliesProps {
+    replies: ThreadPost[];
+    onReplyClick: (e: React.MouseEvent, post: Post) => void;
+    parentUser?: string;
+}
+
+const RecursiveReplies: React.FC<RecursiveRepliesProps> = ({ replies, onReplyClick, parentUser }) => {
+    return (
+        <>
+            {replies.map((reply) => (
+                <div key={reply.id}>
+                    <ThreadCard
+                        post={reply}
+                        isReply
+                        showConnector={reply.replies.length > 0}
+                        onReplyClick={onReplyClick}
+                        replyToUser={parentUser}
+                        style={{
+                            marginLeft: reply.depth < 4 ? `${(reply.depth - 1) * 24}px` : `${2 * 24}px`,
+                        }}
+                    />
+                    {reply.replies.length > 0 && (
+                        <RecursiveReplies
+                            replies={reply.replies}
+                            onReplyClick={onReplyClick}
+                            parentUser={reply.user?.name}
+                        />
+                    )}
+                </div>
+            ))}
+        </>
+    );
+};
 
 export default function PostDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -40,9 +74,8 @@ export default function PostDetailPage() {
             const response = await postService.getThread(id);
             if (response.success) {
                 setThreadData(response.data);
-                // Default to replying to the main post
-                const main = response.data.main_chain[response.data.main_chain.length - 1];
-                setReplyingTo(main);
+                // Default to replying to the root post
+                setReplyingTo(response.data.root);
             }
         } catch (error) {
             show({
@@ -129,7 +162,7 @@ export default function PostDetailPage() {
         );
     }
 
-    if (!threadData || !threadData.main_chain?.length) {
+    if (!threadData || !threadData.root) {
         return (
             <div className="text-center py-20 text-zinc-500">
                 <p>Post not found</p>
@@ -140,8 +173,7 @@ export default function PostDetailPage() {
         );
     }
 
-    const mainPost = threadData.main_chain[threadData.main_chain.length - 1];
-    const parentChain = threadData.main_chain.slice(0, -1);
+    const mainPost = threadData.root;
 
     return (
         <div className="max-w-full min-h-screen bg-white dark:bg-zinc-950">
@@ -154,24 +186,12 @@ export default function PostDetailPage() {
                     <div className="h-[1px] grow bg-zinc-100/50 dark:bg-zinc-800/50" />
                 </div>
 
-                {/* Parent Chain (if any) */}
-                {parentChain.map((post, index) => (
-                    <ThreadCard
-                        key={post.id}
-                        post={post}
-                        onReplyClick={onReplyClick}
-                        showConnector={true}
-                        replyToUser={index > 0 ? threadData.main_chain[index - 1].user?.name : undefined}
-                    />
-                ))}
-
                 {/* Main Post */}
                 <ThreadCard
                     post={mainPost}
                     isDetail
                     onReplyClick={onReplyClick}
                     showConnector={threadData.replies.length > 0}
-                    replyToUser={parentChain.length > 0 ? parentChain[parentChain.length - 1].user?.name : undefined}
                 />
 
                 {/* Section Indicator: Reply Thread */}
@@ -185,19 +205,15 @@ export default function PostDetailPage() {
                     )}
                 </div>
 
-                {/* Replies */}
+                {/* Recursive Replies */}
                 <div className="mt-0">
-                    {threadData.replies?.map((reply) => (
-                        <ThreadCard
-                            key={reply.id}
-                            post={reply}
-                            isReply
-                            showConnector={false}
+                    {threadData.replies.length > 0 ? (
+                        <RecursiveReplies
+                            replies={threadData.replies}
                             onReplyClick={onReplyClick}
-                            replyToUser={mainPost.user?.name}
+                            parentUser={mainPost.user?.name}
                         />
-                    ))}
-                    {!threadData.replies?.length && (
+                    ) : (
                         <div className="text-center py-10 text-zinc-500 text-sm italic">No replies yet.</div>
                     )}
                 </div>

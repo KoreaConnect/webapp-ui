@@ -3,46 +3,48 @@ import { CreateThreadPayload, Post, PostResponse, ReplyPostPayload, ThreadRespon
 
 export const postService = {
     async createThread(payload: CreateThreadPayload): Promise<PostResponse<Post>> {
-        // Since we are now using multipart/form-data for images, we use FormData
-        const formData = new FormData();
+        const firstPost = payload.posts[0];
+        const hasImages = firstPost?.images && (firstPost.images as File[]).length > 0;
 
         if (!payload.posts || payload.posts.length === 0) {
             throw new Error('At least one post is required to create a thread');
         }
 
-        const firstPost = payload.posts[0];
-        formData.append('content', firstPost.content);
-        if (firstPost.topic) formData.append('topic', firstPost.topic);
+        if (hasImages) {
+            const formData = new FormData();
 
-        if (firstPost.images && firstPost.images.length > 0) {
-            (firstPost.images as unknown as File[]).forEach((file) => {
+            // Send posts as a stringified JSON array
+            // Images are only attached to the first post per backend logic
+            formData.append(
+                'posts',
+                JSON.stringify(
+                    payload.posts.map((p) => ({
+                        content: p.content,
+                        topic: p.topic,
+                    })),
+                ),
+            );
+
+            (firstPost.images as File[]).forEach((file) => {
                 formData.append('images', file);
             });
+
+            const { data } = await axios.post<PostResponse<Post>>('/posts/threads', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return data;
+        } else {
+            // If no images, we can send as plain JSON
+            const { data } = await axios.post<PostResponse<Post>>('/posts/threads', {
+                posts: payload.posts.map((p) => ({
+                    content: p.content,
+                    topic: p.topic,
+                })),
+            });
+            return data;
         }
-
-        const { data } = await axios.post<PostResponse<Post>>('/posts/threads', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-
-        // If there are more posts, create them as replies in sequence
-        if (data.success && payload.posts.length > 1) {
-            let parentId = data.data.id;
-            for (let i = 1; i < payload.posts.length; i++) {
-                const nextPost = payload.posts[i];
-                const replyResponse = await this.replyPost({
-                    content: nextPost.content,
-                    parent_id: parentId,
-                    images: nextPost.images as File[],
-                });
-                if (replyResponse.success) {
-                    parentId = replyResponse.data.id;
-                }
-            }
-        }
-
-        return data;
     },
 
     async replyPost(payload: ReplyPostPayload): Promise<PostResponse<Post>> {

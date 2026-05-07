@@ -51,9 +51,10 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
         }
     };
 
-    const handleImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Images are only allowed on the first post (index 0)
         const files = Array.from(e.target.files || []);
-        const thread = threads[index];
+        const thread = threads[0];
 
         if (thread.images.length + files.length > 2) {
             const remainingSlots = 2 - thread.images.length;
@@ -64,23 +65,24 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
             const newPreviews = [...thread.previews, ...allowedFiles.map((file) => URL.createObjectURL(file))];
 
             const newThreads = [...threads];
-            newThreads[index] = { ...thread, images: newImages, previews: newPreviews };
+            newThreads[0] = { ...thread, images: newImages, previews: newPreviews };
             setThreads(newThreads);
         } else {
             const newImages = [...thread.images, ...files];
             const newPreviews = [...thread.previews, ...files.map((file) => URL.createObjectURL(file))];
 
             const newThreads = [...threads];
-            newThreads[index] = { ...thread, images: newImages, previews: newPreviews };
+            newThreads[0] = { ...thread, images: newImages, previews: newPreviews };
             setThreads(newThreads);
         }
 
         if (e.target) e.target.value = '';
     };
 
-    const removeImage = (threadIndex: number, imageIndex: number) => {
+    const removeImage = (imageIndex: number) => {
+        // Images are only on the first post
         const newThreads = [...threads];
-        const thread = newThreads[threadIndex];
+        const thread = newThreads[0];
 
         const newImages = [...thread.images];
         newImages.splice(imageIndex, 1);
@@ -89,11 +91,12 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
         URL.revokeObjectURL(newPreviews[imageIndex]);
         newPreviews.splice(imageIndex, 1);
 
-        newThreads[threadIndex] = { ...thread, images: newImages, previews: newPreviews };
+        newThreads[0] = { ...thread, images: newImages, previews: newPreviews };
         setThreads(newThreads);
     };
 
     const addNewThread = () => {
+        // New thread items don't have images
         setThreads([...threads, { id: Math.random().toString(), content: '', images: [], previews: [] }]);
         // Focus new textarea in next tick
         setTimeout(() => {
@@ -104,8 +107,9 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
     const removeThread = (index: number) => {
         if (threads.length <= 1) return;
         const newThreads = [...threads];
-        // Revoke URLs for the removed thread
-        newThreads[index].previews.forEach((url) => URL.revokeObjectURL(url));
+        // If it was the first post (index 0), it shouldn't be removable
+        if (index === 0) return;
+
         newThreads.splice(index, 1);
         setThreads(newThreads);
     };
@@ -117,7 +121,7 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
         setIsPosting(true);
         try {
             const posts = threads
-                .filter((t) => t.content.trim() || t.images.length > 0)
+                .filter((t, i) => t.content.trim() || (i === 0 && t.images.length > 0))
                 .map((t) => ({
                     content: t.content,
                     images: t.images,
@@ -132,7 +136,7 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
 
             // Clear state and close
             setTopic('');
-            threads.forEach((t) => t.previews.forEach((url) => URL.revokeObjectURL(url)));
+            threads[0].previews.forEach((url) => URL.revokeObjectURL(url));
             setThreads([{ id: Math.random().toString(), content: '', images: [], previews: [] }]);
             onClose?.();
         } catch (error) {
@@ -168,8 +172,8 @@ export default function CreateThreadModal({ onPost, onClose }: CreateThreadModal
                         topic={topic}
                         setTopic={setTopic}
                         onContentChange={(val) => handleContentChange(index, val)}
-                        onImageChange={(e) => handleImageChange(index, e)}
-                        onRemoveImage={(imgIdx) => removeImage(index, imgIdx)}
+                        onImageChange={handleImageChange}
+                        onRemoveImage={removeImage}
                         onRemoveThread={() => removeThread(index)}
                         textareaRef={(el) => (textareaRefs.current[index] = el)}
                         showRemove={threads.length > 1}
@@ -314,8 +318,8 @@ function ThreadEditor({
                     onChange={(e) => onContentChange(e.target.value)}
                 />
 
-                {/* Image Previews */}
-                {thread.previews.length > 0 && (
+                {/* Image Previews - Only for first post */}
+                {isFirst && thread.previews.length > 0 && (
                     <ScrollableView
                         horizontal
                         vertical={false}
@@ -350,30 +354,33 @@ function ThreadEditor({
                     </ScrollableView>
                 )}
 
-                {/* Media Actions */}
-                <div className="flex items-center gap-4 mt-2">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*';
-                            input.multiple = true;
-                            input.onchange = (e) => onImageChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
-                            input.click();
-                        }}
-                        disabled={thread.images.length >= 2}
-                        className={cn(
-                            'p-1.5 -ml-1.5 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors',
-                            'text-zinc-400 dark:text-zinc-600',
-                            thread.images.length < 2 && 'hover:text-zinc-600 dark:hover:text-zinc-400',
-                            thread.images.length >= 2 && 'opacity-30 cursor-not-allowed',
-                        )}
-                        title="Add photos (max 2)"
-                    >
-                        <ImageIcon size={20} strokeWidth={2} />
-                    </button>
-                </div>
+                {/* Media Actions - Only for first post */}
+                {isFirst && (
+                    <div className="flex items-center gap-4 mt-2">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                input.multiple = true;
+                                input.onchange = (e) =>
+                                    onImageChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
+                                input.click();
+                            }}
+                            disabled={thread.images.length >= 2}
+                            className={cn(
+                                'p-1.5 -ml-1.5 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors',
+                                'text-zinc-400 dark:text-zinc-600',
+                                thread.images.length < 2 && 'hover:text-zinc-600 dark:hover:text-zinc-400',
+                                thread.images.length >= 2 && 'opacity-30 cursor-not-allowed',
+                            )}
+                            title="Add photos (max 2)"
+                        >
+                            <ImageIcon size={20} strokeWidth={2} />
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

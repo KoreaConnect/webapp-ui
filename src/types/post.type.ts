@@ -12,11 +12,16 @@ export type Post = {
     user: BasicUserInfo;
     parent_id?: string | null;
     root_id?: string | null;
+    depth: number;
+};
+
+export type ThreadPost = Post & {
+    replies: ThreadPost[];
 };
 
 export type ThreadResponse = {
-    main_chain: Post[];
-    replies: Post[];
+    root: Post;
+    replies: ThreadPost[];
 };
 
 export type PostPagination = {

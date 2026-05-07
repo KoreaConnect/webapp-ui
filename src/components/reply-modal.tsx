@@ -104,7 +104,7 @@ export default function ReplyModal({ parentPost, onReply, onClose }: ReplyModalP
                 <div className="p-4 flex gap-3 opacity-60">
                     <div className="flex flex-col items-center">
                         <Avatar
-                            src={parentPost.user?.picture}
+                            src={parentPost.user?.picture ?? undefined}
                             alt={parentPost.user?.name}
                             size="md"
                             className="ring-1 ring-zinc-100 dark:ring-zinc-800"

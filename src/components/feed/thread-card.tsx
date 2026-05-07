@@ -24,6 +24,7 @@ interface ThreadCardProps {
     showConnector?: boolean;
     className?: string;
     replyToUser?: string;
+    style?: React.CSSProperties;
 }
 
 export const ThreadCard: React.FC<ThreadCardProps> = ({
@@ -34,6 +35,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     showConnector = true,
     className,
     replyToUser,
+    style,
 }) => {
     const router = useRouter();
     const { scrollRef, ...dragEvents } = useDragScroll();
@@ -57,6 +59,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
     return (
         <>
             <div
+                style={style}
                 className={cn(
                     'p-4 transition-colors group',
                     !isDetail &&
