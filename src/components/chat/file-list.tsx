@@ -11,10 +11,10 @@ export function FileList() {
     const { conversation, files, isFilesLoading, hasMoreFiles, fetchAttachments } = useCurrentConversationStore();
 
     useEffect(() => {
-        if (conversation?.id && files.length === 0 && !isFilesLoading) {
+        if (conversation?.id && files.length === 0 && !isFilesLoading && hasMoreFiles) {
             fetchAttachments(conversation.id, 'file');
         }
-    }, [conversation?.id, files.length, isFilesLoading, fetchAttachments]);
+    }, [conversation?.id, files.length, isFilesLoading, hasMoreFiles, fetchAttachments]);
 
     if (!conversation) return null;
 

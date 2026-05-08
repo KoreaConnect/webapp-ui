@@ -11,10 +11,10 @@ export function MemberList() {
     const { conversation, members, isMembersLoading, hasMoreMembers, fetchMembers } = useCurrentConversationStore();
 
     useEffect(() => {
-        if (conversation?.id && members.length === 0 && !isMembersLoading) {
+        if (conversation?.id && members.length === 0 && !isMembersLoading && hasMoreMembers) {
             fetchMembers(conversation.id);
         }
-    }, [conversation?.id, members.length, isMembersLoading, fetchMembers]);
+    }, [conversation?.id, members.length, isMembersLoading, hasMoreMembers, fetchMembers]);
 
     if (!conversation) return null;
 

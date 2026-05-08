@@ -39,9 +39,9 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
     members: [],
     media: [],
     files: [],
-    hasMoreMedia: false,
-    hasMoreFiles: false,
-    hasMoreMembers: false,
+    hasMoreMedia: true,
+    hasMoreFiles: true,
+    hasMoreMembers: true,
     isLoading: false,
     isMembersLoading: false,
     isMediaLoading: false,
@@ -101,9 +101,9 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
             members: [],
             media: [],
             files: [],
-            hasMoreMembers: false,
-            hasMoreMedia: false,
-            hasMoreFiles: false,
+            hasMoreMembers: true,
+            hasMoreMedia: true,
+            hasMoreFiles: true,
         });
         try {
             const response = await conversationService.getConversationBySlug(slug);
@@ -141,9 +141,9 @@ export const useCurrentConversationStore = create<CurrentConversationState>((set
             members: [],
             media: [],
             files: [],
-            hasMoreMembers: false,
-            hasMoreMedia: false,
-            hasMoreFiles: false,
+            hasMoreMembers: true,
+            hasMoreMedia: true,
+            hasMoreFiles: true,
         });
         try {
             const response = await conversationService.getConversationById(id);

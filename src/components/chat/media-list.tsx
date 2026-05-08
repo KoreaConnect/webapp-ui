@@ -9,10 +9,10 @@ export function MediaList() {
     const { conversation, media, isMediaLoading, hasMoreMedia, fetchAttachments } = useCurrentConversationStore();
 
     useEffect(() => {
-        if (conversation?.id && media.length === 0 && !isMediaLoading) {
+        if (conversation?.id && media.length === 0 && !isMediaLoading && hasMoreMedia) {
             fetchAttachments(conversation.id, 'image');
         }
-    }, [conversation?.id, media.length, isMediaLoading, fetchAttachments]);
+    }, [conversation?.id, media.length, isMediaLoading, hasMoreMedia, fetchAttachments]);
 
     if (!conversation) return null;
 
