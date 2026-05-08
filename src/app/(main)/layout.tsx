@@ -18,7 +18,7 @@ export default function RootLayout({
             <div className="min-h-full w-full flex flex-1 justify-center overflow-y-auto pb-4">
                 <div className="relative flex w-full max-w-370">
                     <Sidebar />
-                    <main className="w-full max-w-full sm:max-w-[calc(100%-var(--small-sidebar-width))] md:max-w-[calc(100%-var(--sidebar-width))]] h-full ml-0 flex-1 pb-6 sm:ml-(--small-sidebar-width) md:ml-(--sidebar-width)">
+                    <main className="w-full max-w-full sm:max-w-[calc(100%-var(--small-sidebar-width))] md:max-w-[calc(100%-var(--sidebar-width))] h-full ml-0 flex-1 pb-6 sm:ml-(--small-sidebar-width) md:ml-(--sidebar-width)">
                         <div className="h-full">{children}</div>
                     </main>
                 </div>
