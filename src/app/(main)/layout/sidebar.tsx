@@ -16,6 +16,7 @@ import {
     Ticket,
     Truck,
     Users,
+    Video,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -168,6 +169,22 @@ export default function Sidebar() {
                                         <MessageSquare className="h-4 w-4" />
                                         <span className="text-sm font-medium tracking-tight sm:hidden md:block">
                                             Community
+                                        </span>
+                                    </Link>
+                                </RovingItem>
+
+                                <RovingItem>
+                                    <Link
+                                        href="/ome"
+                                        onClick={handleClickSidebarTab}
+                                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
+                                                    ${pathname === '/ome' ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
+                                                `}
+                                    >
+                                        <Video className="h-4 w-4 text-blue-500" />
+                                        <span className="text-sm font-medium tracking-tight sm:hidden md:block">
+                                            Ome Video
                                         </span>
                                     </Link>
                                 </RovingItem>

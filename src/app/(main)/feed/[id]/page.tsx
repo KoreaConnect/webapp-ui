@@ -35,6 +35,7 @@ const RecursiveReplies: React.FC<RecursiveRepliesProps> = ({ replies, onReplyCli
                         replyToUser={parentUser}
                         style={{
                             marginLeft: reply.depth < 4 ? `${(reply.depth - 1) * 24}px` : `${2 * 24}px`,
+                            bottom: '16px',
                         }}
                     />
                     {reply.replies.length > 0 && (
@@ -144,12 +145,7 @@ export default function PostDetailPage() {
                 </div>
 
                 {/* Main Post */}
-                <ThreadCard
-                    post={mainPost}
-                    isDetail
-                    onReplyClick={onReplyClick}
-                    showConnector={threadData.replies.length > 0}
-                />
+                <ThreadCard post={mainPost} isDetail onReplyClick={onReplyClick} showConnector={false} />
 
                 {/* Section Indicator: Reply Thread */}
                 <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-900/10">

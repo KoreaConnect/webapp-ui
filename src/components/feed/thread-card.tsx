@@ -123,12 +123,12 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                         </div>
 
                         <div onClick={handleContentClick} className={cn(!isDetail && 'cursor-pointer')}>
-                            {replyToUser && (
+                            {/* {replyToUser && (
                                 <div className="flex items-center gap-1 mb-1 text-[13px] text-zinc-500">
                                     <span>Replying to</span>
                                     <span className="text-primary font-medium hover:underline">@{replyToUser}</span>
                                 </div>
-                            )}
+                            )} */}
                             <p
                                 className={cn(
                                     'leading-[1.5] text-zinc-800 dark:text-zinc-200 mb-3 whitespace-pre-wrap break-words',
@@ -170,7 +170,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({
                         <div
                             className={cn(
                                 'flex gap-5 text-zinc-500 dark:text-zinc-400',
-                                isDetail && !isReply && 'border-t border-zinc-100 dark:border-zinc-800/50 pt-3',
+                                // isDetail && !isReply && 'border-t border-zinc-100 dark:border-zinc-800/50 pt-3',
                             )}
                         >
                             <button
