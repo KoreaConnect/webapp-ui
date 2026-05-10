@@ -118,7 +118,7 @@ export default function Sidebar() {
             <aside
                 className={cn(
                     `fixed rounded-tr-2xl rounded-br-2xl top-0 h-full w-sidebar sm:w-(--small-sidebar-width) md:w-sidebar shrink-0 bg-background \
-                    sm:block sm:left-auto sm:bg-white dark:sm:bg-black sm:translate-x-0  sm:top-header sm:rounded-none md:bg-transparent\
+                    sm:block sm:left-auto sm:bg-white dark:sm:bg-black sm:translate-x-0  sm:top-header sm:rounded-none md:bg-transparent dark:md:bg-transparent\
                     z-(--global-sidebar-z-index) border-r border-border left-0 transition-transform duration-300 ease \
                     sm:z-0
 
