@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import { useToastStore } from '@/store/use-toast-store';
 import { Globe, Mic, Settings2, Video } from 'lucide-react';
 
 import { FilterModal } from '@/components/ome/filter-modal';
@@ -15,10 +16,22 @@ import { useOmeSession } from '@/hooks/use-ome-session';
 export default function OmePage() {
     const { status, partner, localStream, chatMode, startSession, stopSession, nextPartner } = useOmeSession();
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const { show } = useToastStore();
 
-    const isIdle = status === 'idle';
+    const isIdle = status === 'idle' || status === 'error';
     const isSearching = status === 'searching';
     const isConnected = status === 'connected';
+
+    useEffect(() => {
+        if (status === 'error') {
+            show({
+                title: 'Permission Denied',
+                message: 'Please allow camera and microphone access to start chatting.',
+                type: 'error',
+            });
+            stopSession();
+        }
+    }, [status, show, stopSession]);
 
     return (
         <div className="flex h-[calc(100vh-64px)] w-full flex-col bg-background text-foreground transition-colors duration-300">
