@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Layout, User } from 'lucide-react';
+import { Layout, Maximize, Minimize, User } from 'lucide-react';
 
 import { cn } from '@/utils';
 
@@ -25,7 +25,17 @@ export const VideoContainer = ({
 }: VideoContainerProps) => {
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const [layoutMode, setLayoutMode] = useState<LayoutMode>('pip');
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
 
     useEffect(() => {
         if (localVideoRef.current && localStream) {
@@ -39,6 +49,18 @@ export const VideoContainer = ({
         }
     }, [remoteStream]);
 
+    const toggleFullscreen = () => {
+        if (!containerRef.current) return;
+
+        if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen().catch((err) => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
     const cycleLayout = () => {
         const modes: LayoutMode[] = ['pip', 'swapped', 'grid'];
         const currentIndex = modes.indexOf(layoutMode);
@@ -47,7 +69,13 @@ export const VideoContainer = ({
     };
 
     return (
-        <div className="relative h-full w-full overflow-hidden rounded-3xl bg-accent shadow-2xl ring-1 ring-border transition-all duration-500">
+        <div
+            ref={containerRef}
+            className={cn(
+                'relative h-full w-full overflow-hidden bg-accent shadow-2xl ring-1 ring-border transition-all duration-500',
+                isFullscreen ? 'rounded-none' : 'rounded-3xl',
+            )}
+        >
             <div
                 className={cn(
                     'grid h-full w-full transition-all duration-500 gap-2 p-2',
@@ -123,16 +151,28 @@ export const VideoContainer = ({
                 </div>
             </div>
 
-            {/* Layout Toggle Button */}
-            {!isSearching && (remoteStream || localStream) && (
+            {/* Action Buttons Overlay */}
+            <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+                {/* Layout Toggle Button */}
+                {!isSearching && (remoteStream || localStream) && (
+                    <button
+                        onClick={cycleLayout}
+                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/60 text-foreground backdrop-blur-xl ring-1 ring-border shadow-lg transition-all hover:bg-background/80 hover:scale-105 active:scale-95"
+                        title="Change Layout"
+                    >
+                        <Layout className="h-5 w-5" />
+                    </button>
+                )}
+
+                {/* Fullscreen Toggle Button */}
                 <button
-                    onClick={cycleLayout}
-                    className="absolute top-6 right-6 z-20 flex h-10 w-10 items-center justify-center rounded-xl bg-background/60 text-foreground backdrop-blur-xl ring-1 ring-border shadow-lg transition-all hover:bg-background/80 hover:scale-105 active:scale-95"
-                    title="Change Layout"
+                    onClick={toggleFullscreen}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/60 text-foreground backdrop-blur-xl ring-1 ring-border shadow-lg transition-all hover:bg-background/80 hover:scale-105 active:scale-95"
+                    title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
                 >
-                    <Layout className="h-5 w-5" />
+                    {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
                 </button>
-            )}
+            </div>
 
             {/* Partner Info Overlay */}
             {partnerName && !isSearching && layoutMode === 'pip' && (

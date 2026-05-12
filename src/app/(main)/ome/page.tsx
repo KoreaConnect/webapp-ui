@@ -36,21 +36,21 @@ export default function OmePage() {
     return (
         <div className="flex h-[calc(100vh-64px)] w-full flex-col bg-background text-foreground transition-colors duration-300">
             {/* Header / Branding */}
-            <div className="flex items-center justify-between p-4 lg:px-8 border-b border-border">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-[0_0_15px_rgba(232,60,145,0.4)]">
-                        <Globe className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-black uppercase tracking-tighter">KOCO</h1>
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold opacity-50">
-                            <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                            14,203 ONLINE
+            {isIdle && (
+                <div className="flex items-center justify-between p-4 lg:px-8 border-b border-border animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-[0_0_15px_rgba(232,60,145,0.4)]">
+                            <Globe className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black uppercase tracking-tighter">KOCO</h1>
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold opacity-50">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                                14,203 ONLINE
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {isIdle && (
                     <Button
                         variant="ghost"
                         size="icon"
@@ -59,8 +59,8 @@ export default function OmePage() {
                     >
                         <Settings2 className="h-5 w-5" />
                     </Button>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Main Section */}
             <div className="relative flex flex-1 flex-col p-4 lg:p-8 max-w-6xl mx-auto w-full overflow-hidden">
