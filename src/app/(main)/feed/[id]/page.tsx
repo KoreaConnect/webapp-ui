@@ -6,11 +6,15 @@ import { useToastStore } from '@/store/use-toast-store';
 import { Post, ThreadPost, ThreadResponse } from '@/types/post.type';
 import { useParams, useRouter } from 'next/navigation';
 
+import QuickReply from '@/components/feed/quick-reply';
 import { ThreadCard } from '@/components/feed/thread-card';
 import ReplyModal from '@/components/reply-modal';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
 import { Loader } from '@/components/ui/loader';
+
+// Assuming Avatar component exists in ui, or use a placeholder div
+// import Avatar from '@/components/ui/avatar';
 
 import { postService } from '@/services';
 
@@ -60,7 +64,6 @@ export default function PostDetailPage() {
 
     const [isReplyOpen, setIsReplyOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
     const fetchThread = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -147,16 +150,17 @@ export default function PostDetailPage() {
                 {/* Main Post */}
                 <ThreadCard post={mainPost} isDetail onReplyClick={onReplyClick} showConnector={false} />
 
-                {/* Section Indicator: Reply Thread */}
                 <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/30 dark:bg-zinc-900/10">
                     <span className="text-[11px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.1em]">
-                        Reply Thread
+                        Replies
                     </span>
                     <div className="h-[1px] grow bg-zinc-100/50 dark:bg-zinc-800/50" />
                     {threadData.replies.length > 0 && (
                         <span className="text-[11px] font-bold text-zinc-400">{threadData.replies.length}</span>
                     )}
                 </div>
+
+                <QuickReply mainPost={mainPost} onSuccess={fetchThread} />
 
                 {/* Recursive Replies */}
                 <div className="mt-0">
@@ -172,7 +176,7 @@ export default function PostDetailPage() {
                 </div>
             </div>
 
-            {/* Hidden Reply Dialog */}
+            {/* Hidden Reply Dialog - Still available for full replies */}
             {selectedPost && (
                 <DialogWrapper open={isReplyOpen} onOpenChange={setIsReplyOpen}>
                     <ReplyModal
