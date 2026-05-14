@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useToastStore } from '@/store/use-toast-store';
 import { Globe, Mic, Settings2, Video } from 'lucide-react';
 
-import { FilterModal } from '@/components/ome/filter-modal';
 import { MatchOverlay } from '@/components/ome/match-overlay';
 import { OmeControls } from '@/components/ome/ome-controls';
 import { VideoContainer } from '@/components/ome/video-container';
@@ -14,8 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useOmeSession } from '@/hooks/use-ome-session';
 
 export default function OmePage() {
-    const { status, partner, localStream, chatMode, startSession, stopSession, nextPartner } = useOmeSession();
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const { status, partner, localStream, chatMode, error, startSession, stopSession, nextPartner } = useOmeSession();
     const { show } = useToastStore();
 
     const isIdle = status === 'idle' || status === 'error';
@@ -23,15 +21,26 @@ export default function OmePage() {
     const isConnected = status === 'connected';
 
     useEffect(() => {
-        if (status === 'error') {
+        if (status === 'error' && error) {
+            let title = 'Connection Error';
+            let message = 'An error occurred while starting the session.';
+
+            if (error.name === 'NotAllowedError') {
+                title = 'Permission Denied';
+                message = 'Please allow camera and microphone access to start chatting.';
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                title = 'Device Not Found';
+                message = 'No camera or microphone was found on your device.';
+            }
+
             show({
-                title: 'Permission Denied',
-                message: 'Please allow camera and microphone access to start chatting.',
+                title,
+                message,
                 type: 'error',
             });
             stopSession();
         }
-    }, [status, show, stopSession]);
+    }, [status, error, show, stopSession]);
 
     return (
         <div className="flex h-[calc(100vh-64px)] w-full flex-col bg-background text-foreground transition-colors duration-300">
@@ -50,15 +59,6 @@ export default function OmePage() {
                             </div>
                         </div>
                     </div>
-
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsFilterOpen(true)}
-                        className="rounded-xl hover:bg-accent text-foreground/60 hover:text-foreground"
-                    >
-                        <Settings2 className="h-5 w-5" />
-                    </Button>
                 </div>
             )}
 
@@ -132,9 +132,6 @@ export default function OmePage() {
                     </div>
                 )}
             </div>
-
-            {/* Filter Modal */}
-            <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
         </div>
     );
 }
