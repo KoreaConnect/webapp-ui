@@ -15,11 +15,22 @@ interface OmeControlsProps {
     onNext: () => void;
     onStop: () => void;
     onAddFriend?: () => void;
+    isMicOn?: boolean;
+    isCamOn?: boolean;
+    onToggleMic?: () => void;
+    onToggleCam?: () => void;
 }
 
-export const OmeControls = ({ status, onNext, onStop, onAddFriend }: OmeControlsProps) => {
-    const [isMicOn, setIsMicOn] = useState(true);
-    const [isCamOn, setIsCamOn] = useState(true);
+export const OmeControls = ({
+    status,
+    onNext,
+    onStop,
+    onAddFriend,
+    isMicOn = true,
+    isCamOn = true,
+    onToggleMic,
+    onToggleCam,
+}: OmeControlsProps) => {
     const [isLiked, setIsLiked] = useState(false);
 
     const isConnected = status === 'connected';
@@ -38,7 +49,7 @@ export const OmeControls = ({ status, onNext, onStop, onAddFriend }: OmeControls
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsMicOn(!isMicOn)}
+                    onClick={onToggleMic}
                     className={cn(
                         'h-12 w-12 rounded-xl transition-all duration-300',
                         isMicOn ? 'text-foreground hover:bg-accent' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20',
@@ -49,7 +60,7 @@ export const OmeControls = ({ status, onNext, onStop, onAddFriend }: OmeControls
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsCamOn(!isCamOn)}
+                    onClick={onToggleCam}
                     className={cn(
                         'h-12 w-12 rounded-xl transition-all duration-300',
                         isCamOn ? 'text-foreground hover:bg-accent' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20',

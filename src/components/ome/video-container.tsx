@@ -12,6 +12,7 @@ interface VideoContainerProps {
     isSearching?: boolean;
     partnerName?: string;
     chatMode?: 'video' | 'voice';
+    children?: React.ReactNode;
 }
 
 type LayoutMode = 'pip' | 'swapped' | 'grid';
@@ -22,6 +23,7 @@ export const VideoContainer = ({
     isSearching,
     partnerName,
     chatMode = 'video',
+    children,
 }: VideoContainerProps) => {
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -84,17 +86,18 @@ export const VideoContainer = ({
             >
                 {/* Remote Video Container */}
                 <div
+                    onClick={() => layoutMode === 'swapped' && setLayoutMode('pip')}
                     className={cn(
                         'relative overflow-hidden rounded-2xl bg-background/40 transition-all duration-500',
                         layoutMode === 'pip' && 'absolute inset-0 z-0',
                         layoutMode === 'swapped' &&
-                            'absolute bottom-6 right-6 z-10 h-32 w-48 ring-1 ring-border shadow-xl lg:h-40 lg:w-60',
+                            'absolute top-24 right-6 z-10 h-32 w-48 ring-1 ring-border shadow-xl lg:h-40 lg:w-60 cursor-pointer hover:scale-105 active:scale-95',
                         layoutMode === 'grid' && 'h-full w-full',
                     )}
                 >
-                    <div className="flex h-full w-full items-center justify-center">
+                    <div className="flex h-full w-full items-center justify-center pointer-events-none">
                         {remoteStream && chatMode === 'video' ? (
-                            <video ref={remoteVideoRef} autoPlay playsInline className="h-full w-full object-cover" />
+                            <video ref={remoteVideoRef} autoPlay playsInline className="h-full w-full object-contain" />
                         ) : (
                             <div className="flex flex-col items-center gap-4 opacity-40">
                                 <div
@@ -124,10 +127,11 @@ export const VideoContainer = ({
 
                 {/* Local Video Container */}
                 <div
+                    onClick={() => layoutMode === 'pip' && setLayoutMode('swapped')}
                     className={cn(
                         'relative overflow-hidden rounded-2xl bg-background/40 transition-all duration-500',
                         layoutMode === 'pip' &&
-                            'absolute bottom-6 right-6 z-10 h-32 w-48 ring-1 ring-border shadow-xl lg:h-40 lg:w-60',
+                            'absolute top-24 right-6 z-10 h-32 w-48 ring-1 ring-border shadow-xl lg:h-40 lg:w-60 cursor-pointer hover:scale-105 active:scale-95',
                         layoutMode === 'swapped' && 'absolute inset-0 z-0',
                         layoutMode === 'grid' && 'h-full w-full',
                     )}
@@ -138,7 +142,7 @@ export const VideoContainer = ({
                             autoPlay
                             playsInline
                             muted
-                            className="h-full w-full object-cover scale-x-[-1]"
+                            className="h-full w-full object-contain scale-x-[-1] pointer-events-none"
                         />
                     ) : (
                         <div className="flex h-full w-full items-center justify-center opacity-30">
@@ -190,6 +194,9 @@ export const VideoContainer = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent animate-pulse" />
                 </div>
             )}
+
+            {/* Children / Overlays */}
+            {children}
         </div>
     );
 };

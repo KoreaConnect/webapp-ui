@@ -26,22 +26,100 @@ export const useOmeSession = () => {
     const [chatMode, setChatMode] = useState<OmeChatMode>('video');
     const [partner, setPartner] = useState<OmePartner | null>(null);
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+    const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+    const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+    const [error, setError] = useState<{ name: string; message: string } | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const startSession = useCallback(async (mode: OmeChatMode = 'video') => {
         try {
             setChatMode(mode);
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: mode === 'video',
-                audio: true,
-            });
+            setError(null);
+            setIsAudioEnabled(true);
+            setIsVideoEnabled(mode === 'video');
+
+            let stream: MediaStream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: mode === 'video',
+                    audio: true,
+                });
+            } catch (err) {
+                const errorObj = err as Error;
+                // Handle case where camera is missing but user requested video
+                if (
+                    mode === 'video' &&
+                    (errorObj.name === 'NotFoundError' || errorObj.name === 'DevicesNotFoundError')
+                ) {
+                    console.warn('Camera not found, attempting audio-only fallback');
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: false,
+                        audio: true,
+                    });
+                    setChatMode('voice');
+                    setIsVideoEnabled(false);
+                } else {
+                    throw err;
+                }
+            }
+
             setLocalStream(stream);
             setStatus('searching');
-        } catch (error) {
-            console.error('Failed to get media devices:', error);
+        } catch (err) {
+            const errorObj = err as Error;
+            console.error('Failed to get media devices:', errorObj);
+            setError({
+                name: errorObj.name || 'Error',
+                message: errorObj.message || 'Could not access media devices',
+            });
             setStatus('error');
         }
     }, []);
+
+    const toggleAudio = useCallback(() => {
+        if (localStream) {
+            const audioTracks = localStream.getAudioTracks();
+            audioTracks.forEach((track) => {
+                track.enabled = !track.enabled;
+            });
+            setIsAudioEnabled(audioTracks[0]?.enabled ?? false);
+        }
+    }, [localStream]);
+
+    const toggleVideo = useCallback(async () => {
+        if (localStream) {
+            const videoTracks = localStream.getVideoTracks();
+
+            if (videoTracks.length === 0) {
+                // Dynamically request video track if missing (e.g. started in voice mode)
+                try {
+                    const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const newTrack = videoStream.getVideoTracks()[0];
+                    localStream.addTrack(newTrack);
+                    // Re-create MediaStream to trigger updates in components
+                    setLocalStream(new MediaStream(localStream.getTracks()));
+                    setIsVideoEnabled(true);
+                    setChatMode('video');
+                } catch (err) {
+                    const errorObj = err as Error;
+                    console.error('Failed to add video track:', errorObj);
+                    setError({
+                        name: errorObj.name || 'Error',
+                        message: errorObj.message || 'Could not access camera',
+                    });
+                }
+            } else {
+                const newState = !videoTracks[0].enabled;
+                videoTracks.forEach((track) => {
+                    track.enabled = newState;
+                });
+                setIsVideoEnabled(newState);
+                if (newState) {
+                    setChatMode('video');
+                }
+            }
+        }
+    }, [localStream]);
 
     const stopSession = useCallback(() => {
         if (localStream) {
@@ -53,6 +131,9 @@ export const useOmeSession = () => {
         }
         setStatus('idle');
         setPartner(null);
+        setError(null);
+        setIsAudioEnabled(true);
+        setIsVideoEnabled(true);
     }, [localStream]);
 
     const nextPartner = useCallback(() => {
@@ -86,9 +167,14 @@ export const useOmeSession = () => {
         chatMode,
         partner,
         localStream,
+        isAudioEnabled,
+        isVideoEnabled,
+        error,
         startSession,
         stopSession,
         nextPartner,
         endSession,
+        toggleAudio,
+        toggleVideo,
     };
 };
