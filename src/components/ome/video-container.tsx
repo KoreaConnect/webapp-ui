@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Layout, Maximize, Minimize, User } from 'lucide-react';
+import { Layout, MapPin, Maximize, Minimize, User } from 'lucide-react';
 
 import { cn } from '@/utils';
 
@@ -99,22 +99,60 @@ export const VideoContainer = ({
                         {remoteStream && chatMode === 'video' ? (
                             <video ref={remoteVideoRef} autoPlay playsInline className="h-full w-full object-contain" />
                         ) : (
-                            <div className="flex flex-col items-center gap-4 opacity-40">
-                                <div
-                                    className={cn(
-                                        'flex h-20 w-20 items-center justify-center rounded-full bg-background backdrop-blur-xl ring-1 ring-border',
-                                        isSearching && 'animate-pulse',
-                                    )}
-                                >
-                                    <User className="h-10 w-10" />
-                                </div>
+                            <div className="flex flex-col items-center gap-8">
                                 {isSearching ? (
-                                    <div className="text-center">
-                                        <p className="text-sm font-bold text-foreground">Finding match...</p>
+                                    <div className="relative flex items-center justify-center">
+                                        {/* Radar Effect */}
+                                        <div className="absolute h-64 w-64 rounded-full border border-primary/20" />
+                                        <div className="absolute h-48 w-48 rounded-full border border-primary/10" />
+                                        <div className="absolute h-32 w-32 rounded-full border border-primary/5" />
+
+                                        {/* Spinning Radar Line */}
+                                        <div className="absolute h-64 w-64 rounded-full animate-[spin_4s_linear_infinite]">
+                                            <div className="h-1/2 w-1 bg-gradient-to-t from-primary to-transparent blur-[1px] mx-auto rounded-full origin-bottom" />
+                                        </div>
+
+                                        {/* Pulse Rings */}
+                                        <div className="absolute h-24 w-24 rounded-full bg-primary/20 animate-ping opacity-20" />
+
+                                        {/* Center Avatar */}
+                                        <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-background/80 backdrop-blur-2xl ring-2 ring-primary/30 shadow-[0_0_40px_rgba(232,60,145,0.2)]">
+                                            <User className="h-10 w-10 text-primary animate-pulse" />
+                                        </div>
                                     </div>
                                 ) : (
-                                    <p className="text-xs font-medium">No partner</p>
+                                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-background/40 backdrop-blur-xl ring-1 ring-border opacity-40">
+                                        <User className="h-10 w-10" />
+                                    </div>
                                 )}
+
+                                <div
+                                    className={cn(
+                                        'text-center space-y-2 transition-all duration-500',
+                                        isSearching ? 'translate-y-4' : 'opacity-40',
+                                    )}
+                                >
+                                    {isSearching ? (
+                                        <>
+                                            <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter animate-pulse">
+                                                Finding Match
+                                                <span className="inline-flex w-8 justify-start">
+                                                    <span className="animate-[bounce_1.5s_infinite]">.</span>
+                                                    <span className="animate-[bounce_1.5s_0.2s_infinite]">.</span>
+                                                    <span className="animate-[bounce_1.5s_0.4s_infinite]">.</span>
+                                                </span>
+                                            </h3>
+                                            <div className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                                                <MapPin className="h-4 w-4" />
+                                                <span className="text-xs font-black uppercase tracking-widest">
+                                                    Searching Globally
+                                                </span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <p className="text-sm font-bold opacity-60">No partner connected</p>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -191,7 +229,7 @@ export const VideoContainer = ({
             {/* Scanning Effect for searching */}
             {isSearching && (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-primary/0 to-transparent animate-pulse" />
                 </div>
             )}
 
