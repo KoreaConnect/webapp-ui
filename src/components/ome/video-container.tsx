@@ -99,9 +99,19 @@ export const VideoContainer = ({
                         {remoteStream && chatMode === 'video' ? (
                             <video ref={remoteVideoRef} autoPlay playsInline className="h-full w-full object-contain" />
                         ) : (
-                            <div className="flex flex-col items-center gap-8">
+                            <div
+                                className={cn(
+                                    'flex flex-col items-center gap-8 transition-all duration-500',
+                                    layoutMode === 'swapped' && 'gap-3',
+                                )}
+                            >
                                 {isSearching ? (
-                                    <div className="relative flex items-center justify-center">
+                                    <div
+                                        className={cn(
+                                            'relative flex items-center justify-center transition-all duration-500',
+                                            layoutMode === 'swapped' && 'scale-[0.45]',
+                                        )}
+                                    >
                                         {/* Radar Effect */}
                                         <div className="absolute h-64 w-64 rounded-full border border-primary/20" />
                                         <div className="absolute h-48 w-48 rounded-full border border-primary/10" />
@@ -121,20 +131,39 @@ export const VideoContainer = ({
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-background/40 backdrop-blur-xl ring-1 ring-border opacity-40">
-                                        <User className="h-10 w-10" />
+                                    <div
+                                        className={cn(
+                                            'flex items-center justify-center rounded-full bg-background/40 backdrop-blur-xl ring-1 ring-border opacity-40 transition-all duration-500',
+                                            layoutMode === 'swapped' ? 'h-12 w-12' : 'h-20 w-20',
+                                        )}
+                                    >
+                                        <User
+                                            className={cn(
+                                                'transition-all duration-500',
+                                                layoutMode === 'swapped' ? 'h-6 w-6' : 'h-10 w-10',
+                                            )}
+                                        />
                                     </div>
                                 )}
 
                                 <div
                                     className={cn(
                                         'text-center space-y-2 transition-all duration-500',
-                                        isSearching ? 'translate-y-4' : 'opacity-40',
+                                        isSearching
+                                            ? layoutMode === 'swapped'
+                                                ? 'translate-y-0'
+                                                : 'translate-y-4'
+                                            : 'opacity-40',
                                     )}
                                 >
                                     {isSearching ? (
                                         <>
-                                            <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter animate-pulse">
+                                            <h3
+                                                className={cn(
+                                                    'font-black text-foreground uppercase tracking-tighter animate-pulse transition-all duration-500',
+                                                    layoutMode === 'swapped' ? 'text-xs' : 'text-2xl',
+                                                )}
+                                            >
                                                 Finding Match
                                                 <span className="inline-flex w-8 justify-start">
                                                     <span className="animate-[bounce_1.5s_infinite]">.</span>
@@ -142,15 +171,24 @@ export const VideoContainer = ({
                                                     <span className="animate-[bounce_1.5s_0.4s_infinite]">.</span>
                                                 </span>
                                             </h3>
-                                            <div className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
-                                                <MapPin className="h-4 w-4" />
-                                                <span className="text-xs font-black uppercase tracking-widest">
-                                                    Searching Globally
-                                                </span>
-                                            </div>
+                                            {layoutMode !== 'swapped' && (
+                                                <div className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                                                    <MapPin className="h-4 w-4" />
+                                                    <span className="text-xs font-black uppercase tracking-widest">
+                                                        Searching Globally
+                                                    </span>
+                                                </div>
+                                            )}
                                         </>
                                     ) : (
-                                        <p className="text-sm font-bold opacity-60">No partner connected</p>
+                                        <p
+                                            className={cn(
+                                                'font-bold transition-all duration-500',
+                                                layoutMode === 'swapped' ? 'text-[10px]' : 'text-sm',
+                                            )}
+                                        >
+                                            No partner connected
+                                        </p>
                                     )}
                                 </div>
                             </div>
