@@ -176,7 +176,6 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
 
     // Fetch conversation
     useEffect(() => {
-        console.log({ conversationId, conversationSlug });
         if (conversationId || conversationSlug) {
             clearMessages();
             closeReplyBox();
@@ -277,7 +276,7 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
                     </div>
                 </ScrollableView>
                 <ReplyBox />
-                <ChatInput onSend={handleSendMessage} ref={chatInputRef} onBack={() => router.back()} />
+                <ChatInput onSend={handleSendMessage} ref={chatInputRef} />
             </div>
             <ChatPanel />
             {!conversation.is_joined && <JoinChatOverlay />}

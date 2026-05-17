@@ -1,4 +1,5 @@
 'use client';
+import { useMessengerSidebar } from '@/context/messenger-sidebar-context';
 import { useSidebar } from '@/context/sidebar-context';
 import {
     Briefcase,
@@ -95,11 +96,13 @@ const categories = [
 export default function Sidebar() {
     const pathname = usePathname();
     const { isSidebarOpen, closeSidebar, toggleSidebar } = useSidebar();
+    const { closeMessengerSidebar } = useMessengerSidebar();
 
     const handleClickSidebarTab = () => {
-        // Close sidebar on mobile when a link is clicked
+        // Close sidebars on mobile when a link is clicked
         if (window.innerWidth < 768) {
             closeSidebar();
+            closeMessengerSidebar();
         }
     };
 
@@ -126,7 +129,7 @@ export default function Sidebar() {
                     isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
-                <div className="flex h-full flex-col">
+                <div className="flex h-full w-full flex-col">
                     {/* Mobile Close Button */}
                     <div className="sm:hidden flex justify-between items-center right-2 top-2 z-10 my-2 mx-3 mt-4">
                         <div className="w-8 h-8 bg-primary rounded-xl"></div>
@@ -135,7 +138,7 @@ export default function Sidebar() {
 
                     {/* Scrollable Content */}
 
-                    <ScrollableView vertical horizontal={false} className="flex-1">
+                    <ScrollableView vertical horizontal={false} className="flex-1 w-full">
                         <nav
                             className="flex flex-col gap-2 px-4 pb-20 pt-4 sm:px-2 md:px-4 sm:pt-6"
                             aria-label="Sidebar"

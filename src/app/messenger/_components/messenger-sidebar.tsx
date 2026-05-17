@@ -25,6 +25,12 @@ export default function MessengerSidebar() {
         fetchConversations();
     }, [fetchConversations]);
 
+    const handleClickConversation = () => {
+        if (window.innerWidth < 768) {
+            closeMessengerSidebar();
+        }
+    };
+
     return (
         <aside
             className={cn(
@@ -44,7 +50,7 @@ export default function MessengerSidebar() {
                     />
                 )}
             </div>
-            <ScrollableView vertical className="flex-1">
+            <ScrollableView vertical horizontal={false} className="flex-1 min-w-full" style={{ display: 'block' }}>
                 {isLoading && conversations.length === 0 ? (
                     <div className="flex justify-center p-4">
                         <Loader size={24} />
@@ -59,6 +65,7 @@ export default function MessengerSidebar() {
                                 <Link
                                     key={conv.id}
                                     href={`/messenger/${conv.id}`}
+                                    onClick={handleClickConversation}
                                     className={cn(
                                         'flex items-center gap-3 p-4 hover:bg-accent/50 transition-colors border-b border-border/50 relative',
                                         isActive && 'bg-accent',
@@ -71,10 +78,12 @@ export default function MessengerSidebar() {
                                         size={48}
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-baseline">
-                                            <h3 className="font-semibold truncate text-sm">{conv.title}</h3>
+                                        <div className="flex justify-between items-baseline gap-2">
+                                            <h3 className="font-semibold truncate text-sm flex-1 min-w-0">
+                                                {conv.title}
+                                            </h3>
                                             {conv.last_message_at && (
-                                                <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
+                                                <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
                                                     {new Date(conv.last_message_at).toLocaleTimeString([], {
                                                         hour: '2-digit',
                                                         minute: '2-digit',
@@ -82,7 +91,7 @@ export default function MessengerSidebar() {
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex justify-between items-center mt-0.5">
+                                        <div className="flex justify-between items-center mt-0.5 gap-2">
                                             <p className="text-xs text-muted-foreground truncate flex-1 min-w-0">
                                                 {lastMsg ? (
                                                     <>
@@ -96,7 +105,7 @@ export default function MessengerSidebar() {
                                                 )}
                                             </p>
                                             {conv.unread_count && conv.unread_count > 0 && (
-                                                <span className="ml-2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.2rem] text-center">
+                                                <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.2rem] text-center shrink-0">
                                                     {conv.unread_count}
                                                 </span>
                                             )}
