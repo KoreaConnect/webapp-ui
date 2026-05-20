@@ -1,3 +1,4 @@
+import { MessengerSidebarProvider } from '@/context/messenger-sidebar-context';
 import { SidebarProvider } from '@/context/sidebar-context';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -35,7 +36,9 @@ export default function RootLayout({
                 <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                     <AuthProvider>
                         <SidebarProvider>
-                            <SocketProvider>{children}</SocketProvider>
+                            <MessengerSidebarProvider>
+                                <SocketProvider>{children}</SocketProvider>
+                            </MessengerSidebarProvider>
                         </SidebarProvider>
                     </AuthProvider>
                     <ToastProvider />

@@ -1,10 +1,8 @@
 'use client';
-import { useMessengerSidebar } from '@/context/messenger-sidebar-context';
 import { useSidebar } from '@/context/sidebar-context';
 import {
     Briefcase,
     Calendar,
-    CarTaxiFront,
     HeartHandshake,
     Home,
     MapPin,
@@ -45,31 +43,10 @@ const categories = [
         href: '/c/home-transfer',
         icon: Ticket,
     },
-
-    {
-        name: 'Parcel Delivery',
-        href: '/c/parcel-delivery',
-        icon: Package,
-    },
     {
         name: 'Roommate Finder',
         href: '/c/roommate-finder',
         icon: Users,
-    },
-    {
-        name: 'House Renting',
-        href: '/c/house-renting',
-        icon: Home,
-    },
-    {
-        name: 'Lost & Found',
-        href: '/c/lost-found',
-        icon: MapPin,
-    },
-    {
-        name: 'Buy & Sell',
-        href: '/c/buy-sell',
-        icon: ShoppingCart,
     },
     {
         name: 'Job & Part-time',
@@ -96,14 +73,9 @@ const categories = [
 export default function Sidebar() {
     const pathname = usePathname();
     const { isSidebarOpen, closeSidebar, toggleSidebar } = useSidebar();
-    const { closeMessengerSidebar } = useMessengerSidebar();
 
     const handleClickSidebarTab = () => {
-        // Close sidebars on mobile when a link is clicked
-        if (window.innerWidth < 768) {
-            closeSidebar();
-            closeMessengerSidebar();
-        }
+        closeSidebar();
     };
 
     return (

@@ -2,7 +2,7 @@
 
 import { useMessengerSidebar } from '@/context/messenger-sidebar-context';
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
-import { Menu, PanelLeft, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { PanelLeft, PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import Avatar from '../ui/avatar';

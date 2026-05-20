@@ -11,6 +11,7 @@ import { MatchOverlay } from '@/components/ome/match-overlay';
 import { OmeControls } from '@/components/ome/ome-controls';
 import { VideoContainer } from '@/components/ome/video-container';
 import { Button } from '@/components/ui/button';
+import { UnderDevelopment } from '@/components/under-development';
 
 import { useOmeSession } from '@/hooks/use-ome-session';
 
@@ -122,87 +123,88 @@ export default function OmePage() {
     };
 
     return (
-        <div className="flex h-[calc(100vh-64px)] w-full flex-col bg-background text-foreground transition-colors duration-300 border-r border-border">
-            {/* Main Section */}
-            <div className="relative flex flex-1 flex-col p-4 lg:p-8 max-w-6xl mx-auto w-full overflow-hidden">
-                {isIdle ? (
-                    <div className="flex flex-1 flex-col items-center justify-center text-center space-y-8 animate-in fade-in zoom-in duration-500">
-                        <div className="space-y-4">
-                            <h2 className="text-4xl lg:text-6xl font-black uppercase tracking-tight leading-none">
-                                Meet <span className="text-primary">New</span> People
-                            </h2>
-                            <p className="opacity-50 text-lg max-w-md mx-auto font-medium">
-                                Instant video and voice connections with people around the world.
-                            </p>
-                        </div>
+        <UnderDevelopment />
+        // <div className="flex h-[calc(100vh-64px)] w-full flex-col bg-background text-foreground transition-colors duration-300 border-r border-border">
+        //     {/* Main Section */}
+        //     <div className="relative flex flex-1 flex-col p-4 lg:p-8 max-w-6xl mx-auto w-full overflow-hidden">
+        //         {isIdle ? (
+        //             <div className="flex flex-1 flex-col items-center justify-center text-center space-y-8 animate-in fade-in zoom-in duration-500">
+        //                 <div className="space-y-4">
+        //                     <h2 className="text-4xl lg:text-6xl font-black uppercase tracking-tight leading-none">
+        //                         Meet <span className="text-primary">New</span> People
+        //                     </h2>
+        //                     <p className="opacity-50 text-lg max-w-md mx-auto font-medium">
+        //                         Instant video and voice connections with people around the world.
+        //                     </p>
+        //                 </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                            <Button
-                                onClick={() => startSession('video')}
-                                className="flex-1 h-16 gap-3 rounded-2xl bg-primary text-white text-lg font-bold shadow-[0_0_30px_rgba(232,60,145,0.3)] hover:opacity-90 transition-all hover:scale-[1.02]"
-                            >
-                                <Video className="h-6 w-6" />
-                                VIDEO CHAT
-                            </Button>
-                            <Button
-                                onClick={() => startSession('voice')}
-                                variant="outline"
-                                className="flex-1 h-16 gap-3 rounded-2xl text-lg font-bold border-border hover:bg-accent transition-all hover:scale-[1.02]"
-                            >
-                                <Mic className="h-6 w-6" />
-                                VOICE CHAT
-                            </Button>
-                        </div>
+        //                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+        //                     <Button
+        //                         onClick={() => startSession('video')}
+        //                         className="flex-1 h-16 gap-3 rounded-2xl bg-primary text-white text-lg font-bold shadow-[0_0_30px_rgba(232,60,145,0.3)] hover:opacity-90 transition-all hover:scale-[1.02]"
+        //                     >
+        //                         <Video className="h-6 w-6" />
+        //                         VIDEO CHAT
+        //                     </Button>
+        //                     <Button
+        //                         onClick={() => startSession('voice')}
+        //                         variant="outline"
+        //                         className="flex-1 h-16 gap-3 rounded-2xl text-lg font-bold border-border hover:bg-accent transition-all hover:scale-[1.02]"
+        //                     >
+        //                         <Mic className="h-6 w-6" />
+        //                         VOICE CHAT
+        //                     </Button>
+        //                 </div>
 
-                        <div className="flex items-center gap-8 pt-8">
-                            <div className="flex flex-col items-center">
-                                <p className="text-2xl font-black">5M+</p>
-                                <p className="text-[10px] font-bold opacity-40 uppercase">Matches</p>
-                            </div>
-                            <div className="h-8 w-px bg-border" />
-                            <div className="flex flex-col items-center">
-                                <p className="text-2xl font-black">190+</p>
-                                <p className="text-[10px] font-bold opacity-40 uppercase">Countries</p>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="relative h-full w-full flex flex-col gap-6">
-                        <div className="relative flex-1">
-                            <VideoContainer
-                                localStream={localStream}
-                                remoteStream={isConnected ? new MediaStream() : null}
-                                isSearching={isSearching}
-                                partnerName={partner?.name}
-                                chatMode={chatMode}
-                            >
-                                <MatchOverlay
-                                    status={status}
-                                    partner={partner}
-                                    onNext={nextPartner}
-                                    onCancel={handleStopClick}
-                                    onAddFriend={() => {}}
-                                />
+        //                 <div className="flex items-center gap-8 pt-8">
+        //                     <div className="flex flex-col items-center">
+        //                         <p className="text-2xl font-black">5M+</p>
+        //                         <p className="text-[10px] font-bold opacity-40 uppercase">Matches</p>
+        //                     </div>
+        //                     <div className="h-8 w-px bg-border" />
+        //                     <div className="flex flex-col items-center">
+        //                         <p className="text-2xl font-black">190+</p>
+        //                         <p className="text-[10px] font-bold opacity-40 uppercase">Countries</p>
+        //                     </div>
+        //                 </div>
+        //             </div>
+        //         ) : (
+        //             <div className="relative h-full w-full flex flex-col gap-6">
+        //                 <div className="relative flex-1">
+        //                     <VideoContainer
+        //                         localStream={localStream}
+        //                         remoteStream={isConnected ? new MediaStream() : null}
+        //                         isSearching={isSearching}
+        //                         partnerName={partner?.name}
+        //                         chatMode={chatMode}
+        //                     >
+        //                         <MatchOverlay
+        //                             status={status}
+        //                             partner={partner}
+        //                             onNext={nextPartner}
+        //                             onCancel={handleStopClick}
+        //                             onAddFriend={() => {}}
+        //                         />
 
-                                {/* Controls Bar Overlay */}
-                                <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 w-full max-w-fit px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <OmeControls
-                                        status={status}
-                                        onNext={nextPartner}
-                                        onStop={handleStopClick}
-                                        isMicOn={isAudioEnabled}
-                                        isCamOn={isVideoEnabled}
-                                        onToggleMic={toggleAudio}
-                                        onToggleCam={toggleVideo}
-                                    />
-                                </div>
-                            </VideoContainer>
-                        </div>
-                    </div>
-                )}
-            </div>
+        //                         {/* Controls Bar Overlay */}
+        //                         <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 w-full max-w-fit px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        //                             <OmeControls
+        //                                 status={status}
+        //                                 onNext={nextPartner}
+        //                                 onStop={handleStopClick}
+        //                                 isMicOn={isAudioEnabled}
+        //                                 isCamOn={isVideoEnabled}
+        //                                 onToggleMic={toggleAudio}
+        //                                 onToggleCam={toggleVideo}
+        //                             />
+        //                         </div>
+        //                     </VideoContainer>
+        //                 </div>
+        //             </div>
+        //         )}
+        //     </div>
 
-            <ExitConfirmModal isOpen={isExitModalOpen} onClose={cancelExit} onConfirm={confirmExit} />
-        </div>
+        //     <ExitConfirmModal isOpen={isExitModalOpen} onClose={cancelExit} onConfirm={confirmExit} />
+        // </div>
     );
 }
