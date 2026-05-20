@@ -29,45 +29,45 @@ import { cn } from '@/utils';
 
 const categories = [
     {
-        name: 'Airport Ride Sharing',
+        name: 'Ghép Taxi Sân Bay',
         href: '/c/airport-ride-sharing',
         icon: Plane,
     },
     {
-        name: 'Carry Help',
+        name: 'Gửi & nhận hàng hóa',
         href: '/c/carry-help',
         icon: Truck,
     },
     {
-        name: 'Home Transfer',
+        name: 'Nhượng nhà',
         href: '/c/home-transfer',
         icon: Ticket,
     },
-    {
-        name: 'Roommate Finder',
-        href: '/c/roommate-finder',
-        icon: Users,
-    },
-    {
-        name: 'Job & Part-time',
-        href: '/c/job-part-time',
-        icon: Briefcase,
-    },
-    {
-        name: 'Events & Meetups',
-        href: '/c/events-meetups',
-        icon: Calendar,
-    },
-    {
-        name: 'Help & Support',
-        href: '/c/help-support',
-        icon: HeartHandshake,
-    },
-    {
-        name: 'Announcements',
-        href: '/c/announcements',
-        icon: Megaphone,
-    },
+    // {
+    //     name: 'Roommate Finder',
+    //     href: '/c/roommate-finder',
+    //     icon: Users,
+    // },
+    // {
+    //     name: 'Job & Part-time',
+    //     href: '/c/job-part-time',
+    //     icon: Briefcase,
+    // },
+    // {
+    //     name: 'Events & Meetups',
+    //     href: '/c/events-meetups',
+    //     icon: Calendar,
+    // },
+    // {
+    //     name: 'Help & Support',
+    //     href: '/c/help-support',
+    //     icon: HeartHandshake,
+    // },
+    // {
+    //     name: 'Announcements',
+    //     href: '/c/announcements',
+    //     icon: Megaphone,
+    // },
 ];
 
 export default function Sidebar() {
@@ -143,7 +143,7 @@ export default function Sidebar() {
                                     >
                                         <MessageSquare className="h-4 w-4" />
                                         <span className="text-sm font-medium tracking-tight sm:hidden md:block">
-                                            Community
+                                            Cộng đồng
                                         </span>
                                     </Link>
                                 </RovingItem>
