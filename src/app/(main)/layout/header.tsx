@@ -4,18 +4,18 @@ import { useState } from 'react';
 
 import { useSidebar } from '@/context/sidebar-context';
 import { useAuthStore } from '@/store/use-auth-store';
-import { Bell, Pen, Search, TextAlignJustify, User } from 'lucide-react';
+import { Bell, MessageCircle, Pen, Search, TextAlignJustify, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import CreateThreadModal from '@/components/create-thread-modal';
 import NotificationDropdown from '@/components/notification-dropdown';
 import Avatar from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogWrapper } from '@/components/ui/dialog';
 import { Dropdown } from '@/components/ui/dropdown';
 import UserDropdown from '@/components/user-dropdown';
-import WritePostDialogContent from '@/components/write-post-modal';
 
 const LoggedInHeader = () => {
     const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
@@ -33,8 +33,15 @@ const LoggedInHeader = () => {
                 open={isWriteModalOpen}
                 onOpenChange={setIsWriteModalOpen}
             >
-                <WritePostDialogContent onSelect={() => {}} />
+                <CreateThreadModal onClose={() => setIsWriteModalOpen(false)} />
             </DialogWrapper>
+
+            <Link href="/messenger">
+                <Button variant="ghost" size="icon" className="relative">
+                    <MessageCircle className="h-5 w-5" />
+                </Button>
+            </Link>
+
             <Dropdown
                 trigger={
                     <Button variant="ghost" size="icon">
@@ -90,13 +97,14 @@ export default function Header() {
 
     return (
         <header className="sticky h-header top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md dark:bg-black/80">
-            <div className="mx-auto flex h-header items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-header items-center justify-between px-4">
                 {/* Left side: Menu, Logo, Search bar */}
+
                 <div className="flex items-center gap-4">
                     <Button className="block sm:hidden" variant="ghost" size="icon" onClick={toggleSidebar}>
                         <TextAlignJustify className="h-6 w-6" />
                     </Button>
-                    <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+                    <Link href="/feed" className="flex items-center gap-2 transition-opacity hover:opacity-80">
                         <div className="h-8 w-8 rounded-lg bg-primary dark:bg-white" />
                         <span className="text-xl font-bold tracking-tight text-primary dark:text-white">KOCO</span>
                     </Link>

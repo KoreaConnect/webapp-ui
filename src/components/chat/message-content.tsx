@@ -1,4 +1,4 @@
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
 import {
     type Attachment,
@@ -26,6 +26,38 @@ type MessageContentProps = {
     is_deleted?: boolean;
 };
 
+const ImageAttachment = ({ attachment, index, total }: { attachment: Attachment; index: number; total: number }) => (
+    <a
+        href={attachment.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+            'relative overflow-hidden rounded-md group',
+            total === 1 ? 'aspect-auto max-h-[300px]' : 'aspect-square',
+            total % 2 !== 0 && total > 1 && index === 0 ? 'col-span-2 aspect-video' : '',
+        )}
+    >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+            src={attachment.url}
+            alt={attachment.name || 'Attached image'}
+            className="w-full h-full object-cover transition-transform hover:scale-105"
+        />
+    </a>
+);
+
+const FileAttachment = ({ attachment }: { attachment: Attachment }) => (
+    <a
+        href={attachment.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 p-2 rounded-md bg-white/20 hover:bg-white/30 transition-colors overflow-hidden"
+    >
+        <FileText className="h-4 w-4 shrink-0 text-white" />
+        <span className="text-xs text-white truncate">{attachment.name || 'File'}</span>
+    </a>
+);
+
 export function MessageContent({
     id,
     text,
@@ -37,7 +69,7 @@ export function MessageContent({
     is_deleted,
 }: MessageContentProps) {
     const { fetchMessageContext, setIsWaitContextMessageScrolling } = useCurrentMessages();
-    const { conversation } = useCommunityConversationStore();
+    const { conversation } = useCurrentConversationStore();
 
     const scrollToMessage = async (msgId: string) => {
         // 1. Try to find and scroll immediately (if in current messages)
@@ -67,7 +99,7 @@ export function MessageContent({
                 if (parsed.text) return parsed.text;
                 if (parsed.content) return parsed.content;
             }
-        } catch (_e) {
+        } catch {
             // Not JSON
             return 'Error loading message preview';
         }
@@ -163,29 +195,12 @@ export function MessageContent({
                                 )}
                             >
                                 {imageAttachments.map((attachment, index) => (
-                                    <a
+                                    <ImageAttachment
                                         key={attachment.id}
-                                        href={attachment.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={cn(
-                                            'relative overflow-hidden rounded-md group',
-                                            imageAttachments.length === 1
-                                                ? 'aspect-auto max-h-[300px]'
-                                                : 'aspect-square',
-                                            imageAttachments.length % 2 !== 0 &&
-                                                imageAttachments.length > 1 &&
-                                                index === 0
-                                                ? 'col-span-2 aspect-video'
-                                                : '',
-                                        )}
-                                    >
-                                        <img
-                                            src={attachment.url}
-                                            alt={attachment.name || 'Attached image'}
-                                            className="w-full h-full object-cover transition-transform hover:scale-105"
-                                        />
-                                    </a>
+                                        attachment={attachment}
+                                        index={index}
+                                        total={imageAttachments.length}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -203,16 +218,7 @@ export function MessageContent({
                                 )}
                             >
                                 {fileAttachments.map((attachment) => (
-                                    <a
-                                        key={attachment.id}
-                                        href={attachment.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 p-2 rounded-md bg-white/20 hover:bg-white/30 transition-colors overflow-hidden"
-                                    >
-                                        <FileText className="h-4 w-4 shrink-0 text-white" />
-                                        <span className="text-xs text-white truncate">{attachment.name || 'File'}</span>
-                                    </a>
+                                    <FileAttachment key={attachment.id} attachment={attachment} />
                                 ))}
                             </div>
                         )}

@@ -3,24 +3,23 @@ import { useSidebar } from '@/context/sidebar-context';
 import {
     Briefcase,
     Calendar,
-    CarTaxiFront,
     HeartHandshake,
     Home,
     MapPin,
     Megaphone,
     MessageSquare,
     Package,
+    Plane,
     Rss,
     ShoppingCart,
     Ticket,
     Truck,
     Users,
-    X,
+    Video,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Button } from '@/components/ui/button';
 import CloseButton from '@/components/ui/close-button';
 import { RovingItem } from '@/components/ui/roving-item';
 import { RovingList } from '@/components/ui/roving-list';
@@ -30,66 +29,45 @@ import { cn } from '@/utils';
 
 const categories = [
     {
-        name: 'Taxi Share',
-        href: '/c/taxi-share',
-        icon: CarTaxiFront,
+        name: 'Ghép Taxi Sân Bay',
+        href: '/c/airport-ride-sharing',
+        icon: Plane,
     },
     {
-        name: 'Carry Help',
+        name: 'Gửi & nhận hàng hóa',
         href: '/c/carry-help',
         icon: Truck,
     },
     {
-        name: 'Home Transfer',
+        name: 'Nhượng nhà',
         href: '/c/home-transfer',
         icon: Ticket,
     },
-
-    {
-        name: 'Parcel Delivery',
-        href: '/c/parcel-delivery',
-        icon: Package,
-    },
-    {
-        name: 'Roommate Finder',
-        href: '/c/roommate-finder',
-        icon: Users,
-    },
-    {
-        name: 'House Renting',
-        href: '/c/house-renting',
-        icon: Home,
-    },
-    {
-        name: 'Lost & Found',
-        href: '/c/lost-found',
-        icon: MapPin,
-    },
-    {
-        name: 'Buy & Sell',
-        href: '/c/buy-sell',
-        icon: ShoppingCart,
-    },
-    {
-        name: 'Job & Part-time',
-        href: '/c/job-part-time',
-        icon: Briefcase,
-    },
-    {
-        name: 'Events & Meetups',
-        href: '/c/events-meetups',
-        icon: Calendar,
-    },
-    {
-        name: 'Help & Support',
-        href: '/c/help-support',
-        icon: HeartHandshake,
-    },
-    {
-        name: 'Announcements',
-        href: '/c/announcements',
-        icon: Megaphone,
-    },
+    // {
+    //     name: 'Roommate Finder',
+    //     href: '/c/roommate-finder',
+    //     icon: Users,
+    // },
+    // {
+    //     name: 'Job & Part-time',
+    //     href: '/c/job-part-time',
+    //     icon: Briefcase,
+    // },
+    // {
+    //     name: 'Events & Meetups',
+    //     href: '/c/events-meetups',
+    //     icon: Calendar,
+    // },
+    // {
+    //     name: 'Help & Support',
+    //     href: '/c/help-support',
+    //     icon: HeartHandshake,
+    // },
+    // {
+    //     name: 'Announcements',
+    //     href: '/c/announcements',
+    //     icon: Megaphone,
+    // },
 ];
 
 export default function Sidebar() {
@@ -97,10 +75,7 @@ export default function Sidebar() {
     const { isSidebarOpen, closeSidebar, toggleSidebar } = useSidebar();
 
     const handleClickSidebarTab = () => {
-        // Close sidebar on mobile when a link is clicked
-        if (window.innerWidth < 768) {
-            closeSidebar();
-        }
+        closeSidebar();
     };
 
     return (
@@ -118,7 +93,7 @@ export default function Sidebar() {
             <aside
                 className={cn(
                     `fixed rounded-tr-2xl rounded-br-2xl top-0 h-full w-sidebar sm:w-(--small-sidebar-width) md:w-sidebar shrink-0 bg-background \
-                    sm:block sm:left-auto sm:bg-white sm:translate-x-0  sm:top-header md:border-none sm:rounded-none md:bg-transparent\
+                    sm:block sm:left-auto sm:bg-white dark:sm:bg-black sm:translate-x-0  sm:top-header sm:rounded-none md:bg-transparent dark:md:bg-transparent\
                     z-(--global-sidebar-z-index) border-r border-border left-0 transition-transform duration-300 ease \
                     sm:z-0
 
@@ -126,7 +101,7 @@ export default function Sidebar() {
                     isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
                 )}
             >
-                <div className="flex h-full flex-col">
+                <div className="flex h-full w-full flex-col">
                     {/* Mobile Close Button */}
                     <div className="sm:hidden flex justify-between items-center right-2 top-2 z-10 my-2 mx-3 mt-4">
                         <div className="w-8 h-8 bg-primary rounded-xl"></div>
@@ -135,7 +110,7 @@ export default function Sidebar() {
 
                     {/* Scrollable Content */}
 
-                    <ScrollableView vertical horizontal={false} className="flex-1">
+                    <ScrollableView vertical horizontal={false} className="flex-1 w-full">
                         <nav
                             className="flex flex-col gap-2 px-4 pb-20 pt-4 sm:px-2 md:px-4 sm:pt-6"
                             aria-label="Sidebar"
@@ -147,11 +122,11 @@ export default function Sidebar() {
                                         onClick={handleClickSidebarTab}
                                         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                                     transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
-                                                    ${pathname === '/feed' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                    ${pathname === '/feed' ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
                                                 `}
                                     >
-                                        <Rss className="h-6 w-6" />
-                                        <span className="text-xl font-bold tracking-tight sm:hidden md:block">
+                                        <Rss className="h-4 w-4" />
+                                        <span className="text-sm font-medium tracking-tight sm:hidden md:block">
                                             Feed
                                         </span>
                                     </Link>
@@ -163,12 +138,28 @@ export default function Sidebar() {
                                         onClick={handleClickSidebarTab}
                                         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                                     transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
-                                                    ${pathname === '/community' ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                    ${pathname === '/community' ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
                                                 `}
                                     >
-                                        <MessageSquare className="h-6 w-6" />
-                                        <span className="text-xl font-bold tracking-tight sm:hidden md:block">
-                                            Community
+                                        <MessageSquare className="h-4 w-4" />
+                                        <span className="text-sm font-medium tracking-tight sm:hidden md:block">
+                                            Cộng đồng
+                                        </span>
+                                    </Link>
+                                </RovingItem>
+
+                                <RovingItem>
+                                    <Link
+                                        href="/ome"
+                                        onClick={handleClickSidebarTab}
+                                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+                                                    transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
+                                                    ${pathname === '/ome' ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
+                                                `}
+                                    >
+                                        <Video className="h-4 w-4 text-blue-500" />
+                                        <span className="text-sm font-medium tracking-tight sm:hidden md:block">
+                                            Ome Video
                                         </span>
                                     </Link>
                                 </RovingItem>
@@ -186,7 +177,7 @@ export default function Sidebar() {
                                                 onClick={handleClickSidebarTab}
                                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
                                                         transition-colors focus:outline-none focus:ring-1 focus:ring-primary sm:justify-center md:justify-start
-                                                        ${isActive ? 'bg-primary text-white' : 'text-zinc-600 hover:bg-zinc-50'}
+                                                        ${isActive ? 'bg-accent font-bold' : 'text-zinc-600 hover:bg-accent/50'}
                                                         `}
                                             >
                                                 <category.icon className="h-4 w-4" />

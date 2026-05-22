@@ -1,13 +1,14 @@
 import { useState } from 'react';
 
-import { useReply } from '@/context/reply-context';
 import { useAuthStore } from '@/store/use-auth-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
+import { useReplyStore } from '@/store/use-reply-store';
 import { Reply } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
 
+import { DeleteMessageDialog } from './delete-message-dialog';
 import { MessageActions } from './message-actions';
 import { ReactionPicker } from './reaction-picker';
 
@@ -20,19 +21,29 @@ type MessageToolsProps = {
 function MessageTools({ messageId, position = 'right', is_deleted }: MessageToolsProps) {
     const { messageReactions, toggleReaction } = useMessageReactionStore();
     const { deleteMessage, reportMessage } = useCurrentMessages();
-    const { openReplyBox } = useReply();
+    const { openReplyBox } = useReplyStore();
     const currentUserId = useAuthStore((state) => state.user?.id);
     const { messages } = useCurrentMessages();
     const reactions = messageReactions[messageId] ?? {};
 
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const handleReplyClick = () => {
         const messageToReply = messages.find((msg) => msg.id === messageId);
         if (messageToReply) {
             openReplyBox(messageToReply);
         }
+    };
+
+    const handleDeleteClick = () => {
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        deleteMessage(messageId);
+        setIsDeleteDialogOpen(false);
     };
 
     if (is_deleted) return null;
@@ -64,10 +75,16 @@ function MessageTools({ messageId, position = 'right', is_deleted }: MessageTool
 
             <MessageActions
                 sender={position === 'right' ? 'me' : 'other'}
-                onRemove={() => deleteMessage(messageId)}
+                onRemove={handleDeleteClick}
                 onReport={() => reportMessage(messageId)}
                 align={position === 'right' ? 'end' : 'start'}
                 onOpenChange={setActionMenuOpen}
+            />
+
+            <DeleteMessageDialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                onConfirm={confirmDelete}
             />
         </div>
     );

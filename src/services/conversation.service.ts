@@ -10,6 +10,15 @@ export const getConversationBySlug = async (slug: string) => {
     }
 };
 
+export const getConversationById = async (id: string) => {
+    try {
+        const response = await instance.get(`/conversations/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const joinConversation = async (conversationId: string) => {
     try {
         const response = await instance.post(`/conversations/${conversationId}/join`);
@@ -189,6 +198,47 @@ export const removeReaction = async (messageId: string | number, reaction: strin
 export const deleteMessage = async (messageId: string | number) => {
     try {
         const response = await instance.delete(`/messages/${messageId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export interface CreatePostConversationRequest {
+    post_id: string | number;
+    post_type: 'airport_ride' | string;
+    owner_id: number;
+    message: string;
+}
+
+export const createPostConversation = async (payload: CreatePostConversationRequest) => {
+    try {
+        const response = await instance.post('/conversations/post', payload);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const createDirectConversation = async (payload: {
+    type: string;
+    direct_user: string | number;
+    message: string;
+    postId: string | number;
+}) => {
+    try {
+        const response = await instance.post('/conversations', payload);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getMyConversations = async (limit?: number, offset?: number) => {
+    try {
+        const response = await instance.get('/conversations', {
+            params: { limit, offset },
+        });
         return response.data;
     } catch (error) {
         throw error;

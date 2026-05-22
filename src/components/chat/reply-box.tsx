@@ -2,13 +2,13 @@
 
 import React from 'react';
 
-import { useReply } from '@/context/reply-context';
+import { useReplyStore } from '@/store/use-reply-store';
 import { Reply, X } from 'lucide-react';
 
 import { cn } from '@/utils';
 
 export function ReplyBox() {
-    const { isOpenReplyBox, replyingTo, closeReplyBox } = useReply();
+    const { isOpenReplyBox, replyingTo, closeReplyBox } = useReplyStore();
 
     const getReplyText = () => {
         if (!replyingTo) return '';
@@ -27,7 +27,7 @@ export function ReplyBox() {
         <div
             className={cn(
                 'overflow-hidden transition-all duration-200 ease-in-out border-border',
-                isOpenReplyBox ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0 border-none',
+                isOpenReplyBox ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0 border-none transition-none',
             )}
         >
             <div className="flex items-center gap-4 bg-zinc-100 dark:bg-zinc-800/50 p-3 border-t border-border backdrop-blur-sm">

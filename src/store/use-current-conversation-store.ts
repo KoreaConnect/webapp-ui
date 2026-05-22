@@ -3,7 +3,7 @@ import { create } from 'zustand';
 
 import { conversationService } from '@/services';
 
-type CommunityConversationState = {
+type CurrentConversationState = {
     hasJoined: boolean;
     isJoining: boolean;
     isLeaving: boolean;
@@ -22,7 +22,10 @@ type CommunityConversationState = {
     hasMoreMembers: boolean;
     setConversation: (conversation: Conversation | null) => void;
     updateConversation: (id: string, updates: Partial<Conversation>) => void;
+    updateMemberStatus: (userId: string | number, isOnline: boolean) => void;
+    setOnlineCount: (count: number) => void;
     fetchConversationBySlug: (slug: string) => Promise<void>;
+    fetchConversationById: (id: string) => Promise<void>;
     fetchMembers: (conversationId: string, loadMore?: boolean) => Promise<void>;
     fetchAttachments: (
         conversationId: string,
@@ -31,14 +34,14 @@ type CommunityConversationState = {
     ) => Promise<void>;
 };
 
-export const useCommunityConversationStore = create<CommunityConversationState>((set, get) => ({
+export const useCurrentConversationStore = create<CurrentConversationState>((set, get) => ({
     conversation: null,
     members: [],
     media: [],
     files: [],
-    hasMoreMedia: false,
-    hasMoreFiles: false,
-    hasMoreMembers: false,
+    hasMoreMedia: true,
+    hasMoreFiles: true,
+    hasMoreMembers: true,
     isLoading: false,
     isMembersLoading: false,
     isMediaLoading: false,
@@ -84,8 +87,24 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
         set((state) => ({
             conversation: state.conversation?.id === id ? { ...state.conversation, ...updates } : state.conversation,
         })),
+    updateMemberStatus: (userId, isOnline) =>
+        set((state) => ({
+            members: state.members.map((m) => (m.id.toString() === userId.toString() ? { ...m, isOnline } : m)),
+        })),
+    setOnlineCount: (count) =>
+        set((state) => ({
+            conversation: state.conversation ? { ...state.conversation, onlineCount: count } : null,
+        })),
     fetchConversationBySlug: async (slug) => {
-        set({ isLoading: true });
+        set({
+            isLoading: true,
+            members: [],
+            media: [],
+            files: [],
+            hasMoreMembers: true,
+            hasMoreMedia: true,
+            hasMoreFiles: true,
+        });
         try {
             const response = await conversationService.getConversationBySlug(slug);
             const data = response.data;
@@ -111,6 +130,46 @@ export const useCommunityConversationStore = create<CommunityConversationState>(
             };
 
             set({ conversation: conversation, isLoading: false, hasJoined: conversation.is_joined });
+        } catch (error) {
+            console.error('Failed to fetch conversation:', error);
+            set({ isLoading: false });
+        }
+    },
+    fetchConversationById: async (id) => {
+        set({
+            isLoading: true,
+            members: [],
+            media: [],
+            files: [],
+            hasMoreMembers: true,
+            hasMoreMedia: true,
+            hasMoreFiles: true,
+        });
+        try {
+            const response = await conversationService.getConversationById(id);
+            const data = response.data;
+
+            const conversation: Conversation = {
+                id: data.id.toString(),
+                title: data.name,
+                type: data.type,
+                slug: data.slug,
+                is_public: data.is_public,
+                post_id: data.post_id,
+                createdAt: data.created_at,
+                created_at: data.created_at,
+                createdBy: data.created_by || 'System',
+                created_by: data.created_by,
+                last_message_id: data.last_message_id,
+                last_message_at: data.last_message_at,
+                thumbnail_url: data.thumbnail_url || '/images/default-avatar.png',
+                is_joined: data.is_joined,
+                members_count: data.members_count,
+                participants: data.participants || data.members || [],
+                onlineCount: data.online_count || 0,
+            };
+
+            set({ conversation, isLoading: false, hasJoined: conversation.is_joined });
         } catch (error) {
             console.error('Failed to fetch conversation:', error);
             set({ isLoading: false });

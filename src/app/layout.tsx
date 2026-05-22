@@ -1,3 +1,5 @@
+import { MessengerSidebarProvider } from '@/context/messenger-sidebar-context';
+import { SidebarProvider } from '@/context/sidebar-context';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
@@ -5,6 +7,7 @@ import AuthProvider from '@/components/providers/auth-provider';
 import SocketProvider from '@/components/providers/socket-provider';
 import ToastProvider from '@/components/providers/toast-provider';
 
+import { ThemeProvider } from '../components/providers/theme-provider';
 import './styles/globals.css';
 
 const geistSans = Geist({
@@ -30,10 +33,16 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <AuthProvider>
-                    <SocketProvider>{children}</SocketProvider>
-                </AuthProvider>
-                <ToastProvider />
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                    <AuthProvider>
+                        <SidebarProvider>
+                            <MessengerSidebarProvider>
+                                <SocketProvider>{children}</SocketProvider>
+                            </MessengerSidebarProvider>
+                        </SidebarProvider>
+                    </AuthProvider>
+                    <ToastProvider />
+                </ThemeProvider>
             </body>
         </html>
     );

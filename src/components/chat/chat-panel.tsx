@@ -1,7 +1,7 @@
 'use client';
 
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
-import { useCommunityConversationStore } from '@/store/use-community-conversation-store';
+import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { useToastStore } from '@/store/use-toast-store';
 import { BellRing, FileText, Image, Info, LogOut, Search, Users } from 'lucide-react';
 
@@ -20,40 +20,10 @@ import { MemberList } from './member-list';
 
 export default function ChatPanel() {
     const { isOpen, close, toggleSearch } = useChatPanelStore();
-    const {
-        conversation,
-        members,
-        fetchMembers,
-        media,
-        files,
-        fetchAttachments,
-        isMediaLoading,
-        isFilesLoading,
-        isMembersLoading,
-        leaveGroup,
-        isLeaving,
-    } = useCommunityConversationStore();
+    const { conversation, members, leaveGroup, isLeaving } = useCurrentConversationStore();
     const { show } = useToastStore();
 
     if (!conversation) return null;
-
-    const handleOpenMembers = () => {
-        if (members.length === 0 && !isMembersLoading) {
-            fetchMembers(conversation.id);
-        }
-    };
-
-    const handleOpenMedia = () => {
-        if (media.length === 0 && !isMediaLoading) {
-            fetchAttachments(conversation.id, 'image');
-        }
-    };
-
-    const handleOpenFiles = () => {
-        if (files.length === 0 && !isFilesLoading) {
-            fetchAttachments(conversation.id, 'file');
-        }
-    };
 
     const handleSearchClick = () => {
         toggleSearch();
@@ -91,7 +61,6 @@ export default function ChatPanel() {
                 'lg:relative lg:inset-y-auto lg:z-0 lg:translate-x-0',
                 isOpen ? 'translate-x-0' : 'translate-x-full lg:w-0 lg:opacity-0 pointer-events-none',
             )}
-            aria-hidden={!isOpen}
             inert={!isOpen}
         >
             <div
@@ -157,26 +126,15 @@ export default function ChatPanel() {
                                 title="Members"
                                 icon={<Users className="h-4 w-4" />}
                                 badge={members.length || conversation.members_count}
-                                onOpen={handleOpenMembers}
                             >
                                 <MemberList />
                             </Collapsible>
 
-                            <Collapsible
-                                title="Media"
-                                icon={<Image className="h-4 w-4" />}
-                                onOpen={handleOpenMedia}
-                                badge={media.length > 0 ? media.length : undefined}
-                            >
+                            <Collapsible title="Media" icon={<Image className="h-4 w-4" />}>
                                 <MediaList />
                             </Collapsible>
 
-                            <Collapsible
-                                title="Files"
-                                icon={<FileText className="h-4 w-4" />}
-                                onOpen={handleOpenFiles}
-                                badge={files.length > 0 ? files.length : undefined}
-                            >
+                            <Collapsible title="Files" icon={<FileText className="h-4 w-4" />}>
                                 <FileList />
                             </Collapsible>
 

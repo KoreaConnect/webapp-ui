@@ -1,9 +1,12 @@
 'use client';
 
+import { useMessengerSidebar } from '@/context/messenger-sidebar-context';
 import { useChatPanelStore } from '@/store/use-chat-panel-store';
-import { PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { PanelLeft, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 import Avatar from '../ui/avatar';
+import { Button } from '../ui/button';
 
 type ChatHeaderProps = {
     title: string;
@@ -13,10 +16,18 @@ type ChatHeaderProps = {
 
 function ChatHeader({ title, thumbnailUrl, onlineUserCount }: ChatHeaderProps) {
     const { toggle, isOpen } = useChatPanelStore();
+    const { toggleMessengerSidebar } = useMessengerSidebar();
+    const pathname = usePathname();
+    const isShowSidebarButton = pathname.startsWith('/messenger/');
 
     return (
-        <div className="p-4 h-[74px] border-b border-border gap-3 flex justify-between items-center bg-background">
+        <div className="p-4 h-chat-header border-b border-border gap-3 flex justify-between items-center bg-background">
             <div className="flex items-center gap-3">
+                {isShowSidebarButton && (
+                    <Button variant="ghost" size="icon" onClick={toggleMessengerSidebar} className="md:hidden">
+                        <PanelLeft className="h-6 w-6" />
+                    </Button>
+                )}
                 <Avatar className="h-10 w-10" src={thumbnailUrl} backgroundColor="cyan" />
                 <div>
                     <h2 className="font-bold">{title}</h2>
