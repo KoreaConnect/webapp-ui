@@ -1,9 +1,13 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
 import { AIRPORTS } from '@/constants/airport';
 import { useToastStore } from '@/store/use-toast-store';
 import { AirportRideDirection } from '@/types/airport-ride.type';
 import { Calendar, Clock, Loader2, MapPin, Navigation, RotateCcw, Search, X } from 'lucide-react';
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
 
 import { DaumAddressData, KakaoAddressSearch } from '@/components/kakao-address-search';
 import { Button } from '@/components/ui/button';
@@ -232,6 +236,20 @@ function LocationInputs({
     clearAddress: () => void;
 }) {
     const isToAirport = tripDirection === 'to_airport';
+    const tooltipRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (tooltipRef.current && currentAddress) {
+            const instance = tippy(tooltipRef.current, {
+                content: currentAddress,
+                placement: 'top',
+                animation: 'fade',
+            });
+            return () => {
+                instance.destroy();
+            };
+        }
+    }, [currentAddress]);
 
     const addressSearch = (
         <div className="space-y-1.5">
@@ -241,7 +259,7 @@ function LocationInputs({
             <KakaoAddressSearch
                 onComplete={onAddressComplete}
                 trigger={
-                    <div className="relative group cursor-pointer">
+                    <div ref={tooltipRef} className="relative group cursor-pointer">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-hover:text-primary transition-colors z-10" />
                         <div className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-10 text-sm border border-transparent group-hover:border-primary/50 transition-all flex items-center text-zinc-900 dark:text-zinc-50 font-medium overflow-hidden">
                             <div className="w-full min-w-0">
