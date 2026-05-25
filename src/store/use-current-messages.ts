@@ -242,7 +242,7 @@ export const useCurrentMessages = create<CurrentMessagesState>((set, get) => ({
         }
     },
     fetchMessages: async (conversationId) => {
-        set({ isLoading: true, hasMoreBefore: true, hasMoreAfter: false });
+        set({ isLoading: true, hasMoreBefore: true, hasMoreAfter: false, messages: [] });
         try {
             const response = await conversationService.getMessages(conversationId, LIMIT_MESSAGES);
             const { data, pagination } = response;
