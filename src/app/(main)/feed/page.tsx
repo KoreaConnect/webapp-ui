@@ -192,78 +192,78 @@ export default function FeedPage() {
     };
 
     return (
-        <UnderDevelopment />
-        // <div className="max-w-full p-4">
-        //     {/* Header */}
-        //     <div className="sticky top-0 z-10 p-4 flex justify-between bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md -mx-4 mb-2">
-        //         <h1 className="font-bold text-2xl text-zinc-900 dark:text-zinc-50">Feed</h1>
+        // <UnderDevelopment />
+        <div className="max-w-full p-4">
+            {/* Header */}
+            <div className="sticky top-0 z-10 p-4 flex justify-between bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md -mx-4 mb-2">
+                <h1 className="font-bold text-2xl text-zinc-900 dark:text-zinc-50">Feed</h1>
 
-        //         <DialogWrapper
-        //             open={open}
-        //             onOpenChange={setOpen}
-        //             trigger={
-        //                 <Button className="rounded-full flex gap-2">
-        //                     <Plus className="w-4 h-4" />
-        //                     Post
-        //                 </Button>
-        //             }
-        //         >
-        //             <CreateThreadModal onPost={handleCreateThread} onClose={() => setOpen(false)} />
-        //         </DialogWrapper>
-        //     </div>
+                <DialogWrapper
+                    open={open}
+                    onOpenChange={setOpen}
+                    trigger={
+                        <Button className="rounded-full flex gap-2">
+                            <Plus className="w-4 h-4" />
+                            Post
+                        </Button>
+                    }
+                >
+                    <CreateThreadModal onPost={handleCreateThread} onClose={() => setOpen(false)} />
+                </DialogWrapper>
+            </div>
 
-        //     {/* Useful Threads */}
-        //     <div className="py-6">
-        //         <div className="px-4 mb-4 flex justify-between">
-        //             <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Useful Threads</h2>
-        //             <button className="text-xs text-primary font-semibold hover:underline">View All</button>
-        //         </div>
+            {/* Useful Threads */}
+            <div className="py-6">
+                <div className="px-4 mb-4 flex justify-between">
+                    <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Useful Threads</h2>
+                    <button className="text-xs text-primary font-semibold hover:underline">View All</button>
+                </div>
 
-        //         <div className="w-full px-4">
-        //             <ScrollableView
-        //                 vertical={false}
-        //                 horizontal
-        //                 className="w-full  select-none"
-        //                 ref={usefulThreadsRef}
-        //                 onMouseDown={onMouseDown}
-        //                 onMouseMove={onMouseMove}
-        //                 onMouseUp={onMouseUp}
-        //                 onMouseLeave={onMouseLeave}
-        //             >
-        //                 <div className="flex flex-row gap-4 pb-4 max-w-0" style={dragStyle}>
-        //                     {USEFUL_THREADS.map((thread) => (
-        //                         <UsefulThreadCard key={thread.id} thread={thread} />
-        //                     ))}
-        //                 </div>
-        //             </ScrollableView>
-        //         </div>
-        //     </div>
+                <div className="w-full px-4">
+                    <ScrollableView
+                        vertical={false}
+                        horizontal
+                        className="w-full  select-none"
+                        ref={usefulThreadsRef}
+                        onMouseDown={onMouseDown}
+                        onMouseMove={onMouseMove}
+                        onMouseUp={onMouseUp}
+                        onMouseLeave={onMouseLeave}
+                    >
+                        <div className="flex flex-row gap-4 pb-4 max-w-0" style={dragStyle}>
+                            {USEFUL_THREADS.map((thread) => (
+                                <UsefulThreadCard key={thread.id} thread={thread} />
+                            ))}
+                        </div>
+                    </ScrollableView>
+                </div>
+            </div>
 
-        //     <div className="pb-20">
-        //         {isLoading ? (
-        //             <div className="flex flex-col items-center justify-center py-20 gap-4">
-        //                 <Loader size={24} />
-        //                 <p className="text-zinc-500 text-sm animate-pulse">Loading your feed...</p>
-        //             </div>
-        //         ) : posts.length > 0 ? (
-        //             posts.map((thread) => <ThreadCard key={thread.id} post={thread} onReplyClick={onReplyClick} />)
-        //         ) : (
-        //             <div className="text-center py-20 text-zinc-500">
-        //                 <p>No posts yet. Be the first to start a thread!</p>
-        //             </div>
-        //         )}
-        //     </div>
+            <div className="pb-20">
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                        <Loader size={24} />
+                        <p className="text-zinc-500 text-sm animate-pulse">Loading your feed...</p>
+                    </div>
+                ) : posts.length > 0 ? (
+                    posts.map((thread) => <ThreadCard key={thread.id} post={thread} onReplyClick={onReplyClick} />)
+                ) : (
+                    <div className="text-center py-20 text-zinc-500">
+                        <p>No posts yet. Be the first to start a thread!</p>
+                    </div>
+                )}
+            </div>
 
-        //     {/* Hidden Reply Dialog */}
-        //     {selectedPost && (
-        //         <DialogWrapper open={isReplyOpen} onOpenChange={setIsReplyOpen}>
-        //             <ReplyModal
-        //                 parentPost={selectedPost}
-        //                 onReply={handleReplyPost}
-        //                 onClose={() => setIsReplyOpen(false)}
-        //             />
-        //         </DialogWrapper>
-        //     )}
-        // </div>
+            {/* Hidden Reply Dialog */}
+            {selectedPost && (
+                <DialogWrapper open={isReplyOpen} onOpenChange={setIsReplyOpen}>
+                    <ReplyModal
+                        parentPost={selectedPost}
+                        onReply={handleReplyPost}
+                        onClose={() => setIsReplyOpen(false)}
+                    />
+                </DialogWrapper>
+            )}
+        </div>
     );
 }
