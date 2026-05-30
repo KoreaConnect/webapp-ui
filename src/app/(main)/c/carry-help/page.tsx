@@ -78,6 +78,20 @@ const MOCK_DELIVERIES = [
 
 export default function StaffDeliveryPage() {
     const [routeFilter, setRouteFilter] = useState('all');
+    const [from, setFrom] = useState('');
+    const [to, setTo] = useState('');
+    const [date, setDate] = useState('');
+
+    const getRouteLabel = (value: string) => {
+        switch (value) {
+            case 'kr-vn':
+                return 'Korea to Vietnam';
+            case 'vn-kr':
+                return 'Vietnam to Korea';
+            default:
+                return 'All Routes';
+        }
+    };
 
     const filteredDeliveries = useMemo(() => {
         return MOCK_DELIVERIES.filter((item) => {
@@ -123,16 +137,21 @@ export default function StaffDeliveryPage() {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div className="relative group">
                         <Select value={routeFilter} onValueChange={setRouteFilter}>
-                            <SelectTrigger className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border-transparent focus:ring-primary/20 focus:border-primary/50 transition-all">
-                                <div className="flex items-center gap-2">
-                                    <Plane className="h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
-                                    <SelectValue placeholder="Route" />
+                            <SelectTrigger
+                                className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border-transparent focus:ring-primary/20 focus:border-primary/50 transition-all"
+                                title={getRouteLabel(routeFilter)}
+                            >
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <Plane className="h-4 w-4 shrink-0 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                                    <div className="truncate">
+                                        <SelectValue placeholder="Route" />
+                                    </div>
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Routes</SelectItem>
-                                <SelectItem value="kr-vn">Korea → Vietnam</SelectItem>
-                                <SelectItem value="vn-kr">Vietnam → Korea</SelectItem>
+                                <SelectItem value="kr-vn">Korea to Vietnam</SelectItem>
+                                <SelectItem value="vn-kr">Vietnam to Korea</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -141,7 +160,10 @@ export default function StaffDeliveryPage() {
                         <input
                             type="text"
                             placeholder="From (Origin)"
-                            className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
+                            value={from}
+                            onChange={(e) => setFrom(e.target.value)}
+                            title={from || 'From (Origin)'}
+                            className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all truncate"
                         />
                     </div>
                     <div className="relative group">
@@ -149,13 +171,19 @@ export default function StaffDeliveryPage() {
                         <input
                             type="text"
                             placeholder="To (Destination)"
-                            className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
+                            value={to}
+                            onChange={(e) => setTo(e.target.value)}
+                            title={to || 'To (Destination)'}
+                            className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all truncate"
                         />
                     </div>
                     <div className="relative group">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-primary transition-colors" />
                         <input
                             type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            title={date || 'Select Date'}
                             className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
                         />
                     </div>
