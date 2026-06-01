@@ -4,9 +4,9 @@ import { useMemo, useState } from 'react';
 
 import { ArrowRight, Box, Calendar, Clock, Filter, MapPin, Plane, Plus, Search, Weight } from 'lucide-react';
 
+import { CreateCarryHelpModal } from '@/components/carry-help/create-carry-help-modal';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UnderDevelopment } from '@/components/under-development';
 
 const MOCK_DELIVERIES = [
     {
@@ -126,10 +126,14 @@ export default function StaffDeliveryPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">Carry Help</h1>
                     <p className="text-zinc-500 mt-1">Send items securely or earn by using your extra luggage space.</p>
                 </div>
-                <Button className="w-full md:w-auto shadow-lg shadow-primary/20">
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Request/Offer
-                </Button>
+                <CreateCarryHelpModal
+                    trigger={
+                        <Button className="w-full md:w-auto shadow-lg shadow-primary/20">
+                            <Plus className="h-4 w-4 mr-2" />
+                            New Request/Offer
+                        </Button>
+                    }
+                />
             </div>
 
             {/* Filters */}
