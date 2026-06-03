@@ -31,7 +31,6 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ conversationId, conversationSlug }: ChatInterfaceProps) {
-    const router = useRouter();
     const {
         fetchConversationById,
         fetchConversationBySlug,

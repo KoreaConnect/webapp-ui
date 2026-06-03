@@ -114,7 +114,7 @@ export function CreateRideModal({ trigger, onSuccess }: CreateRideModalProps) {
     };
 
     return (
-        <DialogWrapper open={open} onOpenChange={setOpen} trigger={trigger}>
+        <DialogWrapper open={open} onOpenChange={setOpen} trigger={trigger} closeOnClickOutside={false}>
             <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 w-full max-w-lg mx-auto">
                 <DialogTitle className="sr-only">Create New Ride</DialogTitle>
                 <DialogDescription className="sr-only">Fill in the details to share a ride</DialogDescription>

@@ -14,21 +14,13 @@ interface RideCardProps {
 }
 
 export function RideCard({ ride }: RideCardProps) {
-    const router = useRouter();
     const user = useAuthStore((state) => state.user);
     const departureDate = new Date(ride.departure_time);
 
     const isOwner = user?.id && Number(user.id) === ride.user_id;
 
-    const handleCardClick = () => {
-        router.push(`/c/airport-ride-sharing/${ride.id}`);
-    };
-
     return (
-        <div
-            onClick={handleCardClick}
-            className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-border hover:border-primary/30 transition-all cursor-pointer group hover:shadow-md"
-        >
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-border hover:border-primary/30 transition-all cursor-pointer group hover:shadow-md">
             <div className="flex flex-col md:flex-row gap-6">
                 {/* User Info */}
                 <div className="flex items-center md:flex-col md:items-start md:w-32 gap-3 shrink-0">

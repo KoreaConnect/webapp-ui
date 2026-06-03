@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+
 import { useCurrentConversationStore } from '@/store/use-current-conversation-store';
 import { useCurrentMessages } from '@/store/use-current-messages';
 import {
@@ -12,6 +16,7 @@ import { FileText } from 'lucide-react';
 
 import { applyMessageHighlight, cn } from '@/utils';
 
+import { ImagePreview } from '../feed/image-preview';
 import { MentionBadge } from './mention-badge';
 import { ReactionGroup } from './reaction-group';
 
@@ -26,13 +31,21 @@ type MessageContentProps = {
     is_deleted?: boolean;
 };
 
-const ImageAttachment = ({ attachment, index, total }: { attachment: Attachment; index: number; total: number }) => (
-    <a
-        href={attachment.url}
-        target="_blank"
-        rel="noopener noreferrer"
+const ImageAttachment = ({
+    attachment,
+    index,
+    total,
+    onClick,
+}: {
+    attachment: Attachment;
+    index: number;
+    total: number;
+    onClick: (index: number) => void;
+}) => (
+    <div
+        onClick={() => onClick(index)}
         className={cn(
-            'relative overflow-hidden rounded-md group',
+            'relative overflow-hidden rounded-md group cursor-pointer',
             total === 1 ? 'aspect-auto max-h-[300px]' : 'aspect-square',
             total % 2 !== 0 && total > 1 && index === 0 ? 'col-span-2 aspect-video' : '',
         )}
@@ -43,7 +56,7 @@ const ImageAttachment = ({ attachment, index, total }: { attachment: Attachment;
             alt={attachment.name || 'Attached image'}
             className="w-full h-full object-cover transition-transform hover:scale-105"
         />
-    </a>
+    </div>
 );
 
 const FileAttachment = ({ attachment }: { attachment: Attachment }) => (
@@ -70,6 +83,9 @@ export function MessageContent({
 }: MessageContentProps) {
     const { fetchMessageContext, setIsWaitContextMessageScrolling } = useCurrentMessages();
     const { conversation } = useCurrentConversationStore();
+
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewIndex, setPreviewIndex] = useState(0);
 
     const scrollToMessage = async (msgId: string) => {
         // 1. Try to find and scroll immediately (if in current messages)
@@ -131,6 +147,12 @@ export function MessageContent({
 
     const imageAttachments = is_deleted ? [] : attachments?.filter((a) => a.mime_type?.startsWith('image/')) || [];
     const fileAttachments = is_deleted ? [] : attachments?.filter((a) => !a.mime_type?.startsWith('image/')) || [];
+    const imageUrls = imageAttachments.map((a) => a.url);
+
+    const handleImageClick = (index: number) => {
+        setPreviewIndex(index);
+        setPreviewOpen(true);
+    };
 
     return (
         <div
@@ -200,6 +222,7 @@ export function MessageContent({
                                         attachment={attachment}
                                         index={index}
                                         total={imageAttachments.length}
+                                        onClick={handleImageClick}
                                     />
                                 ))}
                             </div>
@@ -227,6 +250,15 @@ export function MessageContent({
             </div>
 
             {!is_deleted && <ReactionGroup reactions={reactions} sender={sender} />}
+
+            {imageUrls.length > 0 && (
+                <ImagePreview
+                    images={imageUrls}
+                    initialIndex={previewIndex}
+                    isOpen={previewOpen}
+                    onClose={() => setPreviewOpen(false)}
+                />
+            )}
         </div>
     );
 }
