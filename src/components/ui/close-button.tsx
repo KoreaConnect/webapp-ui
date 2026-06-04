@@ -29,7 +29,7 @@ export default function CloseButton({ size = 'md', sizePx, onClick, className }:
             className={cn(
                 'flex items-center justify-center rounded-xl',
                 'transition-all duration-200',
-                'hover:bg-gray-200',
+                'hover:bg-gray-200 dark:hover:bg-gray-700',
                 // 'active:scale-95 hover:scale-105',
                 'focus:outline-none focus:ring-1 focus:ring-gray-400',
                 className,

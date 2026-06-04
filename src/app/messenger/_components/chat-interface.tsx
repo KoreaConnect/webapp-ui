@@ -9,7 +9,6 @@ import { mapRawMessageToMessage, useCurrentMessages } from '@/store/use-current-
 import { useMessageReactionStore } from '@/store/use-message-reaction-store';
 import { useReplyStore } from '@/store/use-reply-store';
 import { BasicUserInfo, MESSAGE_ROLE, type RawMessage } from '@/types/chat.type';
-import { useRouter } from 'next/navigation';
 
 import ChatHeader from '@/components/chat/chat-header';
 import ChatInput from '@/components/chat/chat-input';
@@ -62,7 +61,6 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
         clearMessages,
     } = useCurrentMessages();
 
-    const lastReadMessageIdRef = useRef<string | null>(null);
     const currentUser = useAuthStore((state) => state.user);
     const chatInputRef = useRef<{ focusEditor: () => void }>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -165,13 +163,10 @@ export default function ChatInterface({ conversationId, conversationSlug }: Chat
 
     // Mark as read logic
     useEffect(() => {
-        if (!conversation?.id || !conversation.is_joined || messages.length === 0 || isMessagesLoading) return;
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage.id !== lastReadMessageIdRef.current) {
-            lastReadMessageIdRef.current = lastMessage.id;
-            markAsRead(conversation.id, lastMessage.id);
-        }
-    }, [conversation?.id, conversation?.is_joined, messages, isMessagesLoading, markAsRead]);
+        if (!conversation?.id || !conversation.last_message_id) return;
+
+        markAsRead(conversation.id, conversation.last_message_id);
+    }, [conversation?.id]);
 
     // Fetch conversation
     useEffect(() => {
