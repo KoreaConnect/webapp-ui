@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Locate, MapPin, Plane, Search } from 'lucide-react';
+import { Calendar, Locate, MapPin, Plane, RotateCcw, Search } from 'lucide-react';
 
 import { KakaoAddressSearch } from '@/components/kakao-address-search';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ interface CarryHelpFilterProps {
     date: string;
     setDate: (val: string) => void;
     onSearch: () => void;
+    onReset: () => void;
     isLoading: boolean;
 }
 
@@ -29,6 +30,7 @@ export function CarryHelpFilter({
     date,
     setDate,
     onSearch,
+    onReset,
     isLoading,
 }: CarryHelpFilterProps) {
     const getRouteLabel = (value: string) => {
@@ -44,7 +46,7 @@ export function CarryHelpFilter({
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-border">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 <div className="relative group">
                     <Select value={routeFilter} onValueChange={setRouteFilter}>
                         <SelectTrigger
@@ -121,10 +123,26 @@ export function CarryHelpFilter({
                         className="w-full h-11 bg-zinc-50 dark:bg-zinc-800 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-transparent focus:border-primary/50 transition-all"
                     />
                 </div>
-                <Button variant="default" className="w-full h-11" onClick={onSearch} disabled={isLoading}>
-                    <Search className="h-4 w-4 mr-2" />
-                    Search
-                </Button>
+                <div className="flex gap-2 col-span-1 md:col-span-2">
+                    <Button
+                        variant="default"
+                        className="flex-1 h-11 rounded-2xl"
+                        onClick={onSearch}
+                        disabled={isLoading}
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        Search
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="h-11 w-11 shrink-0 rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        onClick={onReset}
+                        disabled={isLoading}
+                        title="Reset filters"
+                    >
+                        <RotateCcw className="h-4 w-4 text-zinc-500" />
+                    </Button>
+                </div>
             </div>
         </div>
     );

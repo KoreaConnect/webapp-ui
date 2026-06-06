@@ -58,11 +58,12 @@ export default function CarryHelpPage() {
                     date={date}
                     setDate={setDate}
                     onSearch={fetchDeliveries}
+                    onReset={resetFilters}
                     isLoading={isLoading}
                 />
 
                 {/* List */}
-                <CarryHelpList deliveries={deliveries} isLoading={isLoading} onReset={resetFilters} />
+                <CarryHelpList deliveries={deliveries} isLoading={isLoading} />
             </div>
         </div>
     );

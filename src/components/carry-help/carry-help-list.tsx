@@ -11,10 +11,9 @@ import { CarryHelpCard } from './carry-help-card';
 interface CarryHelpListProps {
     deliveries: CarryHelp[];
     isLoading: boolean;
-    onReset: () => void;
 }
 
-export function CarryHelpList({ deliveries, isLoading, onReset }: CarryHelpListProps) {
+export function CarryHelpList({ deliveries, isLoading }: CarryHelpListProps) {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -38,9 +37,6 @@ export function CarryHelpList({ deliveries, isLoading, onReset }: CarryHelpListP
                         <Search className="h-10 w-10 text-zinc-300 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">No results found</h3>
                         <p className="text-zinc-500">Try adjusting your filters to find more opportunities.</p>
-                        <Button variant="link" onClick={onReset} className="mt-2">
-                            Clear all filters
-                        </Button>
                     </div>
                 )}
             </div>
