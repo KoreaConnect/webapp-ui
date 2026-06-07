@@ -23,11 +23,11 @@ export function UnderDevelopment() {
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full">
-                    <Button variant="outline" onClick={() => router.back()} className="flex-1 gap-2">
+                    <Button variant="outline" onClick={() => router.back()} className="sm:flex-1 gap-2 flex-none">
                         <ArrowLeft className="h-4 w-4" />
                         Quay lại
                     </Button>
-                    <Button onClick={() => router.push('/feed')} className="flex-1">
+                    <Button onClick={() => router.push('/feed')} className="flex-none sm:flex-1">
                         Về Trang chủ
                     </Button>
                 </div>
