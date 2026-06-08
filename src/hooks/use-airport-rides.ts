@@ -9,6 +9,7 @@ import { DaumAddressData } from '@/components/kakao-address-search';
 
 import { airportRideService } from '@/services/airport-ride.service';
 import { searchLocation } from '@/services/kakao.service';
+import { rideAlarmService } from '@/services/ride-alarm.service';
 
 export function useAirportRides() {
     const { show } = useToastStore();
@@ -23,9 +24,12 @@ export function useAirportRides() {
 
     const [rides, setRides] = useState<AirportRide[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isAlarmLoading, setIsAlarmLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
     const fetchRides = useCallback(async () => {
         setIsLoading(true);
+        setHasSearched(true);
         try {
             const params: SearchAirportRideParams = {
                 airport: airport.toUpperCase(),
@@ -106,7 +110,44 @@ export function useAirportRides() {
         setTime('');
         setMaxDistance(5);
         setTimeTolerance(30);
+        setHasSearched(false);
     }, []);
+
+    const handleSetAlarm = useCallback(async () => {
+        setIsAlarmLoading(true);
+        try {
+            const alarmData = {
+                airport: airport.toUpperCase(),
+                direction: tripDirection,
+                address: currentAddress,
+                latitude: coords?.lat,
+                longitude: coords?.lng,
+                radius_meters: maxDistance * 1000,
+                date,
+                time,
+                time_tolerance: timeTolerance,
+                is_active: true,
+            };
+
+            const response = await rideAlarmService.setAlarm(alarmData);
+            if (response.success) {
+                show({
+                    title: 'Alarm Set',
+                    message: 'We will notify you when matching rides are found.',
+                    type: 'success',
+                });
+            }
+        } catch (error) {
+            console.error('Failed to set alarm:', error);
+            show({
+                title: 'Error',
+                message: 'Failed to set alarm. Please try again.',
+                type: 'error',
+            });
+        } finally {
+            setIsAlarmLoading(false);
+        }
+    }, [airport, tripDirection, currentAddress, coords, maxDistance, date, time, timeTolerance, show]);
 
     return {
         tripDirection,
@@ -125,9 +166,12 @@ export function useAirportRides() {
         setTimeTolerance,
         rides,
         isLoading,
+        isAlarmLoading,
+        hasSearched,
         fetchRides,
         handleAddressComplete,
         clearAddress,
         resetFilters,
+        handleSetAlarm,
     };
 }
