@@ -17,10 +17,6 @@ export function RideList({ rides, isLoading }: RideListProps) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Available Rides</h2>
-                <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-foreground">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Sort by: Latest
-                </Button>
             </div>
 
             <div className="grid gap-4">
