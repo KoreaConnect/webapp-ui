@@ -1,7 +1,7 @@
 'use client';
 
 import { AirportRide } from '@/types/airport-ride.type';
-import { Filter, Loader2, Search } from 'lucide-react';
+import { History, Loader2, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -17,6 +17,9 @@ export function RideList({ rides, isLoading }: RideListProps) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Available Rides</h2>
+                <Button variant="outline" size="sm">
+                    <History className="h-4 w-4" />
+                </Button>
             </div>
 
             <div className="grid gap-4">

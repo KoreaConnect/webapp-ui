@@ -39,7 +39,7 @@ function ToastItem({ toast }: { toast: ToastItem }) {
             open={open}
             onOpenChange={setOpen}
             className={`
-                group pointer-events-auto relative flex w-full shrink-0 items-center justify-between space-x-4 overflow-hidden rounded-xl border p-4 shadow-lg transition-all
+                group  pointer-events-auto relative flex w-full shrink-0 items-center justify-between space-x-4 overflow-hidden rounded-xl border p-4 shadow-lg transition-all
                 data-[state=open]:animate-toast-in data-[state=closed]:animate-toast-out data-[swipe=end]:animate-toast-out
                 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none
                 ${variantStyles[toast.type || 'info']}

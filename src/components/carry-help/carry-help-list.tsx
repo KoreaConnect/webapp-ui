@@ -1,9 +1,8 @@
 'use client';
 
 import { CarryHelp } from '@/types/carry-help.type';
-import { Filter, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 
 import { CarryHelpCard } from './carry-help-card';

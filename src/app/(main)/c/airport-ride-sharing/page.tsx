@@ -36,7 +36,7 @@ export default function TaxiSharePage() {
     } = useAirportRides();
 
     return (
-        <div className="p-4 md:p-8">
+        <div className="p-4 pb-20">
             <div className="mx-auto w-full space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
