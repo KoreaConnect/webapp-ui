@@ -74,13 +74,15 @@ export function KakaoAddressSearch({ onComplete, trigger }: KakaoAddressSearchPr
                         const address = data.documents[0];
                         const addressName = address.road_address?.address_name || address.address?.address_name;
 
+                        const { address: _addressObj, ...rest } = address;
+
                         onComplete({
                             address: addressName,
                             addressType: address.road_address ? 'R' : 'J',
                             bname: address.address?.region_3depth_name || '',
                             buildingName: address.road_address?.building_name || '',
                             fullAddress: addressName,
-                            ...address,
+                            ...rest,
                             x: longitude,
                             y: latitude,
                         } as DaumAddressData);

@@ -69,3 +69,19 @@ export interface AirportRideResponse<T> {
         offset: number;
     };
 }
+
+export interface AirportRideAlarm {
+    id?: string;
+    user_id?: number;
+    airport: string;
+    direction: AirportRideDirection;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+    radius_meters?: number;
+    date?: string;
+    time?: string;
+    time_tolerance?: number;
+    is_active: boolean;
+    created_at?: string;
+}

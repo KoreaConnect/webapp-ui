@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { AIRPORTS } from '@/constants/airport';
 import { useToastStore } from '@/store/use-toast-store';
 import { AirportRideDirection } from '@/types/airport-ride.type';
-import { Calendar, Clock, Loader2, MapPin, Navigation, RotateCcw, Search, X } from 'lucide-react';
+import { Bell, Calendar, Clock, Loader2, MapPin, Navigation, RotateCcw, Search, X } from 'lucide-react';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 
@@ -34,7 +34,10 @@ interface RideFilterProps {
     setTimeTolerance: (val: number) => void;
     onSearch: () => void;
     onReset: () => void;
+    onSetAlarm?: () => void;
     isLoading: boolean;
+    isAlarmLoading?: boolean;
+    hasSearched?: boolean;
 }
 
 export function RideFilter({
@@ -55,18 +58,23 @@ export function RideFilter({
     setTimeTolerance,
     onSearch,
     onReset,
+    onSetAlarm,
     isLoading,
+    isAlarmLoading,
+    hasSearched,
 }: RideFilterProps) {
     const { show } = useToastStore();
 
-    const handleSearch = () => {
+    const allFieldsFilled = !!(date && currentAddress && airport);
+
+    const validateInputs = (actionName: string) => {
         if (!date) {
             show({
                 title: 'Validation Error',
-                message: 'Please select a date for your trip.',
+                message: `Please select a date for your trip to ${actionName}.`,
                 type: 'error',
             });
-            return;
+            return false;
         }
 
         if (!currentAddress) {
@@ -74,23 +82,35 @@ export function RideFilter({
                 title: 'Validation Error',
                 message:
                     tripDirection === 'to_airport'
-                        ? 'Please enter a departure address.'
-                        : 'Please enter a destination address.',
+                        ? `Please enter a departure address to ${actionName}.`
+                        : `Please enter a destination address to ${actionName}.`,
                 type: 'error',
             });
-            return;
+            return false;
         }
 
         if (!airport) {
             show({
                 title: 'Validation Error',
-                message: 'Please select an airport.',
+                message: `Please select an airport to ${actionName}.`,
                 type: 'error',
             });
-            return;
+            return false;
         }
 
-        onSearch();
+        return true;
+    };
+
+    const handleSearch = () => {
+        if (validateInputs('search')) {
+            onSearch();
+        }
+    };
+
+    const handleSetAlarm = () => {
+        if (validateInputs('set an alarm') && onSetAlarm) {
+            onSetAlarm();
+        }
     };
 
     return (
@@ -191,7 +211,7 @@ export function RideFilter({
                     />
                 </div>
 
-                <div className="shrink-0 w-full lg:w-auto flex flex-col flex-row gap-3">
+                <div className="shrink-0 w-full lg:w-auto flex flex-col md:flex-row gap-3">
                     <Button
                         variant="default"
                         className="h-12 px-10 shadow-lg shadow-primary/20 w-full lg:w-auto text-base font-bold rounded-2xl"
@@ -205,9 +225,24 @@ export function RideFilter({
                         )}
                         Search Ride
                     </Button>
+                    {hasSearched && allFieldsFilled && (
+                        <Button
+                            variant="outline"
+                            className="h-12 px-6 font-bold rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 w-full md:w-auto"
+                            onClick={handleSetAlarm}
+                            disabled={isAlarmLoading}
+                        >
+                            {isAlarmLoading ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                                <Bell className="h-4 w-4 mr-2" />
+                            )}
+                            Set Alarm
+                        </Button>
+                    )}
                     <Button
-                        variant="outline"
-                        className="h-12 px-6 font-bold rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        variant="ghost"
+                        className="h-12 px-6 font-bold rounded-2xl border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800 w-full md:w-auto text-zinc-500"
                         onClick={onReset}
                         disabled={isLoading}
                     >

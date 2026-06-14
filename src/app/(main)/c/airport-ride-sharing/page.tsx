@@ -26,14 +26,17 @@ export default function TaxiSharePage() {
         setTimeTolerance,
         rides,
         isLoading,
+        isAlarmLoading,
+        hasSearched,
         fetchRides,
         handleAddressComplete,
         clearAddress,
         resetFilters,
+        handleSetAlarm,
     } = useAirportRides();
 
     return (
-        <div className="p-4 md:p-8">
+        <div className="p-4 pb-20">
             <div className="mx-auto w-full space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -73,7 +76,10 @@ export default function TaxiSharePage() {
                     setTimeTolerance={setTimeTolerance}
                     onSearch={fetchRides}
                     onReset={resetFilters}
+                    onSetAlarm={handleSetAlarm}
                     isLoading={isLoading}
+                    isAlarmLoading={isAlarmLoading}
+                    hasSearched={hasSearched}
                 />
 
                 {/* List */}
