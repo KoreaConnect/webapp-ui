@@ -26,6 +26,19 @@ export const rideAlarmService = {
         return stored ? JSON.parse(stored) : [];
     },
 
+    findAlarm(criteria: Partial<AirportRideAlarm>): AirportRideAlarm | undefined {
+        const alarms = this.getAlarms();
+        return alarms.find(
+            (a) =>
+                a.airport === criteria.airport &&
+                a.direction === criteria.direction &&
+                a.address === criteria.address &&
+                a.date === criteria.date &&
+                a.time === criteria.time &&
+                a.radius_meters === criteria.radius_meters,
+        );
+    },
+
     async deleteAlarm(id: string): Promise<{ success: boolean }> {
         const alarms = this.getAlarms();
         const updatedAlarms = alarms.filter((a) => a.id !== id);

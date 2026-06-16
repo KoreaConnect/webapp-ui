@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { AIRPORTS } from '@/constants/airport';
 import { useToastStore } from '@/store/use-toast-store';
 import { AirportRideDirection } from '@/types/airport-ride.type';
-import { Bell, Calendar, Clock, Loader2, MapPin, Navigation, RotateCcw, Search, X } from 'lucide-react';
+import { Calendar, Clock, History, Loader2, MapPin, Navigation, RotateCcw, Search, X } from 'lucide-react';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 
@@ -13,8 +13,13 @@ import { DaumAddressData, KakaoAddressSearch } from '@/components/kakao-address-
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+
+import { SearchHistoryItem } from '@/hooks/use-search-history';
 
 import { cn } from '@/utils/cn';
+
+import { SearchHistoryModal } from './search-history-modal';
 
 interface RideFilterProps {
     tripDirection: AirportRideDirection;
@@ -34,10 +39,11 @@ interface RideFilterProps {
     setTimeTolerance: (val: number) => void;
     onSearch: () => void;
     onReset: () => void;
-    onSetAlarm?: () => void;
+    onToggleAlarm?: () => void;
+    onSelectHistory: (item: SearchHistoryItem) => void;
     isLoading: boolean;
     isAlarmLoading?: boolean;
-    hasSearched?: boolean;
+    isAlarmSet?: boolean;
 }
 
 export function RideFilter({
@@ -58,10 +64,11 @@ export function RideFilter({
     setTimeTolerance,
     onSearch,
     onReset,
-    onSetAlarm,
+    onToggleAlarm,
+    onSelectHistory,
     isLoading,
     isAlarmLoading,
-    hasSearched,
+    isAlarmSet,
 }: RideFilterProps) {
     const { show } = useToastStore();
 
@@ -107,45 +114,65 @@ export function RideFilter({
         }
     };
 
-    const handleSetAlarm = () => {
-        if (validateInputs('set an alarm') && onSetAlarm) {
-            onSetAlarm();
+    const handleToggleAlarm = () => {
+        if (validateInputs('set an alarm') && onToggleAlarm) {
+            onToggleAlarm();
         }
     };
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 shadow-sm border border-border space-y-8">
-            {/* Direction Toggle */}
+            {/* Header & Direction Toggle */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-6">
-                <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">Trip Direction</h3>
-                    <p className="text-xs text-zinc-500">Are you going to or coming from the airport?</p>
+                <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                    <div className="space-y-1">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-50">Trip Direction</h3>
+                        <p className="text-xs text-zinc-500">Are you going to or coming from the airport?</p>
+                    </div>
+                    <SearchHistoryModal
+                        onSelect={onSelectHistory}
+                        trigger={
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl sm:hidden">
+                                <History className="h-5 w-5 text-zinc-500" />
+                            </Button>
+                        }
+                    />
                 </div>
-                <div className="flex flex-wrap p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl w-full sm:w-auto">
-                    <button
-                        onClick={() => setTripDirection('to_airport')}
-                        className={cn(
-                            'flex-1 min-w-40 flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-normal wrap-break-word',
-                            tripDirection === 'to_airport'
-                                ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
-                                : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
-                        )}
-                    >
-                        <Navigation className="h-3.5 w-3.5 mr-2" />
-                        To Airport
-                    </button>
-                    <button
-                        onClick={() => setTripDirection('from_airport')}
-                        className={cn(
-                            'flex-1 min-w-40 flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-normal wrap-break-word',
-                            tripDirection === 'from_airport'
-                                ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
-                                : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
-                        )}
-                    >
-                        <RotateCcw className="h-3.5 w-3.5 mr-2" />
-                        From Airport
-                    </button>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+                    <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl">
+                        <button
+                            onClick={() => setTripDirection('to_airport')}
+                            className={cn(
+                                'flex-1 min-w-32 flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-nowrap',
+                                tripDirection === 'to_airport'
+                                    ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
+                                    : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
+                            )}
+                        >
+                            <Navigation className="h-3.5 w-3.5 mr-2" />
+                            To Airport
+                        </button>
+                        <button
+                            onClick={() => setTripDirection('from_airport')}
+                            className={cn(
+                                'flex-1 min-w-32 flex items-center justify-center px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-nowrap',
+                                tripDirection === 'from_airport'
+                                    ? 'bg-white dark:bg-zinc-700 text-primary shadow-sm'
+                                    : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300',
+                            )}
+                        >
+                            <RotateCcw className="h-3.5 w-3.5 mr-2" />
+                            From Airport
+                        </button>
+                    </div>
+                    <SearchHistoryModal
+                        onSelect={onSelectHistory}
+                        trigger={
+                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hidden sm:flex">
+                                <History className="h-5 w-5 text-zinc-500" />
+                            </Button>
+                        }
+                    />
                 </div>
             </div>
 
@@ -211,44 +238,48 @@ export function RideFilter({
                     />
                 </div>
 
-                <div className="shrink-0 w-full lg:w-auto flex flex-col md:flex-row gap-3">
-                    <Button
-                        variant="default"
-                        className="h-12 px-10 shadow-lg shadow-primary/20 w-full lg:w-auto text-base font-bold rounded-2xl"
-                        onClick={handleSearch}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        ) : (
-                            <Search className="h-5 w-5 mr-2" />
-                        )}
-                        Search Ride
-                    </Button>
-                    {hasSearched && allFieldsFilled && (
-                        <Button
-                            variant="outline"
-                            className="h-12 px-6 font-bold rounded-2xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 w-full md:w-auto"
-                            onClick={handleSetAlarm}
-                            disabled={isAlarmLoading}
-                        >
+                <div className="shrink-0 w-full lg:w-auto flex flex-col md:flex-row items-center gap-6">
+                    {/* Alarm Toggle */}
+                    {allFieldsFilled && (
+                        <div className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800 px-4 py-2 rounded-2xl border border-zinc-100 dark:border-zinc-700/50">
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black uppercase text-zinc-400 leading-none">
+                                    Alarm
+                                </span>
+                                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50">Notify me</span>
+                            </div>
                             {isAlarmLoading ? (
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                <Loader2 className="h-5 w-5 animate-spin text-primary" />
                             ) : (
-                                <Bell className="h-4 w-4 mr-2" />
+                                <Switch checked={!!isAlarmSet} onCheckedChange={handleToggleAlarm} />
                             )}
-                            Set Alarm
-                        </Button>
+                        </div>
                     )}
-                    <Button
-                        variant="ghost"
-                        className="h-12 px-6 font-bold rounded-2xl border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800 w-full md:w-auto text-zinc-500"
-                        onClick={onReset}
-                        disabled={isLoading}
-                    >
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                        Reset
-                    </Button>
+
+                    <div className="flex gap-3 w-full md:w-auto">
+                        <Button
+                            variant="default"
+                            className="h-12 px-10 shadow-lg shadow-primary/20 flex-1 md:flex-none text-base font-bold rounded-2xl"
+                            onClick={handleSearch}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                            ) : (
+                                <Search className="h-5 w-5 mr-2" />
+                            )}
+                            Search
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="h-12 px-6 font-bold rounded-2xl border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-500"
+                            onClick={onReset}
+                            disabled={isLoading}
+                        >
+                            <RotateCcw className="h-4 w-4" />
+                            <span className="hidden md:inline">Reset</span>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

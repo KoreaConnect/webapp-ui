@@ -11,8 +11,12 @@ import { airportRideService } from '@/services/airport-ride.service';
 import { searchLocation } from '@/services/kakao.service';
 import { rideAlarmService } from '@/services/ride-alarm.service';
 
+import { SearchHistoryItem, useSearchHistory } from './use-search-history';
+
 export function useAirportRides() {
     const { show } = useToastStore();
+    const { saveSearch } = useSearchHistory();
+
     const [tripDirection, setTripDirection] = useState<AirportRideDirection>('to_airport');
     const [airport, setAirport] = useState('icn');
     const [currentAddress, setCurrentAddress] = useState('');
@@ -26,52 +30,83 @@ export function useAirportRides() {
     const [isLoading, setIsLoading] = useState(false);
     const [isAlarmLoading, setIsAlarmLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+    const [isAlarmSet, setIsAlarmSet] = useState(false);
 
-    const fetchRides = useCallback(async () => {
-        setIsLoading(true);
-        setHasSearched(true);
-        try {
-            const params: SearchAirportRideParams = {
-                airport: airport.toUpperCase(),
-                direction: tripDirection,
-                status: 'open',
-            };
+    // Check if alarm is set for current criteria
+    useEffect(() => {
+        const alarm = rideAlarmService.findAlarm({
+            airport: airport.toUpperCase(),
+            direction: tripDirection,
+            address: currentAddress,
+            date,
+            time,
+            radius_meters: maxDistance * 1000,
+        });
+        setIsAlarmSet(!!alarm);
+    }, [airport, tripDirection, currentAddress, date, time, maxDistance]);
 
-            if (currentAddress) {
-                params.address = currentAddress;
+    const fetchRides = useCallback(
+        async (options?: { saveToHistory?: boolean }) => {
+            setIsLoading(true);
+            setHasSearched(true);
+            try {
+                const params: SearchAirportRideParams = {
+                    airport: airport.toUpperCase(),
+                    direction: tripDirection,
+                    status: 'open',
+                };
+
+                if (currentAddress) {
+                    params.address = currentAddress;
+                }
+
+                if (coords) {
+                    params.latitude = coords.lat;
+                    params.longitude = coords.lng;
+                    params.radius = maxDistance * 1000;
+                    params.radius_meters = maxDistance * 1000;
+                }
+
+                if (date) {
+                    params.date = date;
+                }
+
+                if (time) {
+                    params.time = time;
+                    params.time_tolerance = timeTolerance;
+                }
+
+                const response = await airportRideService.searchRides(params);
+                if (response.success) {
+                    setRides(response.data);
+
+                    // Save to history only if explicitly requested and search is valid
+                    if (options?.saveToHistory && date && currentAddress && airport) {
+                        saveSearch({
+                            tripDirection,
+                            airport,
+                            currentAddress,
+                            coords,
+                            date,
+                            time,
+                            maxDistance,
+                            timeTolerance,
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch rides:', error);
+                show({
+                    title: 'Error',
+                    message: 'Failed to fetch rides. Please try again.',
+                    type: 'error',
+                });
+            } finally {
+                setIsLoading(false);
             }
-
-            if (coords) {
-                params.latitude = coords.lat;
-                params.longitude = coords.lng;
-                params.radius = maxDistance * 1000;
-                params.radius_meters = maxDistance * 1000;
-            }
-
-            if (date) {
-                params.date = date;
-            }
-
-            if (time) {
-                params.time = time;
-                params.time_tolerance = timeTolerance;
-            }
-
-            const response = await airportRideService.searchRides(params);
-            if (response.success) {
-                setRides(response.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch rides:', error);
-            show({
-                title: 'Error',
-                message: 'Failed to fetch rides. Please try again.',
-                type: 'error',
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    }, [airport, tripDirection, coords, maxDistance, timeTolerance, date, time, currentAddress, show]);
+        },
+        [airport, tripDirection, coords, maxDistance, timeTolerance, date, time, currentAddress, show, saveSearch],
+    );
 
     useEffect(() => {
         fetchRides();
@@ -113,41 +148,71 @@ export function useAirportRides() {
         setHasSearched(false);
     }, []);
 
-    const handleSetAlarm = useCallback(async () => {
+    const handleToggleAlarm = useCallback(async () => {
         setIsAlarmLoading(true);
         try {
-            const alarmData = {
+            const criteria = {
                 airport: airport.toUpperCase(),
                 direction: tripDirection,
                 address: currentAddress,
-                latitude: coords?.lat,
-                longitude: coords?.lng,
-                radius_meters: maxDistance * 1000,
                 date,
                 time,
-                time_tolerance: timeTolerance,
-                is_active: true,
+                radius_meters: maxDistance * 1000,
             };
 
-            const response = await rideAlarmService.setAlarm(alarmData);
-            if (response.success) {
-                show({
-                    title: 'Alarm Set',
-                    message: 'We will notify you when matching rides are found.',
-                    type: 'success',
-                });
+            const existingAlarm = rideAlarmService.findAlarm(criteria);
+
+            if (existingAlarm) {
+                if (existingAlarm.id) {
+                    await rideAlarmService.deleteAlarm(existingAlarm.id);
+                    setIsAlarmSet(false);
+                    show({
+                        title: 'Alarm Removed',
+                        message: 'Notifications for this search have been disabled.',
+                        type: 'success',
+                    });
+                }
+            } else {
+                const alarmData = {
+                    ...criteria,
+                    latitude: coords?.lat,
+                    longitude: coords?.lng,
+                    time_tolerance: timeTolerance,
+                    is_active: true,
+                };
+
+                const response = await rideAlarmService.setAlarm(alarmData);
+                if (response.success) {
+                    setIsAlarmSet(true);
+                    show({
+                        title: 'Alarm Set',
+                        message: 'We will notify you when matching rides are found.',
+                        type: 'success',
+                    });
+                }
             }
         } catch (error) {
-            console.error('Failed to set alarm:', error);
+            console.error('Failed to toggle alarm:', error);
             show({
                 title: 'Error',
-                message: 'Failed to set alarm. Please try again.',
+                message: 'Failed to process alarm request. Please try again.',
                 type: 'error',
             });
         } finally {
             setIsAlarmLoading(false);
         }
     }, [airport, tripDirection, currentAddress, coords, maxDistance, date, time, timeTolerance, show]);
+
+    const handleSelectHistory = useCallback((item: SearchHistoryItem) => {
+        setTripDirection(item.tripDirection);
+        setAirport(item.airport);
+        setCurrentAddress(item.currentAddress);
+        setCoords(item.coords);
+        setDate(item.date);
+        setTime(item.time);
+        setMaxDistance(item.maxDistance);
+        setTimeTolerance(item.timeTolerance);
+    }, []);
 
     return {
         tripDirection,
@@ -168,10 +233,12 @@ export function useAirportRides() {
         isLoading,
         isAlarmLoading,
         hasSearched,
+        isAlarmSet,
         fetchRides,
         handleAddressComplete,
         clearAddress,
         resetFilters,
-        handleSetAlarm,
+        handleToggleAlarm,
+        handleSelectHistory,
     };
 }

@@ -28,11 +28,13 @@ export default function TaxiSharePage() {
         isLoading,
         isAlarmLoading,
         hasSearched,
+        isAlarmSet,
         fetchRides,
         handleAddressComplete,
         clearAddress,
         resetFilters,
-        handleSetAlarm,
+        handleToggleAlarm,
+        handleSelectHistory,
     } = useAirportRides();
 
     return (
@@ -74,12 +76,14 @@ export default function TaxiSharePage() {
                     setMaxDistance={setMaxDistance}
                     timeTolerance={timeTolerance}
                     setTimeTolerance={setTimeTolerance}
-                    onSearch={fetchRides}
+                    onSearch={() => fetchRides({ saveToHistory: true })}
                     onReset={resetFilters}
-                    onSetAlarm={handleSetAlarm}
+                    onToggleAlarm={handleToggleAlarm}
+                    onSelectHistory={handleSelectHistory}
                     isLoading={isLoading}
                     isAlarmLoading={isAlarmLoading}
                     hasSearched={hasSearched}
+                    isAlarmSet={isAlarmSet}
                 />
 
                 {/* List */}
